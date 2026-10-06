@@ -17,6 +17,8 @@ sources:
     relevance: Verifies a root commit containing only the Atlas scaffold.
   - uri: https://github.com/yasmin-taylor-epam/customer-pulse-360/tree/atlas
     relevance: Published branch used by the mounted checkout.
+  - uri: https://github.com/yasmin-taylor-epam/customer-pulse-360/commit/67d35ae
+    relevance: Published store commit restored and compiled in an independent checkout.
 ---
 
 ## Purpose and decision
@@ -39,6 +41,13 @@ an unrequested branch-protection change. The initial scaffold compiled
 successfully, and Atlas resolve returned the registered mount.
 Compilation also passed after the work hub, session record, and indexes were
 added; the activity record's authoritative `implements` edge links its work hub.
+
+The consumer mount configuration and README were committed on the session's
+application branch. An independent local clone restored the submodule with the
+documented commands, attached `atlas`, and compiled successfully. The restored,
+live, and remote store commits matched, shared mesh metadata was preserved,
+and the restored checkout was clean. The temporary verification clone was
+used only for this check.
 
 ## Outcome and next state
 

@@ -38,6 +38,9 @@ The store contains its schema, templates, indexes, and the linked
 The application blueprint was not copied onto the knowledge branch.
 Atlas compilation passed with the work hub, activity record, indexes, and
 authoritative relationships present.
+An independent checkout restored the committed submodule using the README
+commands, attached `atlas`, and compiled successfully. Its store commit
+matched the live mount and published branch, and the restored checkout was clean.
 
 GitHub branch-protection settings were left unchanged. Repository access
 permits branch pushes but not ruleset administration, so any future protection
