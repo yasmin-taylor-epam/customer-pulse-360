@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Intelligence Engine - choose the customer story</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/themes.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4/dist/index.global.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--color-base-100); color: var(--color-base-content); }
+    .grid > *, .flex > * { min-width: 0; }
+    p, h1, h2, h3, li, dd, dt, a { overflow-wrap: anywhere; }
+    svg { display: block; max-width: 100%; height: auto; }
+    .diagram-node { fill: var(--color-base-200); stroke: var(--color-base-content); stroke-opacity: .25; }
+    .diagram-arrow { fill: none; stroke: var(--color-primary); stroke-width: 3; }
+    .diagram-text { fill: currentColor; font-family: system-ui, sans-serif; font-size: 17px; text-anchor: middle; }
+    .flow-narrow { display: none; }
+    [hidden] { display: none !important; }
+    .blueprint-section { grid-column: 1 / -1; border-top: 1px solid var(--color-base-300); padding-top: 1.5rem; }
+    .blueprint-section h3 { font-size: 1.35rem; }
+    .blueprint-section h4 { font-weight: 650; margin: 1rem 0 .5rem; }
+    .blueprint-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1rem 0; }
+    .blueprint-table th, .blueprint-table td { text-align: left; vertical-align: top; padding: .75rem; border-bottom: 1px solid var(--color-base-300); overflow-wrap: anywhere; }
+    .blueprint-table th { background: var(--color-base-200); }
+    .blueprint-nav { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
+    .blueprint-page > h1 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 650; margin: 1rem 0; }
+    .blueprint-page .scenario-file > summary { display: none; }
+    .blueprint-page .scenario-file { margin-top: 1rem; }
+    @media print {
+      .blueprint-nav, .theme-controller, .board-switch { display: none !important; }
+      .blueprint-page .scenario-file { border: none; }
+      .blueprint-section { break-inside: auto; }
+      .case-view[hidden] { display: block !important; }
+      body { background: white; color: black; }
+    }
+    .scenario-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .scenario-picker a { text-decoration: none; padding: 1.25rem; border: 1px solid var(--color-base-300); border-radius: 1rem; background: var(--color-base-200); }
+    .scenario-picker a:hover, .scenario-picker a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+    .scenario-picker strong { display: block; margin: .5rem 0; font-size: 1.2rem; }
+    .scenario-file { border: 1px solid var(--color-base-300); border-radius: 1.25rem; margin-top: 1.5rem; overflow: hidden; scroll-margin-top: 1rem; }
+    .scenario-file summary { cursor: pointer; padding: 1.5rem; background: var(--color-base-200); font-size: 1.25rem; font-weight: 600; }
+    .scenario-file summary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -4px; }
+    .scenario-summary-title { font-size: 1.2rem; font-weight: 600; }
+    .scenario-summary-context { display: block; max-width: 75ch; margin-top: .65rem; font-size: 1rem; font-weight: 400; line-height: 1.6; color: var(--color-base-content); }
+    .scenario-summary-hint { display: block; margin-top: .75rem; font-size: .85rem; font-weight: 500; color: var(--color-primary); }
+    .scenario-file[open] .scenario-summary-hint { display: none; }
+    .scenario-content { padding: 1.5rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+    .scenario-content > * { min-width: 0; }
+    .scenario-content h3 { font-size: 1.1rem; font-weight: 650; margin-bottom: .75rem; }
+    .scenario-content p + p { margin-top: .75rem; }
+    .scenario-content ul, .scenario-content ol { padding-left: 1.25rem; }
+    .scenario-content li + li { margin-top: .5rem; }
+    .scenario-span { grid-column: 1 / -1; }
+    .evidence-note { padding: 1rem; border-left: 3px solid var(--color-warning); background: var(--color-base-200); border-radius: .5rem; }
+    .investigation-board { background: var(--color-base-200); border: 1px solid var(--color-base-300); border-radius: 1rem; padding: 1.25rem; }
+    .board-switch { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0; }
+    .board-switch button { white-space: normal; height: auto; min-height: 3rem; padding: .75rem 1rem; }
+    .board-switch button[aria-pressed="true"] { background: var(--color-primary); color: var(--color-primary-content); }
+    .board-switch[hidden], .case-view[hidden] { display: none; }
+    .case-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1rem; }
+    .case-layout > * { min-width: 0; }
+    .signal-chart { width: 100%; color: var(--color-base-content); border-radius: .75rem; background: var(--color-base-100); }
+    .signal-chart text { fill: currentColor; font: 15px system-ui, sans-serif; }
+    .signal-chart .chart-axis { stroke: var(--color-base-content); stroke-opacity: .25; fill: none; }
+    .signal-chart .chart-line { stroke: var(--color-primary); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .signal-chart .chart-marker { fill: var(--color-warning); stroke: var(--color-base-100); stroke-width: 2; }
+    .signal-chart .chart-reference { stroke: var(--color-base-content); stroke-opacity: .45; stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+    .evidence-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .evidence-strip > div { min-width: 0; padding: 1rem; background: var(--color-base-100); border-radius: .75rem; }
+    .evidence-strip strong, .evidence-strip span { display: block; }
+    .evidence-strip span { margin-top: .5rem; }
+    .decision-card { background: var(--color-base-100); border-left: 3px solid var(--color-primary); border-radius: .75rem; padding: 1.25rem; }
+    .decision-card dt { margin-top: .75rem; font-weight: 600; }
+    .decision-card dd { margin-top: .25rem; }
+    @media (max-width: 760px) {
+      .case-layout, .evidence-strip { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .scenario-picker, .scenario-content { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .flow-wide { display: none; }
+      .flow-narrow { display: block; }
+    }
+  </style>
+</head>
+<body class="bg-base-100 text-base-content">
+  <main class="max-w-6xl mx-auto p-5 sm:p-9 space-y-9">
+    <header class="flex flex-wrap justify-between items-start gap-5 border-b border-base-content/10 pb-7">
+      <div class="max-w-3xl">
+        <p class="text-primary text-sm font-semibold tracking-wide uppercase">Scenario 4 / Three-person hackathon / Proposal, not a decision</p>
+        <h1 class="text-3xl sm:text-5xl font-semibold mt-3 leading-tight">Choose the customer story.<br>Then build the warning.</h1>
+        <p class="text-lg text-base-content/70 mt-4">Which customer needs attention? What evidence supports the warning? What should the business do next? Predicting who will leave is only part of the task.</p>
+      </div>
+      <label class="flex cursor-pointer gap-2 items-center text-xs bg-base-200 py-2 px-3 rounded-full border border-base-content/10">
+        <span class="font-medium">Light</span>
+        <input aria-label="Switch between light and dark theme" type="checkbox" value="luxury" class="toggle toggle-xs theme-controller">
+        <span class="font-medium">Dark</span>
+      </label>
+    </header>
+
+    <section aria-labelledby="brief-title" class="bg-base-200 rounded-2xl p-6">
+      <h2 id="brief-title" class="text-xl font-semibold">What the slides require</h2>
+      <ul class="list-disc pl-5 space-y-2 mt-3">
+        <li>Customer 360: a combined view of each customer's records.</li>
+        <li>Customer segments from machine learning (ML).</li>
+        <li>A churn warning about 90 days ahead, with the factors behind the risk score.</li>
+        <li>A retention alert that responds to live events.</li>
+      </ul>
+      <p class="mt-3">Fabric is central to the proposal. The suggested components are not mandatory.</p>
+      <p class="mt-3 text-base-content/70">Business value and solution quality together carry 50 of 100 points. Prioritise a working, clear retention story over a long Azure service list.</p>
+      <p class="mt-3 text-sm text-base-content/70">This proposal uses only the attached slides and user context. It excludes the existing README.md and docs/. The team did not agree a scenario.</p>
+    </section>
+
+    <section aria-labelledby="options-title">
+      <p class="text-primary text-sm font-semibold uppercase tracking-wide">Scenario lab / Three possible businesses</p>
+      <h2 id="options-title" class="text-3xl font-semibold mt-2">Step inside the customer problem.</h2>
+      <p class="mt-3 text-base-content/70">Open a scenario blueprint. Each page includes a submission summary, architecture, data contracts, model design, build plan, and acceptance tests.</p>
+      <p class="evidence-note mt-4"><strong>Fictional design sketches.</strong> Company names, stacks, cases, and events below are illustrative assumptions, not researched facts or measured evidence.</p>
+      <nav aria-label="Explore scenario case files" class="scenario-picker mt-5">
+        <a href="#software-option" data-open-scenario="software-option"><span class="badge badge-primary badge-outline">Leading recommendation</span><strong>01 / Field-service software</strong><span>Fix the workflow before the company declines renewal.</span></a>
+        <a href="#broadband-option" data-open-scenario="broadband-option"><span class="badge badge-ghost">Alternative</span><strong>02 / Broadband provider</strong><span>Connect repeated outages to the household that needs help.</span></a>
+        <a href="#retail-option" data-open-scenario="retail-option"><span class="badge badge-ghost">Alternative</span><strong>03 / Repeat-purchase retail</strong><span>Distinguish a broken delivery experience from a normal purchase gap.</span></a>
+      </nav>
+
+      <details id="software-option" class="scenario-file">
+        <summary>
+          <span class="scenario-summary-title">01 / WorkHarbour / Field-service software</span>
+          <span class="scenario-summary-context">Maintenance companies use WorkHarbour to schedule jobs and create invoices under annual contracts. Invoice failures and reopened support tickets could put renewal at risk.</span>
+          <span class="scenario-summary-hint">Explore the company, evidence, and proposed solution</span>
+        </summary>
+        <div class="scenario-content">
+          <div>
+            <h3>The company</h3>
+            <p>WorkHarbour sells cloud software to maintenance companies. Dispatchers schedule engineers. Engineers record completed jobs. Office staff create invoices.</p>
+            <p>Customers pay per field engineer under annual contracts. The subscribing company is the customer, not each engineer.</p>
+            <p>A customer-success manager owns adoption and renewal. Fewer licences affect revenue but remain a separate prediction target.</p>
+          </div>
+          <div>
+            <h3>The problem statement</h3>
+            <p>Find companies at risk of not renewing, about 90 days before renewal. Show evidence that supports an approved retention action.</p>
+            <p>A fictional customer, Alder Maintenance, completes fewer jobs through the software. Invoice failures and reopened tickets accompany that decline.</p>
+            <p>The manager needs to distinguish workflow failure from seasonal demand before choosing an action.</p>
+          </div>
+          <div>
+            <h3>Assumed existing stack</h3>
+            <ul class="list-disc">
+              <li>An Azure App Service API serves the dispatcher portal and engineer app.</li>
+              <li>Azure SQL stores accounts, contracts, jobs, and invoice outcomes.</li>
+              <li>Application Insights stores workflow failures and timestamps.</li>
+              <li>A support platform exports ticket severity, resolution times, and reopen events.</li>
+              <li>A CRM stores renewal dates, account owners, and approved contact activity.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Evidence to collect</h3>
+            <ul class="list-disc">
+              <li>Completed jobs and active licensed seats over time, not logins alone.</li>
+              <li>Invoice failure rates, affected workflows, and linked support tickets.</li>
+              <li>Contract value, renewal date, account tenure, and observed renewal outcome.</li>
+              <li>Seasonal history and missing records that could change the interpretation.</li>
+            </ul>
+            <p><strong>Counterexample:</strong> another company uses the product less during its quiet season, without workflow or support problems.</p>
+          </div>
+          <div class="scenario-span">
+            <h3>Proposed solution: a renewal investigation desk</h3>
+            <ol class="list-decimal">
+              <li>Join account, contract, product, and support records in a Fabric Lakehouse using known account IDs.</li>
+              <li>Create dated features for usage trends, workflow failures, and unresolved support problems.</li>
+              <li>Train a renewal classifier and behavioural clusters in Fabric notebooks. Record experiments with MLflow.</li>
+              <li>Show segment, risk drivers, contract value, and source evidence in a Power BI account view.</li>
+              <li>Replay a support escalation through Eventstream and Eventhouse. Refresh the score through a separate, explicit operation.</li>
+              <li>Use Activator to flag eligible accounts. Create one retention case for a manager to review.</li>
+            </ol>
+            <p><strong>First action:</strong> escalate the invoice incident or restore adoption before renewal. Do not assume the customer intends to switch competitors.</p>
+          </div>
+          <section class="investigation-board scenario-span" data-board aria-labelledby="software-board-title">
+            <h3 id="software-board-title">Investigation desk / Is the product failing, or is demand seasonal?</h3>
+            <p class="text-base-content/70">Illustrative patterns, not measured data. Chart heights show no numeric values. This desk does not run ML or create cases.</p>
+            <div class="board-switch" role="group" aria-label="Compare software cases" hidden>
+              <button class="btn btn-outline" type="button" data-case="software-incident" aria-controls="software-incident" aria-pressed="true">Workflow failure</button>
+              <button class="btn btn-outline" type="button" data-case="software-seasonal" aria-controls="software-seasonal" aria-pressed="false">Seasonal decline</button>
+            </div>
+            <div class="case-view" id="software-incident">
+              <h4 class="font-semibold mb-3">Alder Maintenance / 90 days before renewal</h4>
+              <div class="case-layout">
+                <figure>
+                  <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="software-chart-title software-chart-desc">
+                    <title id="software-chart-title">Declining completed jobs with invoice and support problems</title>
+                    <desc id="software-chart-desc">A qualitative line declines over time. Two incident markers identify invoice failures and a reopened support ticket.</desc>
+                    <text x="22" y="30">Jobs completed through the product</text>
+                    <path class="chart-axis" d="M 35 55 V 195 H 445"/>
+                    <g id="software-decline-pattern"><title>Illustrative decline in completed jobs</title><path class="chart-line" d="M 45 75 L 115 82 L 185 78 L 255 116 L 325 142 L 425 175"/></g>
+                    <g id="software-invoice-marker"><title>Invoice failures accompany the decline</title><circle class="chart-marker" cx="255" cy="116" r="7"/><text x="220" y="65">Invoice failures</text><path class="chart-axis" d="M 255 72 V 106"/></g>
+                    <g id="software-ticket-marker"><title>A related ticket reopens</title><circle class="chart-marker" cx="425" cy="175" r="7"/><text x="325" y="115">Ticket reopens</text><path class="chart-axis" d="M 425 122 V 165"/></g>
+                    <text x="35" y="222">Earlier</text><text x="405" y="222">Now</text>
+                  </svg>
+                  <figcaption class="text-sm mt-2">The trend gives context. Linked incidents give the manager something to investigate.</figcaption>
+                </figure>
+                <aside class="decision-card"><span class="badge badge-warning badge-outline">Investigate</span><dl><dt>Reason to inspect</dt><dd>Usage declines alongside workflow and support problems.</dd><dt>Proposed action</dt><dd>Escalate the invoice incident. Review adoption after the fix.</dd><dt>Owner</dt><dd>Customer-success manager with product support.</dd><dt>Not established</dt><dd>The customer's intent, a churn probability, or whether the action improves renewal.</dd></dl></aside>
+              </div>
+              <div class="evidence-strip"><div><strong>01 / Product record</strong><span>Check completed jobs, active seats, and invoice outcomes.</span></div><div><strong>02 / Support record</strong><span>Link the reopened ticket to the failing workflow.</span></div><div><strong>03 / Contract record</strong><span>Check the renewal date, owner, and approved action.</span></div></div>
+            </div>
+            <div class="case-view" id="software-seasonal">
+              <h4 class="font-semibold my-3">Counterexample / A quiet season, not a broken workflow</h4>
+              <div class="case-layout"><figure>
+                <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="software-season-title software-season-desc">
+                  <title id="software-season-title">Current usage follows an illustrative seasonal pattern</title><desc id="software-season-desc">A solid current line and dashed historical seasonal line decline together. No workflow incident markers appear.</desc>
+                  <text x="22" y="30">Completed jobs / Seasonal context</text><path class="chart-axis" d="M 35 55 V 195 H 445"/>
+                  <g id="software-season-reference"><title>Historical seasonal comparison, illustrative</title><path class="chart-reference" d="M 45 79 L 115 87 L 185 101 L 255 124 L 325 147 L 425 166"/></g>
+                  <g id="software-season-current"><title>Current usage follows the seasonal comparison</title><path class="chart-line" d="M 45 72 L 115 83 L 185 96 L 255 119 L 325 142 L 425 161"/></g>
+                  <text x="35" y="222">Earlier</text><text x="405" y="222">Now</text>
+                </svg><figcaption class="text-sm mt-2">Solid: current pattern. Dashed: seasonal comparison. Both are illustrative, with no numeric scale.</figcaption>
+              </figure><aside class="decision-card"><span class="badge badge-info badge-outline">Check context</span><dl><dt>Different evidence</dt><dd>The quiet season explains lower usage. No workflow or support problem accompanies the decline.</dd><dt>Proposed action</dt><dd>Check seasonal history before escalating. Lower usage alone does not justify an incident case.</dd><dt>Limit</dt><dd>This pattern does not prove the account will renew.</dd></dl></aside></div>
+            </div>
+          </section>
+          <div class="scenario-span evidence-note">
+            <p><strong>Build cost:</strong> find or generate credible account histories with complete renewal outcomes. Do not generate labels from the model's own rule.</p>
+            <p><strong>Proof:</strong> score with only information available 90 days before renewal. Test later outcomes against a simple rules baseline.</p>
+            <p><strong>Why lead with this:</strong> the contract gives a clear outcome. The failing workflow gives a concrete action.</p>
+          </div>
+          <section class="blueprint-section" id="software-submission">
+            <h3>01 / Submission summary</h3>
+            <p><strong>Title:</strong> WorkHarbour Renewal Investigation Desk.</p>
+            <p>Maintenance companies need reliable job and invoice workflows. A failed workflow can reduce adoption before an annual renewal.</p>
+            <p>Our proposed solution combines contract, product, and support records in Microsoft Fabric. It groups accounts by behaviour and predicts non-renewal.</p>
+            <p>The manager receives a warning 90 days before renewal, with model drivers and linked evidence. New incidents trigger a separate investigation path.</p>
+            <p>A human reviews each proposed action. The prototype demonstrates prioritisation and an auditable case, not proven retention improvement.</p>
+            <p><strong>Distinctive value:</strong> connect a commercial warning to a repairable workflow problem. Show seasonal decline as a counterexample.</p>
+            <p><strong>Scope:</strong> one workspace, one business, one renewal target, and one controlled event replay. Exclude automatic discounts and customer messages.</p>
+          </section>
+          <section class="blueprint-section" id="software-contracts">
+            <h3>02 / Data contracts and customer view</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
+              <tr><td>Contract: one account and renewal cycle.</td><td>account_id, contract_id, cycle_id, renewal_at, annual_value, seats, owner_id, outcome, outcome_observed_at.</td><td>Use account_id across sources. Keep labels separate from features. Exclude cycles without an observed outcome.</td></tr>
+              <tr><td>Product: one workflow event.</td><td>event_id, account_id, occurred_at, ingested_at, workflow, status, job_id, active_seats.</td><td>Deduplicate event_id. Calculate completed jobs per licensed seat and invoice failures per invoice attempt.</td></tr>
+              <tr><td>Support: one ticket status change.</td><td>ticket_id, account_id, changed_at, ingested_at, severity, product_area, status, incident_id.</td><td>Reconstruct ticket state at the cutoff. Do not use the ticket's later resolution.</td></tr>
+              <tr><td>Feature snapshot: one account, cycle, and cutoff.</td><td>snapshot_id, account_id, cycle_id, cutoff_at, source_watermark, feature_version, feature_values.</td><td>Require occurred_at and ingested_at at or before cutoff_at. Report missing feeds instead of assuming zero incidents.</td></tr>
+            </tbody></table>
+            <p>The customer view shows contract dates, value, segment, score timestamp, model version, three drivers, evidence links, and case status.</p>
+            <p>Use synthetic account histories for the first build unless approved real data exists. Include noise, seasonal demand, missing feeds, and complete outcomes.</p>
+            <p>Generate outcomes from separate latent business factors. Do not copy the alert rule into the outcome label.</p>
+          </section>
+          <section class="blueprint-section" id="software-architecture">
+            <h3>03 / Proposed architecture and interfaces</h3>
+            <ol class="list-decimal">
+              <li>Use a Fabric pipeline to load dated contract, product, and support exports into raw Lakehouse tables.</li>
+              <li>Use a notebook to validate IDs, preserve source timestamps, and create clean history tables.</li>
+              <li>Create feature snapshots and train models in Fabric notebooks. Register model signatures and versions with MLflow.</li>
+              <li>Write scores, segments, explanations, and evidence references to curated Delta tables. Publish a Power BI semantic model.</li>
+              <li>Send replayed incidents through an Eventstream custom endpoint into Eventhouse. Retain the original event ID and timestamps.</li>
+              <li>Run a separate scoring notebook for affected accounts. Publish a risk_updated event only after scoring succeeds.</li>
+              <li>Configure Activator to monitor eligible risk_updated events. Invoke a Power Automate flow that creates or updates a review case.</li>
+            </ol>
+            <p><strong>Historical path:</strong> exports to Lakehouse to feature snapshots to registered model to account dashboard.</p>
+            <p><strong>Event path:</strong> incident to Eventstream to Eventhouse to scoring job to risk_updated to Activator to review case.</p>
+            <p>The first build starts the scoring notebook explicitly. Scheduled scoring is acceptable. Neither path claims per-event model inference or instant dashboard refresh.</p>
+            <p>Store cases in a SharePoint list with a unique case_key column. Power Automate handles duplicate-key responses by reading the existing case.</p>
+            <p>Use case_key = account_id + cycle_id + action_family. A notification retry must not create another case.</p>
+          </section>
+          <section class="blueprint-section" id="software-model">
+            <h3>04 / Prediction and segmentation</h3>
+            <p><strong>Checkpoint:</strong> renewal_at minus 90 days. Predict non-renewal for that cycle using information available at the checkpoint.</p>
+            <p>Use an explicit renewal decision as the label. Missing decisions remain unknown, not churn. Confirm the outcome rule with the business.</p>
+            <p>Compare logistic regression with a small tree model. Fit preprocessing only on training data. Record parameters, dataset version, and metrics.</p>
+            <p>Use 30-day and 90-day histories for completed jobs, seat adoption, invoice failures, reopened tickets, and unresolved severity.</p>
+            <p>Keep contract value outside the prediction model initially. Use it to prioritise cases without confusing value with churn likelihood.</p>
+            <p>Fit behavioural clusters on scaled adoption and service features. Compare two to five clusters using stability, separation, and business interpretation.</p>
+            <p>Name clusters after inspecting their centroids. Proposed names include stable adoption, low adoption, and service friction. These are not measured results.</p>
+            <p>Explain scores with model contributions and source records. Contributions describe the model, not the customer's motivation.</p>
+            <p>Use later renewal cohorts for testing. Keep test accounts outside training. Exclude training labels unavailable before the simulated model release.</p>
+            <p>Freeze thresholds on validation data. Compare precision and recall at a proposed capacity of ten account reviews per run.</p>
+            <p>Live updates use a separate evaluation set. Do not describe a warning created after the checkpoint as a 90-day warning.</p>
+          </section>
+          <section class="blueprint-section" id="software-action">
+            <h3>05 / Alert policy and failure handling</h3>
+            <p>Create a review case when risk exceeds the validated threshold, evidence is current, and an owner exists.</p>
+            <p>Route invoice failures to product support with the customer-success manager. Route low adoption without incidents to an adoption review.</p>
+            <p>Record received_at, scored_at, alerted_at, case_created_at, model_version, snapshot_id, evidence IDs, owner, and decision.</p>
+            <p>Proposed states are New, Reviewed, Action approved, In progress, Resolved, and Closed. Only a human approves customer contact.</p>
+            <p>Quarantine unknown account IDs. Reject malformed events. Flag stale scores. Send failed case writes to a retry queue with an operator-visible error.</p>
+            <p>A recovery event updates the evidence and requests rescoring. It does not erase the case history or prove future renewal.</p>
+          </section>
+          <section class="blueprint-section" id="software-delivery">
+            <h3>06 / Build plan, demo, and acceptance tests</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Owner</th><th scope="col">Deliverable</th></tr></thead><tbody>
+              <tr><td>Before idea submission: October 14.</td><td>All three people.</td><td>Confirm tenant access, dataset basis, contract definition, and scenario choice.</td></tr>
+              <tr><td>October 26-28.</td><td>Data and event owner.</td><td>Validated history tables, feature contract, and replay fixtures.</td></tr>
+              <tr><td>October 29-November 2.</td><td>ML and evaluation owner.</td><td>Baseline, classifier, clusters, registered model, and later-cohort evaluation.</td></tr>
+              <tr><td>November 3-5.</td><td>Dashboard and action owner.</td><td>Account view, Activator rule, unique case writer, and integration evidence.</td></tr>
+              <tr><td>November 6.</td><td>All three people.</td><td>Reproducible submission package and a 5-10 minute video.</td></tr>
+            </tbody></table>
+            <p>Build the dashboard against agreed score fixtures while ML work continues. Replace fixtures with registered-model output before recording the final demo.</p>
+            <ol class="list-decimal">
+              <li>Show Alder's dated account view and renewal checkpoint. Explain the evidence and segment.</li>
+              <li>Replay an invoice incident. Show ingestion, explicit rescoring, the alert, and one assigned case.</li>
+              <li>Replay the same event again. Show that the case count remains one.</li>
+              <li>Show the seasonal account. Explain why lower usage alone does not justify the same action.</li>
+              <li>Show evaluation results, latency measurements, and limits. Distinguish synthetic mechanics from commercial evidence.</li>
+            </ol>
+            <ul class="list-disc">
+              <li>All scored rows link to one account, cycle, snapshot, and model version. Unknown IDs produce no retention alert.</li>
+              <li>Every checkpoint feature passes both timestamp checks. The reported checkpoint warning precedes renewal by at least 90 days.</li>
+              <li>Report precision, recall, class counts, and a rules baseline. Do not claim superiority if the model loses.</li>
+              <li>The duplicate replay creates exactly one case. A failed case write appears as a failed operation, not success.</li>
+              <li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring. Measure both separately.</li>
+            </ul>
+          </section>
+          <section class="blueprint-section" id="software-readiness">
+            <h3>07 / Value, controls, and submission package</h3>
+            <p>Measure review effort, confirmed workflow incidents, and annual contract value associated with eligible cases. Value at risk is not saved revenue.</p>
+            <p>Use pseudonymous IDs and least-privilege workspace roles. Exclude personal messages and credentials from exports. Apply approved retention periods.</p>
+            <p>Capacity, Power BI sharing, Power Automate licensing, and connector permissions remain unconfirmed. Test the complete action path before promising it.</p>
+            <p>If the case connector fails, demonstrate an internal review record and identify the missing integration. Do not claim an external case exists.</p>
+            <p>Submit this proposal, architecture, dataset provenance, reproducible notebooks, model versions, evaluation report, action audit, setup instructions, and video.</p>
+            <p>Confirm organiser fields, team names, and deadline timezone before submission. This blueprint is a proposed design, not a completed entry.</p>
+            <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
+          </section>
+        </div>
+      </details>
+
+      <details id="broadband-option" class="scenario-file">
+        <summary>
+          <span class="scenario-summary-title">02 / HearthNet / Household broadband</span>
+          <span class="scenario-summary-context">Households pay monthly for broadband under fixed-term contracts. Repeated evening outages and an unresolved complaint could threaten renewal, even when the network looks healthy.</span>
+          <span class="scenario-summary-hint">Explore the company, evidence, and proposed solution</span>
+        </summary>
+        <div class="scenario-content">
+          <div>
+            <h3>The company</h3>
+            <p>HearthNet provides household broadband. Customers pay monthly under fixed-term contracts.</p>
+            <p>Network operations monitors service health. Support handles complaints. A retention adviser manages eligible contract reviews.</p>
+            <p>The customer unit is a household subscription. Cancellation or switching at contract expiry counts as churn.</p>
+          </div>
+          <div>
+            <h3>The problem statement</h3>
+            <p>Identify household subscriptions at risk of cancellation or switching, about 90 days before contract expiry.</p>
+            <p>A fictional household repeatedly loses evening service. Its complaint remains unresolved as contract expiry approaches.</p>
+            <p>The adviser needs household evidence, not a network average, before recommending a service fix or eligible plan review.</p>
+          </div>
+          <div>
+            <h3>Assumed existing stack</h3>
+            <ul class="list-disc">
+              <li>Network monitoring emits device availability, outage, and recovery events.</li>
+              <li>A service inventory maps a household subscription to its current device and service line.</li>
+              <li>A billing database stores plans, price changes, contract dates, and cancellation outcomes.</li>
+              <li>A CRM and support system store complaints, engineer visits, and contact eligibility.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Evidence to collect</h3>
+            <ul class="list-disc">
+              <li>Outage frequency, duration, recovery, and affected subscription IDs.</li>
+              <li>Unresolved complaints, repeat contacts, and failed service visits.</li>
+              <li>Price changes, contract expiry, and observed cancellation or switching outcomes.</li>
+              <li>Device-to-subscription mappings valid at each event timestamp.</li>
+            </ul>
+            <p><strong>Counterexample:</strong> a regional outage resolves promptly. The household reports no continuing problem and has no unresolved complaint.</p>
+          </div>
+          <div class="scenario-span">
+            <h3>Proposed solution: a household service-recovery desk</h3>
+            <ol class="list-decimal">
+              <li>Join billing, service inventory, and support history in a Fabric Lakehouse.</li>
+              <li>Aggregate outages per subscription in Eventhouse. Preserve event-time mappings and recovery events.</li>
+              <li>Train a contract-expiry classifier and service-experience clusters in Fabric notebooks. Record experiments with MLflow.</li>
+              <li>Show risk drivers, recent outages, unresolved complaints, and plan eligibility in Power BI.</li>
+              <li>Replay another outage through Eventstream. Refresh the risk score separately and record both operation times.</li>
+              <li>Use Activator to flag an eligible case. Route service failures to operations and eligible plan reviews to the retention adviser.</li>
+            </ol>
+            <p><strong>First action:</strong> investigate the recurring service fault. Offer a plan review only when the household meets eligibility rules.</p>
+          </div>
+          <section class="investigation-board scenario-span" data-board aria-labelledby="broadband-board-title">
+            <h3 id="broadband-board-title">Service desk / What does the network average hide?</h3>
+            <p class="text-base-content/70">Illustrative service timeline, not telemetry. The bands show event sequence, not outage duration or measured availability.</p>
+            <div class="board-switch" role="group" aria-label="Compare broadband cases" hidden><button class="btn btn-outline" type="button" data-case="broadband-incident" aria-controls="broadband-incident" aria-pressed="true">Recurring household fault</button><button class="btn btn-outline" type="button" data-case="broadband-recovered" aria-controls="broadband-recovered" aria-pressed="false">Resolved regional outage</button></div>
+            <div class="case-view" id="broadband-incident">
+              <h4 class="font-semibold mb-3">One household / Repeated evening failures</h4>
+              <div class="case-layout"><figure>
+                <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="broadband-chart-title broadband-chart-desc">
+                  <title id="broadband-chart-title">Network overview versus recurring household outages</title><desc id="broadband-chart-desc">The network row has no highlighted interruption. The household row has three outage markers. A support row shows an unresolved complaint.</desc>
+                  <text x="22" y="30">Different views of the same service</text>
+                  <text x="20" y="78">Network</text><text x="20" y="128">Household</text><text x="20" y="178">Support</text>
+                  <g id="broadband-network-band"><title>The aggregate view does not expose this household's recurring fault</title><path class="chart-reference" d="M 135 72 H 440"/></g>
+                  <g id="broadband-household-band"><title>Repeated household outages</title><path class="chart-line" d="M 135 122 H 440"/><circle class="chart-marker" cx="195" cy="122" r="8"/><circle class="chart-marker" cx="290" cy="122" r="8"/><circle class="chart-marker" cx="405" cy="122" r="8"/></g>
+                  <g id="broadband-complaint-band"><title>The complaint remains unresolved</title><path class="chart-axis" d="M 195 170 H 440"/><text x="220" y="193">Complaint remains open</text></g>
+                  <text x="135" y="222">Earlier</text><text x="405" y="222">Now</text>
+                </svg><figcaption class="text-sm mt-2">Markers represent outages. Map each event to the household subscription at the event time.</figcaption>
+              </figure><aside class="decision-card"><span class="badge badge-warning badge-outline">Service investigation</span><dl><dt>Reason to inspect</dt><dd>Repeated household faults and an unresolved complaint coincide.</dd><dt>Proposed action</dt><dd>Investigate the service line before offering an eligible plan review.</dd><dt>Owner</dt><dd>Network operations with the retention adviser.</dd><dt>Control</dt><dd>Check recovery events. Prevent duplicate cases for the same incident.</dd></dl></aside></div>
+              <div class="evidence-strip"><div><strong>01 / Service inventory</strong><span>Check which device served this subscription at each event time.</span></div><div><strong>02 / Outage history</strong><span>Check repeated faults and recovery events, not only network averages.</span></div><div><strong>03 / Support and billing</strong><span>Check complaint status, contract expiry, and plan eligibility.</span></div></div>
+            </div>
+            <div class="case-view" id="broadband-recovered">
+              <h4 class="font-semibold my-3">Counterexample / One regional incident with recorded recovery</h4>
+              <div class="case-layout"><figure>
+                <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="broadband-recovery-title broadband-recovery-desc">
+                  <title id="broadband-recovery-title">An outage and its recovery appear in both service views</title><desc id="broadband-recovery-desc">Network and household rows each show one aligned outage marker followed by a recovery marker. There is no continuing complaint.</desc>
+                  <text x="22" y="30">Regional event / Recorded recovery</text><text x="20" y="78">Network</text><text x="20" y="128">Household</text>
+                  <g id="broadband-regional-recovery"><title>Aligned outage and recovery for the network and household</title><path class="chart-reference" d="M 135 72 H 440"/><path class="chart-line" d="M 135 122 H 440"/><circle class="chart-marker" cx="225" cy="72" r="8"/><circle class="chart-marker" cx="225" cy="122" r="8"/><path d="M 310 66 L 316 74 L 329 59 M 310 116 L 316 124 L 329 109" fill="none" stroke="var(--color-success)" stroke-width="4"/><text x="192" y="163">Outage</text><text x="298" y="163">Recovery</text></g>
+                  <text x="135" y="222">Earlier</text><text x="405" y="222">Now</text>
+                </svg><figcaption class="text-sm mt-2">An outage alone is incomplete evidence. The recovery record changes the investigation.</figcaption>
+              </figure><aside class="decision-card"><span class="badge badge-info badge-outline">Check recovery</span><dl><dt>Different evidence</dt><dd>The regional outage resolves. The household reports no continuing issue or unresolved complaint.</dd><dt>Proposed action</dt><dd>Check recovery before creating a recurring-fault case.</dd><dt>Limit</dt><dd>Resolved service does not prove that the household will stay.</dd></dl></aside></div>
+            </div>
+          </section>
+          <div class="scenario-span evidence-note">
+            <p><strong>Build cost:</strong> network, household, and service records make telemetry and identity matching more complex.</p>
+            <p><strong>Proof:</strong> test contract-expiry outcomes using information available 90 days earlier. Prevent one regional incident from creating duplicate household cases.</p>
+            <p><strong>Choose this when:</strong> the team has suitable network data and understands device-to-household mapping.</p>
+          </div>
+          <section class="blueprint-section" id="broadband-submission">
+            <h3>01 / Submission summary</h3>
+            <p><strong>Title:</strong> HearthNet Household Service-Recovery Desk.</p>
+            <p>Network averages can hide repeated faults at one household. Separate billing and support records make those faults harder to investigate.</p>
+            <p>Our proposed solution combines subscription, network, billing, and complaint history in Microsoft Fabric. It predicts contract-expiry churn and groups subscriptions by service experience.</p>
+            <p>A retention adviser sees a warning 90 days before expiry, with outage evidence and model drivers. New faults create human-owned investigation cases.</p>
+            <p>The prototype demonstrates service recovery before a commercial offer. It does not prove that an intervention prevents cancellation.</p>
+            <p><strong>Distinctive value:</strong> preserve household identity at the event time. Distinguish recurring faults from a resolved regional outage.</p>
+            <p><strong>Scope:</strong> one subscription cohort, one expiry target, one regional incident, and one recurring household fault. Exclude automatic credits and plan changes.</p>
+          </section>
+          <section class="blueprint-section" id="broadband-contracts">
+            <h3>02 / Data contracts and customer view</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
+              <tr><td>Contract: one subscription and expiry cycle.</td><td>subscription_id, cycle_id, expiry_at, plan_id, monthly_value, price_changed_at, owner_id, outcome, outcome_observed_at.</td><td>Label explicit cancellation or switching at expiry. Keep unknown outcomes outside labelled evaluation.</td></tr>
+              <tr><td>Inventory: one device assignment interval.</td><td>device_id, service_line_id, subscription_id, valid_from, valid_to, recorded_at.</td><td>Require one valid subscription mapping per event time. Quarantine overlaps and unmapped devices.</td></tr>
+              <tr><td>Network: one outage or recovery event.</td><td>event_id, incident_id, device_id, occurred_at, ingested_at, event_type, region_id.</td><td>Deduplicate event_id. Pair outage and recovery records. Do not multiply regional duration by duplicate device messages.</td></tr>
+              <tr><td>Support: one complaint status change.</td><td>complaint_id, subscription_id, changed_at, ingested_at, status, severity, visit_outcome.</td><td>Reconstruct unresolved complaints and repeat contacts at the cutoff. Preserve later corrections separately.</td></tr>
+              <tr><td>Snapshot: one subscription, cycle, and cutoff.</td><td>snapshot_id, cutoff_at, source_watermark, feature_version, mapping_version, feature_values.</td><td>Use only information recorded by the cutoff. Keep future cancellations and later recoveries outside checkpoint features.</td></tr>
+            </tbody></table>
+            <p>The subscription view shows contract expiry, plan eligibility, household outage history, complaints, segment, score age, evidence, and assigned case.</p>
+            <p>Use synthetic network and contract histories unless approved real data exists. Include device replacements, missing recovery events, delayed arrivals, and regional incidents.</p>
+            <p>Generate retained and cancelled outcomes from separate latent factors. Add realistic noise instead of copying outage thresholds into labels.</p>
+          </section>
+          <section class="blueprint-section" id="broadband-architecture">
+            <h3>03 / Proposed architecture and interfaces</h3>
+            <ol class="list-decimal">
+              <li>Load dated billing, inventory, and support exports into a Fabric Lakehouse with a pipeline.</li>
+              <li>Validate subscription keys and assignment intervals in a notebook. Preserve historical mapping versions.</li>
+              <li>Send replayed outage and recovery events through an Eventstream custom endpoint into Eventhouse.</li>
+              <li>Aggregate outage counts and durations by subscription using event-time mappings. Preserve incident references for investigation.</li>
+              <li>Transfer dated aggregates into Lakehouse feature snapshots through an explicit notebook job.</li>
+              <li>Train and register models with MLflow. Write scores, segments, and explanations to curated Delta tables.</li>
+              <li>Publish a Power BI subscription view. Send successful scoring results as risk_updated events to Eventstream.</li>
+              <li>Use Activator to detect eligible alerts. Invoke Power Automate to create or update a SharePoint review case.</li>
+            </ol>
+            <p><strong>Historical path:</strong> billing, inventory, and support to Lakehouse to dated features to registered models to subscription view.</p>
+            <p><strong>Event path:</strong> network event to Eventhouse to subscription aggregate to explicit rescoring to Activator to case.</p>
+            <p>Run the first scoring notebook explicitly. Record ingestion, aggregation, scoring, and dashboard refresh times separately.</p>
+            <p>SharePoint enforces a unique case_key. Use subscription_id + cycle_id + action_family for household review cases.</p>
+            <p>Keep one operations incident per incident_id. Link affected household cases to that incident instead of creating duplicate operations incidents.</p>
+            <p>Power Automate reads the existing case after a duplicate-key response. Other write failures remain visible and enter a retry queue.</p>
+          </section>
+          <section class="blueprint-section" id="broadband-model">
+            <h3>04 / Prediction and segmentation</h3>
+            <p><strong>Checkpoint:</strong> expiry_at minus 90 days. Predict explicit cancellation or switching for that expiry cycle.</p>
+            <p>Exclude relocations and mandatory disconnections from the initial target. Report this scope restriction rather than treating every closure as preventable churn.</p>
+            <p>Compare logistic regression with a small tree model. Fit preprocessing on training data and register model signatures with MLflow.</p>
+            <p>Features include 30-day outage count, observed downtime, recurring evening faults, unresolved complaint age, failed visits, tenure, and known price changes.</p>
+            <p>Missing recovery records produce an incomplete-duration flag. Do not invent recovery times or use later recovery information at the checkpoint.</p>
+            <p>Cluster subscriptions using scaled service and support features. Compare two to five clusters for stability, separation, and useful interpretation.</p>
+            <p>Possible segment names include stable service, recurring local faults, and complaint friction. Name segments only after inspecting fitted clusters.</p>
+            <p>Use later expiry cohorts for testing. Keep test subscriptions outside training. Remove regional incidents shared across training and test cohorts.</p>
+            <p>Exclude training labels unavailable at the simulated model release. Freeze thresholds on validation data before the final test.</p>
+            <p>Report precision and recall at a proposed capacity of ten household reviews per run. Compare against an outage-plus-complaint rules baseline.</p>
+            <p>Model contributions explain the prediction. Outage records support investigation. Neither establishes the household's reason for switching.</p>
+            <p>Evaluate live rescoring separately. A new warning inside the final 90 days cannot count as a checkpoint warning.</p>
+          </section>
+          <section class="blueprint-section" id="broadband-action">
+            <h3>05 / Alert policy and failure handling</h3>
+            <p>Create a review case when risk exceeds the validated threshold, the subscription mapping is valid, and current evidence supports investigation.</p>
+            <p>Route continuing faults to network operations. Route eligible plan reviews to the retention adviser after service evidence receives review.</p>
+            <p>Check contact eligibility before outreach. A risk score cannot authorise a discount, credit, or plan change.</p>
+            <p>Store snapshot_id, model_version, mapping_version, evidence IDs, received_at, scored_at, alerted_at, case_created_at, owner, and human decision.</p>
+            <p>Use New, Reviewed, Action approved, In progress, Resolved, and Closed states. Preserve the case audit after recovery.</p>
+            <p>Quarantine overlapping inventory intervals. Flag stale feeds. Retain late events for correction without rewriting earlier evaluation snapshots.</p>
+            <p>A resolved regional outage does not automatically create a recurring-fault case. An existing case receives recovery evidence and human review.</p>
+          </section>
+          <section class="blueprint-section" id="broadband-delivery">
+            <h3>06 / Build plan, demo, and acceptance tests</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Owner</th><th scope="col">Deliverable</th></tr></thead><tbody>
+              <tr><td>Before October 14.</td><td>All three people.</td><td>Confirm scenario, outcome scope, mapping basis, tenant access, and dataset provenance.</td></tr>
+              <tr><td>October 26-28.</td><td>Data and event owner.</td><td>Historical inventory, network replay, interval checks, and subscription aggregates.</td></tr>
+              <tr><td>October 29-November 2.</td><td>ML and evaluation owner.</td><td>Classifier, clusters, baseline, leakage checks, and registered models.</td></tr>
+              <tr><td>November 3-5.</td><td>Dashboard and action owner.</td><td>Subscription view, Activator path, unique case writer, and recovery tests.</td></tr>
+              <tr><td>November 6.</td><td>All three people.</td><td>Submission package and a 5-10 minute video with measured evidence.</td></tr>
+            </tbody></table>
+            <p>Agree score and event contracts first. Build dashboard fixtures in parallel, then replace them with registered-model output.</p>
+            <ol class="list-decimal">
+              <li>Show one household's checkpoint warning, expiry date, recurring faults, and unresolved complaint.</li>
+              <li>Replay an evening outage. Show its historical device mapping and explicit scoring job.</li>
+              <li>Show the Activator alert and assigned case. Replay the same event and check the case count.</li>
+              <li>Show a resolved regional outage. Explain recovery and the shared operations incident.</li>
+              <li>Show model evaluation, missing-data handling, separate latency measurements, and commercial limits.</li>
+            </ol>
+            <ul class="list-disc">
+              <li>Every accepted event maps to exactly one subscription at its event time. Ambiguous mappings create no retention case.</li>
+              <li>Duplicate outage messages do not increase outage count or create duplicate cases.</li>
+              <li>Checkpoint inputs contain no future recovery, complaint resolution, or cancellation information.</li>
+              <li>Report checkpoint lead time, precision, recall, class counts, cluster profiles, and baseline results.</li>
+              <li>One regional incident creates one operations incident. Distinct affected subscriptions can retain separate linked review cases.</li>
+              <li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li>
+              <li>Case-write failures remain visible. Recovery preserves the audit. It does not prove that the intervention prevented cancellation.</li>
+            </ul>
+          </section>
+          <section class="blueprint-section" id="broadband-readiness">
+            <h3>07 / Value, controls, and submission package</h3>
+            <p>Measure investigation effort, confirmed recurring faults, case duplication, and monthly subscription value associated with eligible reviews.</p>
+            <p>Do not multiply monthly value into claimed savings. Proving improved retention requires real interventions and a comparison group.</p>
+            <p>Use pseudonymous subscription and device IDs. Exclude addresses and browsing history. Restrict household evidence to authorised workspace roles.</p>
+            <p>Confirm Fabric capacity, Power BI sharing, connector permissions, and Power Automate licensing before the build.</p>
+            <p>The main risk is historical identity quality. If valid device mappings are absent, restrict the dataset to verified subscriptions.</p>
+            <p>If the action connector fails, show an internal review record with the missing integration clearly labelled. Do not claim an external case.</p>
+            <p>Submit this proposal, mapping contract, architecture, data provenance, reproducible notebooks, model versions, evaluation, case audit, setup instructions, and video.</p>
+            <p>Confirm organiser fields, team names, and deadline timezone. This page is a proposed blueprint, not an implemented service.</p>
+            <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
+          </section>
+        </div>
+      </details>
+
+      <details id="retail-option" class="scenario-file">
+        <summary>
+          <span class="scenario-summary-title">03 / PantryPaws / Repeat-purchase retail</span>
+          <span class="scenario-summary-context">Customers return to PantryPaws when they need more pet supplies. A purchase gap after delivery trouble needs a different response from a longer gap after buying a larger pack.</span>
+          <span class="scenario-summary-hint">Explore the company, evidence, and proposed solution</span>
+        </summary>
+        <div class="scenario-content">
+          <div>
+            <h3>The company</h3>
+            <p>PantryPaws sells pet food and other replenishable supplies online. Customers return when they need more supplies.</p>
+            <p>The company earns revenue per order, not through an annual renewal contract.</p>
+            <p>A customer-care lead fixes delivery problems. A retention specialist manages eligible replenishment reminders.</p>
+          </div>
+          <div>
+            <h3>The problem statement</h3>
+            <p>Find repeat customers at risk of inactivity beyond an agreed repurchase window. Separate normal purchase gaps from service-related warning signs.</p>
+            <p>A fictional customer, Morgan, regularly buys pet food. A late delivery prompts a complaint, and the next expected order does not arrive.</p>
+            <p>No purchase does not prove that Morgan chose a competitor. The team needs context before contact.</p>
+          </div>
+          <div>
+            <h3>Assumed existing stack</h3>
+            <ul class="list-disc">
+              <li>Shopify stores customer accounts, orders, products, and refunds.</li>
+              <li>A warehouse system and carrier feeds record dispatch, delivery failures, and delivery completion.</li>
+              <li>A support platform stores complaints and resolution history.</li>
+              <li>An email platform stores contact consent, reminder history, and suppression rules.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Evidence to collect</h3>
+            <ul class="list-disc">
+              <li>Purchase intervals, product categories, basket value, and changes in purchase frequency.</li>
+              <li>Returns, refunds, delayed deliveries, and unresolved complaints.</li>
+              <li>Customer IDs, contact consent, open cases, and previous retention actions.</li>
+              <li>Full observation periods that distinguish inactivity from outcomes the dataset cannot yet show.</li>
+            </ul>
+            <p><strong>Counterexample:</strong> a customer buys a larger pack and returns later. The longer gap has no associated delivery or support problem.</p>
+          </div>
+          <div class="scenario-span">
+            <h3>Proposed solution: a replenishment and service-recovery desk</h3>
+            <ol class="list-decimal">
+              <li>Join orders, delivery records, support history, and contact eligibility in a Fabric Lakehouse.</li>
+              <li>Agree the inactivity definition before training. Calculate purchase intervals and create dated features.</li>
+              <li>Train an inactivity classifier and purchase-behaviour clusters in Fabric notebooks. Record experiments with MLflow.</li>
+              <li>Show purchase rhythm, risk drivers, delivery evidence, and contact eligibility in Power BI.</li>
+              <li>Replay a delivery complaint through Eventstream and Eventhouse. Refresh the risk score as a separate operation.</li>
+              <li>Use Activator to flag an eligible case. Let a human choose service recovery or a replenishment reminder.</li>
+            </ol>
+            <p><strong>First action:</strong> fix the delivery problem. Do not send a sales reminder while an unresolved complaint needs attention.</p>
+          </div>
+          <section class="investigation-board scenario-span" data-board aria-labelledby="retail-board-title">
+            <h3 id="retail-board-title">Purchase desk / A service problem, or a larger pack?</h3>
+            <p class="text-base-content/70">Illustrative purchase sequence, not order data. Spacing shows relative sequence, not measured days or a churn probability.</p>
+            <div class="board-switch" role="group" aria-label="Compare retail cases" hidden><button class="btn btn-outline" type="button" data-case="retail-incident" aria-controls="retail-incident" aria-pressed="true">Delivery problem</button><button class="btn btn-outline" type="button" data-case="retail-larger-pack" aria-controls="retail-larger-pack" aria-pressed="false">Larger-pack purchase</button></div>
+            <div class="case-view" id="retail-incident">
+              <h4 class="font-semibold mb-3">Morgan / The expected repeat order is absent</h4>
+              <div class="case-layout"><figure>
+                <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="retail-chart-title retail-chart-desc">
+                  <title id="retail-chart-title">Repeat purchases followed by a delivery complaint and an absent order</title><desc id="retail-chart-desc">Three purchase circles precede an outlined expected-order circle. A delivery complaint appears after the latest purchase.</desc>
+                  <text x="22" y="30">Purchase rhythm / Service context</text><path class="chart-axis" d="M 40 110 H 440"/>
+                  <g id="retail-purchase-history"><title>Illustrative repeat orders</title><circle cx="65" cy="110" r="12" fill="var(--color-primary)"/><circle cx="170" cy="110" r="12" fill="var(--color-primary)"/><circle cx="275" cy="110" r="12" fill="var(--color-primary)"/><text x="40" y="145">Order</text><text x="145" y="145">Order</text><text x="250" y="145">Order</text></g>
+                  <g id="retail-missing-order"><title>The expected repeat order is absent, not proof of competitor switching</title><circle cx="410" cy="110" r="14" fill="none" stroke="var(--color-base-content)" stroke-width="2" stroke-dasharray="4 4"/><text x="346" y="65">No repeat order</text></g>
+                  <g id="retail-delivery-complaint"><title>A delivery complaint follows the latest order</title><circle class="chart-marker" cx="315" cy="175" r="7"/><text x="175" y="198">Delivery complaint remains open</text></g>
+                  <text x="35" y="225">Earlier</text><text x="405" y="225">Now</text>
+                </svg><figcaption class="text-sm mt-2">Filled circles: purchases. Dashed circle: expected purchase. The complaint changes which action makes sense.</figcaption>
+              </figure><aside class="decision-card"><span class="badge badge-warning badge-outline">Service recovery first</span><dl><dt>Reason to inspect</dt><dd>A purchase gap follows a delivery problem and unresolved complaint.</dd><dt>Proposed action</dt><dd>Fix the delivery problem before considering a replenishment reminder.</dd><dt>Owner</dt><dd>Customer care with the retention specialist.</dd><dt>Control</dt><dd>Check contact consent and suppression rules. Do not send a message from this mockup.</dd></dl></aside></div>
+              <div class="evidence-strip"><div><strong>01 / Order history</strong><span>Check purchase intervals, product category, and pack size.</span></div><div><strong>02 / Delivery and support</strong><span>Check delivery completion and complaint resolution.</span></div><div><strong>03 / Contact eligibility</strong><span>Check consent, open cases, and earlier retention actions.</span></div></div>
+            </div>
+            <div class="case-view" id="retail-larger-pack">
+              <h4 class="font-semibold my-3">Counterexample / More supplies mean a longer purchase gap</h4>
+              <div class="case-layout"><figure>
+                <svg class="signal-chart" viewBox="0 0 480 240" role="img" aria-labelledby="retail-pack-title retail-pack-desc">
+                  <title id="retail-pack-title">A larger pack explains a longer interval before the next order</title><desc id="retail-pack-desc">Two smaller purchase circles precede a larger-pack circle. A later purchase follows a longer gap without a support incident.</desc>
+                  <text x="22" y="30">Purchase rhythm / Pack-size context</text><path class="chart-axis" d="M 40 110 H 440"/>
+                  <g id="retail-pack-orders"><title>A larger pack precedes a longer gap, then another purchase</title><circle cx="65" cy="110" r="12" fill="var(--color-primary)"/><circle cx="150" cy="110" r="12" fill="var(--color-primary)"/><circle cx="235" cy="110" r="22" fill="var(--color-primary)"/><circle cx="420" cy="110" r="12" fill="var(--color-primary)"/><text x="190" y="65">Larger pack</text><path class="chart-reference" d="M 262 153 H 398"/><text x="263" y="180">Longer interval</text></g>
+                  <text x="35" y="225">Earlier</text><text x="405" y="225">Later</text>
+                </svg><figcaption class="text-sm mt-2">Circle sizes distinguish pack types only. No size ratio or purchase interval represents a measured value.</figcaption>
+              </figure><aside class="decision-card"><span class="badge badge-info badge-outline">Check purchase context</span><dl><dt>Different evidence</dt><dd>A larger pack explains the longer gap. No delivery or support problem accompanies it.</dd><dt>Proposed action</dt><dd>Check pack size before treating the gap as inactivity.</dd><dt>Evaluation limit</dt><dd>The later purchase is an outcome for evaluation. Never use that future order as an earlier model input.</dd></dl></aside></div>
+            </div>
+          </section>
+          <div class="scenario-span evidence-note">
+            <p><strong>Build cost:</strong> inactivity has several possible explanations. A 90-day warning is harder to check without a fixed renewal date.</p>
+            <p><strong>Proof:</strong> define the inactivity checkpoint. Evaluate features available 90 days before that checkpoint, with full later outcome windows.</p>
+            <p>Predicting no purchase within the next 90 days does not prove 90 days of advance warning.</p>
+            <p><strong>Choose this when:</strong> suitable repeat-order data exists and the team can defend its inactivity definition.</p>
+          </div>
+          <section class="blueprint-section" id="retail-submission">
+            <h3>01 / Submission summary</h3>
+            <p><strong>Title:</strong> PantryPaws Replenishment and Service-Recovery Desk.</p>
+            <p>Repeat customers buy supplies at different intervals. Delivery problems can interrupt purchases, but larger packs can also explain longer gaps.</p>
+            <p>Our proposed solution combines order, delivery, support, and contact records in Microsoft Fabric. It groups customers by purchase behaviour and predicts inactivity.</p>
+            <p>The retention specialist sees dated risk scores, model drivers, and source evidence. New delivery complaints trigger a separate investigation path.</p>
+            <p>A human chooses service recovery or an eligible reminder. The prototype does not send customer messages or claim improved retention.</p>
+            <p><strong>Distinctive value:</strong> explain a purchase gap before recommending contact. Compare delivery failure with a larger-pack counterexample.</p>
+            <p><strong>Scope:</strong> repeat pet-food customers, one inactivity definition, one delivery replay, and one human-owned case.</p>
+          </section>
+          <section class="blueprint-section" id="retail-contracts">
+            <h3>02 / Data contracts and customer view</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
+              <tr><td>Order: one order line.</td><td>customer_id, order_id, line_id, ordered_at, ingested_at, category, pack_size, quantity, net_value, status.</td><td>Deduplicate line_id. Count completed orders once. Keep refunds and cancellations as dated changes.</td></tr>
+              <tr><td>Delivery: one shipment status change.</td><td>event_id, shipment_id, order_id, occurred_at, ingested_at, status, promised_at.</td><td>Link shipments to orders and customers. Preserve the delivery promise known at the cutoff.</td></tr>
+              <tr><td>Support: one complaint status change.</td><td>ticket_id, customer_id, order_id, changed_at, ingested_at, reason, status, severity.</td><td>Reconstruct complaint state at the cutoff. Exclude later resolution from earlier features.</td></tr>
+              <tr><td>Contact: one eligibility change.</td><td>customer_id, effective_at, recorded_at, channel, consent_status, suppressed_until, reason.</td><td>Check current consent before marketing contact. Consent does not govern necessary service contact in the same way.</td></tr>
+              <tr><td>Snapshot: one customer, anchor order, and cutoff.</td><td>snapshot_id, anchor_order_id, cutoff_at, inactivity_at, source_watermark, feature_version, feature_values.</td><td>Freeze the target date before scoring. Exclude customers whose later observation window is incomplete.</td></tr>
+            </tbody></table>
+            <p>The customer view shows purchase rhythm, pack size, delivery evidence, complaint state, segment, score age, contact eligibility, and case status.</p>
+            <p>Use synthetic histories unless approved real data exists. Include irregular intervals, larger packs, seasonality, consent changes, and missing delivery records.</p>
+            <p>Generate outcomes from separate latent demand and service factors. Do not define synthetic churn directly from the alert rule.</p>
+          </section>
+          <section class="blueprint-section" id="retail-architecture">
+            <h3>03 / Proposed architecture and interfaces</h3>
+            <ol class="list-decimal">
+              <li>Load dated order, delivery, support, and contact exports into raw Fabric Lakehouse tables.</li>
+              <li>Validate keys and reconstruct source histories in a notebook. Create clean customer and order tables.</li>
+              <li>Create dated feature snapshots and outcome tables. Train and register models with MLflow signatures and versions.</li>
+              <li>Write scores, segments, explanations, and evidence references to curated Delta tables. Publish a Power BI customer view.</li>
+              <li>Replay delivery complaints through an Eventstream custom endpoint into Eventhouse.</li>
+              <li>Run an explicit notebook to update affected features and scores. Publish risk_updated only after successful scoring.</li>
+              <li>Use Activator to monitor eligible risk_updated events. Invoke Power Automate to create or update a SharePoint review case.</li>
+            </ol>
+            <p><strong>Historical path:</strong> exports to Lakehouse to dated features to registered model to customer view.</p>
+            <p><strong>Event path:</strong> complaint to Eventstream to Eventhouse to explicit rescoring to Activator to review case.</p>
+            <p>The first build starts scoring explicitly. Record event arrival, score completion, alert delivery, and dashboard refresh as separate operations.</p>
+            <p>Use a unique SharePoint case_key: customer_id + anchor_order_id + action_family. Duplicate delivery messages must not create another case.</p>
+            <p>Power Automate reads the existing record after a duplicate-key response. Other failures enter a retry queue with an operator-visible error.</p>
+          </section>
+          <section class="blueprint-section" id="retail-model">
+            <h3>04 / Prediction and segmentation</h3>
+            <p><strong>Proposed target:</strong> no completed repeat order within 180 days after an eligible anchor order. This defines inactivity, not proven customer loss.</p>
+            <p><strong>Checkpoint:</strong> anchor order plus 90 days. The frozen inactivity date is another 90 days later.</p>
+            <p>Score only customers without a repeat order by the checkpoint. A completed repeat order before the inactivity date gives a negative label.</p>
+            <p>No repeat order through day 180 gives a positive label only when source coverage reaches that date. Otherwise, the outcome remains unknown.</p>
+            <p>Use one eligible anchor per customer in each evaluation cohort. Prevent overlapping windows from counting the same inactivity episode repeatedly.</p>
+            <p>The 180-day window is a design assumption. Confirm category suitability before submission. Test 150-day and 210-day definitions as sensitivity checks.</p>
+            <p>This design measures warning before an inactivity threshold. It cannot establish warning before the customer's unobserved decision to leave.</p>
+            <p>Compare logistic regression with a small tree model. Fit preprocessing only on training data. Register the selected model and feature signature.</p>
+            <p>Features include historical purchase intervals, pack size, order frequency, refunds, delivery delays, complaint age, and category seasonality.</p>
+            <p>Calculate historical purchase intervals using orders available by the cutoff. Do not use the next order to explain an earlier score.</p>
+            <p>Fit clusters on scaled purchase and service features. Compare two to five clusters using stability, separation, and business interpretation.</p>
+            <p>Inspect cluster profiles before naming them. Possible names include regular replenishment, larger-pack purchasing, and service friction.</p>
+            <p>Test later anchor cohorts with customers outside training. Require complete outcome windows and training labels available before the simulated release.</p>
+            <p>Freeze thresholds on validation data. Report precision and recall at a proposed capacity of ten customer reviews per run.</p>
+            <p>Compare against a historical-interval rule with complaint context. Model contributions explain the score, not customer intent or intervention effectiveness.</p>
+          </section>
+          <section class="blueprint-section" id="retail-action">
+            <h3>05 / Alert policy and failure handling</h3>
+            <p>Create an internal review case when risk exceeds the validated threshold, evidence is current, and an owner exists.</p>
+            <p>An unresolved delivery complaint routes to customer care first. Suppress marketing reminders while the complaint needs attention.</p>
+            <p>A reminder requires current channel consent, no suppression, and human approval. Do not treat case creation as permission to contact.</p>
+            <p>Keep service-contact policy separate from marketing consent. Confirm the applicable business and legal rules before any real communication.</p>
+            <p>Record snapshot_id, model_version, evidence IDs, consent version, received_at, scored_at, alerted_at, case_created_at, owner, and human decision.</p>
+            <p>Use New, Reviewed, Action approved, In progress, Resolved, and Closed states. Record approval without sending messages in the hackathon build.</p>
+            <p>Quarantine unknown customer or order IDs. Flag missing feeds and stale scores. Retry failed writes without creating duplicate cases.</p>
+            <p>A new order updates the customer view and requests rescoring. Preserve earlier snapshots and the case audit.</p>
+          </section>
+          <section class="blueprint-section" id="retail-delivery">
+            <h3>06 / Build plan, demo, and acceptance tests</h3>
+            <table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Owner</th><th scope="col">Deliverable</th></tr></thead><tbody>
+              <tr><td>Before October 14.</td><td>All three people.</td><td>Confirm inactivity definition, source coverage, tenant access, and dataset provenance.</td></tr>
+              <tr><td>October 26-28.</td><td>Data and event owner.</td><td>Clean order histories, frozen target dates, eligibility changes, and replay fixtures.</td></tr>
+              <tr><td>October 29-November 2.</td><td>ML and evaluation owner.</td><td>Baseline, classifier, clusters, later-cohort evaluation, and sensitivity report.</td></tr>
+              <tr><td>November 3-5.</td><td>Dashboard and action owner.</td><td>Customer view, Activator path, unique case writer, and consent tests.</td></tr>
+              <tr><td>November 6.</td><td>All three people.</td><td>Reproducible submission package and a 5-10 minute video.</td></tr>
+            </tbody></table>
+            <p>Agree score and event contracts first. Build dashboard fixtures in parallel, then replace them with registered-model output.</p>
+            <ol class="list-decimal">
+              <li>Show Morgan's anchor order, checkpoint, frozen inactivity date, purchase history, and unresolved complaint.</li>
+              <li>Replay a delivery escalation. Show explicit rescoring, an alert, and one customer-care case.</li>
+              <li>Replay the same event. Check that the case count remains one.</li>
+              <li>Show the larger-pack customer and a suppressed contact. Explain why their proposed actions differ.</li>
+              <li>Show evaluation, sensitivity checks, measured latency, and the limits of an inactivity target.</li>
+            </ol>
+            <ul class="list-disc">
+              <li>Every score links to a customer, anchor order, snapshot, and model version.</li>
+              <li>All checkpoint inputs satisfy event-time and ingestion-time cutoffs. Future purchases appear only in outcome evaluation.</li>
+              <li>Incomplete day-180 observation produces an unknown label, never an assumed inactivity outcome.</li>
+              <li>Report checkpoint lead time, precision, recall, class counts, baseline results, and cluster profiles.</li>
+              <li>A duplicate replay creates exactly one case. Unknown identities and failed writes remain visible.</li>
+              <li>No marketing reminder receives approval without current consent. An unresolved complaint routes to service recovery first.</li>
+              <li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li>
+            </ul>
+          </section>
+          <section class="blueprint-section" id="retail-readiness">
+            <h3>07 / Value, controls, and submission package</h3>
+            <p>Measure review effort, confirmed delivery problems, duplicate cases, and eligible customer counts. Report repeat-order value separately from claimed savings.</p>
+            <p>Real retention improvement requires controlled intervention evidence. Synthetic results demonstrate mechanics only.</p>
+            <p>Use pseudonymous customer IDs. Exclude names, addresses, payment data, and message contents. Restrict exports and apply approved retention periods.</p>
+            <p>Confirm Fabric capacity, Power BI sharing, Power Automate licensing, connector access, and contact policy before the build.</p>
+            <p>The main risk is the target definition. If organisers require contractual churn, select software or broadband instead of disguising inactivity as renewal.</p>
+            <p>If the action connector fails, demonstrate an internal review record and label the missing integration. Do not claim an external case exists.</p>
+            <p>Submit this proposal, architecture, target definition, data provenance, notebooks, model versions, evaluation, consent tests, case audit, setup instructions, and video.</p>
+            <p>Confirm organiser fields, team names, and deadline timezone. This blueprint is a proposed design, not a completed entry.</p>
+            <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
+          </section>
+        </div>
+      </details>
+      <p class="mt-4 text-base-content/70">These are design judgements, not researched market rankings. Team expertise or suitable real data could change the recommendation.</p>
+      <p class="mt-3 text-base-content/70">Opening a case file does not select a scenario. Record business and data choices in Sitrep, not on this page.</p>
+    </section>
+
+    <section aria-labelledby="business-title" class="grid lg:grid-cols-2 gap-6">
+      <div>
+        <h2 id="business-title" class="text-2xl font-semibold">Leading option: define the software business</h2>
+        <dl class="mt-5 space-y-4">
+          <div><dt class="font-semibold">Product</dt><dd class="text-base-content/70">Cloud software helps maintenance companies schedule, complete, and invoice jobs. An annual contract prices the software per field engineer.</dd></div>
+          <div><dt class="font-semibold">Customer</dt><dd class="text-base-content/70">The subscribing company is the customer, not each engineer who uses the app. Sales use a demo and contract. A customer-success manager owns adoption and renewal.</dd></div>
+          <div><dt class="font-semibold">Retention</dt><dd class="text-base-content/70">The company renews its contract. Fewer licences also affect revenue. Treat licence reductions as a separate target, not part of the first churn model.</dd></div>
+          <div><dt class="font-semibold">Prototype user</dt><dd class="text-base-content/70">The customer-success manager chooses which account to investigate and which approved retention action to start.</dd></div>
+        </dl>
+      </div>
+      <aside class="bg-base-200 rounded-2xl p-6">
+        <p class="badge badge-warning badge-outline">Fictional demonstration story</p>
+        <h3 class="text-xl font-semibold mt-4">A maintenance company is 90 days from renewal.</h3>
+        <p class="mt-4">Engineers complete fewer jobs through the product. An invoicing workflow repeatedly fails. Related support tickets repeatedly reopen.</p>
+        <p class="mt-4">The account manager sees a risk warning, the historical trend, the actual support evidence, and an incident-escalation task.</p>
+        <p class="mt-4">A second company uses the product less because its work is seasonal. It has no service problems. The demo should show why lower usage alone does not justify the same treatment.</p>
+        <p class="mt-4 text-sm text-base-content/70">Without evidence, the model cannot know that a customer is moving to a competitor. It can identify predictive warning signs and support investigation.</p>
+      </aside>
+    </section>
+
+    <section aria-labelledby="data-title">
+      <h2 id="data-title" class="text-2xl font-semibold">Only collect data that supports a decision</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+        <div class="bg-base-200 rounded-xl p-5"><h3 class="font-semibold">Accounts + contracts</h3><p class="mt-2">Shared account ID, owner, time as a customer, plan, licensed seats, contract value, renewal date, and observed renewal outcome.</p></div>
+        <div class="bg-base-200 rounded-xl p-5"><h3 class="font-semibold">Product events</h3><p class="mt-2">Timestamp, account, workflow, success or failure, active seats, and scheduled and completed jobs. Outcomes matter more than logins alone.</p></div>
+        <div class="bg-base-200 rounded-xl p-5"><h3 class="font-semibold">Support history</h3><p class="mt-2">Severity, product area, opening and resolution timestamps, reopen events, and incidents that affected the account.</p></div>
+        <div class="bg-base-200 rounded-xl p-5"><h3 class="font-semibold">Retention activity</h3><p class="mt-2">Last customer-success review, eligibility for contact, open case, assigned action, action status, and eventual renewal.</p></div>
+      </div>
+      <p class="mt-4 text-base-content/70">Use known account IDs across all four sources. Synthetic histories must include retained and lost accounts, noise, seasonality, and missing data. They must cover the full period needed to observe renewal outcomes. Do not generate perfect outcome labels from the same rule the model will learn.</p>
+    </section>
+
+    <section aria-labelledby="flow-title">
+      <h2 id="flow-title" class="text-2xl font-semibold">Show the warning and the action</h2>
+      <figure class="mt-5 border border-base-content/10 rounded-2xl p-3 sm:p-6 bg-base-100">
+        <svg class="flow-wide" viewBox="0 0 960 230" role="img" aria-labelledby="flow-svg-title flow-svg-desc">
+          <title id="flow-svg-title">Proposed evidence-to-action demo</title>
+          <desc id="flow-svg-desc">Historical customer data provides a baseline. A replayed live event adds evidence. The refreshed risk view explains the change. An alert creates a retention case for human review.</desc>
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-primary)"/></marker></defs>
+          <g id="baseline-node"><title>Customer 360 baseline</title><rect class="diagram-node" x="10" y="45" width="200" height="120" rx="14"/><text class="diagram-text" x="110" y="92">Customer 360</text><text class="diagram-text" x="110" y="125">Historical baseline</text></g>
+          <path id="baseline-event-edge" class="diagram-arrow" d="M 216 105 L 248 105" marker-end="url(#arrow)"><title>Replay a new event against known customer history</title></path>
+          <g id="event-node"><title>Controlled live event replay</title><rect class="diagram-node" x="255" y="45" width="200" height="120" rx="14"/><text class="diagram-text" x="355" y="92">Replayed event</text><text class="diagram-text" x="355" y="125">Support escalation</text></g>
+          <path id="event-risk-edge" class="diagram-arrow" d="M 461 105 L 493 105" marker-end="url(#arrow)"><title>Update evidence and request a score refresh</title></path>
+          <g id="risk-node"><title>Explainable refreshed risk, not an invented probability</title><rect class="diagram-node" x="500" y="45" width="200" height="120" rx="14"/><text class="diagram-text" x="600" y="92">Risk + evidence</text><text class="diagram-text" x="600" y="125">Threshold crossed</text></g>
+          <path id="risk-action-edge" class="diagram-arrow" d="M 706 105 L 738 105" marker-end="url(#arrow)"><title>Trigger one eligible retention alert</title></path>
+          <g id="action-node"><title>Human-owned retention case</title><rect class="diagram-node" x="745" y="45" width="200" height="120" rx="14"/><text class="diagram-text" x="845" y="92">Retention case</text><text class="diagram-text" x="845" y="125">Human reviews action</text></g>
+          <text class="diagram-text" x="480" y="207">Record the warning time, evidence, model version, owner, and action.</text>
+        </svg>
+        <svg class="flow-narrow" viewBox="0 0 320 490" role="img" aria-labelledby="narrow-flow-title narrow-flow-desc">
+          <title id="narrow-flow-title">Evidence-to-action demo, vertical view</title>
+          <desc id="narrow-flow-desc">Customer history, a replayed support escalation, refreshed risk and evidence, then a retention case with human review.</desc>
+          <defs><marker id="narrow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-primary)"/></marker></defs>
+          <g id="narrow-baseline"><title>Customer 360 baseline</title><rect class="diagram-node" x="10" y="10" width="300" height="85" rx="14"/><text class="diagram-text" x="160" y="44">Customer 360</text><text class="diagram-text" x="160" y="72">Historical baseline</text></g>
+          <path id="narrow-baseline-event" class="diagram-arrow" d="M 160 100 L 160 125" marker-end="url(#narrow-arrow)"><title>A new event adds evidence</title></path>
+          <g id="narrow-event"><title>Controlled live event replay</title><rect class="diagram-node" x="10" y="135" width="300" height="85" rx="14"/><text class="diagram-text" x="160" y="169">Replayed event</text><text class="diagram-text" x="160" y="197">Support escalation</text></g>
+          <path id="narrow-event-risk" class="diagram-arrow" d="M 160 225 L 160 250" marker-end="url(#narrow-arrow)"><title>Evidence update and score refresh</title></path>
+          <g id="narrow-risk"><title>Explainable refreshed risk</title><rect class="diagram-node" x="10" y="260" width="300" height="85" rx="14"/><text class="diagram-text" x="160" y="294">Risk + evidence</text><text class="diagram-text" x="160" y="322">Threshold crossed</text></g>
+          <path id="narrow-risk-action" class="diagram-arrow" d="M 160 350 L 160 375" marker-end="url(#narrow-arrow)"><title>One eligible retention alert</title></path>
+          <g id="narrow-action"><title>Human-owned retention case</title><rect class="diagram-node" x="10" y="385" width="300" height="85" rx="14"/><text class="diagram-text" x="160" y="419">Retention case</text><text class="diagram-text" x="160" y="447">Human reviews action</text></g>
+        </svg>
+        <figcaption class="text-sm text-base-content/70 mt-3">This flow is a proposal, not an existing integration. A live event and an ML score refresh are separate operations. Show both operations. Measure their latency.</figcaption>
+      </figure>
+    </section>
+
+    <section class="grid md:grid-cols-2 gap-6" aria-labelledby="scope-title">
+      <div>
+        <h2 id="scope-title" class="text-2xl font-semibold">Keep the build small</h2>
+        <ol class="list-decimal pl-5 space-y-3 mt-5">
+          <li><strong>Data:</strong> join the four sources in a Fabric Lakehouse. Keep timestamped snapshots of model inputs, called features.</li>
+          <li><strong>ML:</strong> train a small classifier in Fabric notebooks. Train a model that groups accounts by behaviour. Record experiments with MLflow. Show clear factors behind each risk score.</li>
+          <li><strong>Demo:</strong> replay product and support events through Eventstream and Eventhouse. Connect an Activator alert. Show account evidence in Power BI. Show a retention case with a human owner.</li>
+        </ol>
+        <p class="mt-4 text-base-content/70">Suggested roles: one owner for data and events. One owner for ML and evaluation. One owner for the dashboard, actions, and demo. Assign roles according to team skills. Agree one shared account and event contract before parallel work.</p>
+        <p class="mt-4"><strong>Not needed in the first build:</strong> a custom application, complex identity matching, an ontology, autonomous discounts, and multiple agents. An AI-written retention brief that uses recorded evidence is a stretch feature.</p>
+      </div>
+      <div class="bg-base-200 rounded-2xl p-6">
+        <h2 class="text-2xl font-semibold">Do not claim more than the evidence shows</h2>
+        <div class="mt-5 space-y-5">
+          <div><h3 class="font-semibold">"90 days early"</h3><p class="mt-2">Calculate the score 90 days before renewal. Freeze the information available at that checkpoint. Evaluate the later renewal outcome. Predicting churn "within 90 days" does not establish 90 days of warning.</p></div>
+          <div><h3 class="font-semibold">"We know why"</h3><p class="mt-2">Feature attributions explain how model inputs affect the score. Checked events support investigation. Neither proves the customer's true motivation. Neither proves that a retention action will work.</p></div>
+          <div><h3 class="font-semibold">"We saved revenue"</h3><p class="mt-2">A demo can show recurring revenue at risk and recorded actions. Proving improved retention requires evidence from real retention actions and a comparison group. Synthetic results prove only that the process works.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="proof-title" class="border-t border-base-content/10 pt-7">
+      <h2 id="proof-title" class="text-2xl font-semibold">Show the proof</h2>
+      <ul class="list-disc pl-5 space-y-2 mt-4">
+        <li>Test on a later time period that training excludes. Do not use information from after each feature snapshot.</li>
+        <li>Compare the model with a simple rules baseline.</li>
+        <li>Measure precision: the share of flagged accounts that churn. Measure recall: the share of churned accounts that the model flags.</li>
+        <li>Evaluate precision and recall at the number of accounts the team can contact.</li>
+        <li>Measure the time between the warning and the churn outcome.</li>
+        <li>Show one live event that creates exactly one retention case. Keep a record that supports an audit.</li>
+        <li>Show a healthy or seasonal account, not only the scripted failure.</li>
+      </ul>
+      <p class="mt-4">Group accounts by adoption and service experience. Combine the segment, risk, value, and eligibility for action. ML segments and alert-routing rules are different. Demonstrate both. Do not label rules as ML.</p>
+      <p class="mt-4 text-base-content/70">Access, Fabric capacity, alert integration, team availability, and the dataset's source remain unconfirmed. Check these before promising the final stack.</p>
+    </section>
+
+    <footer class="text-sm text-base-content/70 border-t border-base-content/10 pt-5 space-y-3">
+      <p><strong>Milestones from the slides:</strong> submit the idea on October 14. Build during October 26-November 6. Submit the solution on November 6. Provide a 5-10 minute video.</p>
+      <p>The slide specifies PST for the deadline timezone. Check the organiser's intended timezone.</p>
+      <p><strong>Capability references:</strong> <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/overview">Fabric Real-Time Intelligence</a> and <a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/data-science-overview">Fabric Data Science</a>. These describe capabilities, not access in the team's tenant.</p>
+      <p><strong>Review:</strong> annotate claims or tradeoffs on this local page. Choose the business and data basis in the session's Sitrep panel. This proposal does not change or endorse the existing blueprint.</p>
+    </footer>
+  </main>
+  <script>
+    const overview = document.querySelector('main');
+    const scenarioIds = ['software-option', 'broadband-option', 'retail-option'];
+    const pageTitles = ['WorkHarbour / Renewal investigation desk', 'HearthNet / Household service-recovery desk', 'PantryPaws / Replenishment and service-recovery desk'];
+    const blueprintPages = scenarioIds.map((id, index) => {
+      const scenario = document.getElementById(id);
+      const page = document.createElement('main');
+      page.className = 'blueprint-page max-w-6xl mx-auto p-5 sm:p-9';
+      page.dataset.scenarioPage = id;
+      page.hidden = true;
+      const nav = document.createElement('nav');
+      nav.className = 'blueprint-nav';
+      nav.setAttribute('aria-label', 'Blueprint navigation');
+      [['#overview', 'Back to main page'], ...scenarioIds.map((key, n) => ['#' + key, ['Software', 'Broadband', 'Retail'][n]])].forEach(([href, text]) => {
+        const link = document.createElement('a');
+        link.href = href;
+        link.className = 'btn btn-outline';
+        link.textContent = text;
+        nav.append(link);
+      });
+      const print = document.createElement('button');
+      print.type = 'button';
+      print.className = 'btn btn-outline';
+      print.textContent = 'Print this blueprint';
+      print.addEventListener('click', () => window.print());
+      nav.append(print);
+      const heading = document.createElement('h1');
+      heading.textContent = pageTitles[index];
+      heading.tabIndex = -1;
+      const note = document.createElement('p');
+      note.textContent = 'Hackathon proposal. Fictional business and proposed targets. No implementation results are claimed.';
+      page.append(nav, heading, note, scenario);
+      document.body.insertBefore(page, document.body.lastElementChild);
+      return page;
+    });
+    const route = (focusHeading = false) => {
+      const target = document.getElementById(location.hash.slice(1));
+      const selected = target ? target.closest('[data-scenario-page]') : null;
+      overview.hidden = Boolean(selected);
+      blueprintPages.forEach(page => {
+        page.hidden = page !== selected;
+        page.querySelector('details').open = page === selected;
+      });
+      const themeLabel = document.querySelector('.theme-controller').closest('label');
+      (selected ? selected.querySelector('nav') : overview.querySelector('header')).append(themeLabel);
+      document.title = selected ? selected.querySelector('h1').textContent : 'Customer Intelligence Engine - choose the customer story';
+      if (focusHeading) {
+        (selected || overview).querySelector('h1').focus({ preventScroll: true });
+        if (target && target !== selected?.querySelector('details')) target.scrollIntoView();
+        else window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('hashchange', () => route(true));
+    route();
+    document.querySelectorAll('[data-board]').forEach(board => {
+      const buttons = [...board.querySelectorAll('[data-case]')];
+      const views = [...board.querySelectorAll('.case-view')];
+      const selectCase = id => {
+        views.forEach(view => { view.hidden = view.id !== id; });
+        buttons.forEach(button => { button.setAttribute('aria-pressed', String(button.dataset.case === id)); });
+      };
+      buttons.forEach(button => {
+        button.addEventListener('click', () => { selectCase(button.dataset.case); });
+      });
+      selectCase(buttons[0].dataset.case);
+      board.querySelector('.board-switch').hidden = false;
+    });
+  </script>
+</body>
+</html>

@@ -6,6 +6,16 @@
 
 [Read the detailed technical blueprint](docs/technical-blueprint.md)
 
+## Scenario blueprints website
+
+The interactive scenario document is in [site/index.html](site/index.html). Open this file in a browser for a local preview.
+
+The `Deploy scenario blueprints to GitHub Pages` workflow publishes only `site/`. It runs on pushes to `main` and through `workflow_dispatch`. Manual runs deploy only the `main` branch.
+
+A repository administrator must enable GitHub Pages with **GitHub Actions** as the source under **Settings > Pages**. Private repositories require a GitHub plan that supports Pages. A Pages site can be public even when its source repository is private. Confirm the intended audience before enabling publication. Do not add credentials or customer records to `site/`.
+
+After a successful deployment, the workflow environment shows the site URL. Update `site/index.html` and push to `main` to publish subsequent changes.
+
 ---
 
 ## Executive summary
