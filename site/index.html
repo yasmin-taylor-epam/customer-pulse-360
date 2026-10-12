@@ -115,7 +115,7 @@
     </section>
 
     <section aria-labelledby="options-title">
-      <p class="text-primary text-sm font-semibold uppercase tracking-wide">Scenario lab / Three possible businesses</p>
+      <p class="text-primary text-sm font-semibold uppercase tracking-wide">Scenario lab / Five possible businesses</p>
       <h2 id="options-title" class="text-3xl font-semibold mt-2">Step inside the customer problem.</h2>
       <p class="mt-3 text-base-content/70">Open a scenario blueprint. Each page includes a submission summary, architecture, data contracts, model design, build plan, and acceptance tests.</p>
       <p class="evidence-note mt-4"><strong>Fictional design sketches.</strong> Company names, stacks, cases, and events below are illustrative assumptions, not researched facts or measured evidence.</p>
@@ -123,6 +123,8 @@
         <a href="#software-option" data-open-scenario="software-option"><span class="badge badge-primary badge-outline">Leading recommendation</span><strong>01 / Field-service software</strong><span>Fix the workflow before the company declines renewal.</span></a>
         <a href="#broadband-option" data-open-scenario="broadband-option"><span class="badge badge-ghost">Alternative</span><strong>02 / Broadband provider</strong><span>Connect repeated outages to the household that needs help.</span></a>
         <a href="#retail-option" data-open-scenario="retail-option"><span class="badge badge-ghost">Alternative</span><strong>03 / Repeat-purchase retail</strong><span>Distinguish a broken delivery experience from a normal purchase gap.</span></a>
+        <a href="#mortgage-option" data-open-scenario="mortgage-option"><span class="badge badge-ghost">Financial services</span><strong>04 / Mortgage lender</strong><span>Separate renewal friction from payment difficulties. Give support priority.</span></a>
+        <a href="#insurance-option" data-open-scenario="insurance-option"><span class="badge badge-ghost">Financial services</span><strong>05 / Home insurer</strong><span>Connect failed repairs to recovery support before a renewal review.</span></a>
       </nav>
 
       <details id="software-option" class="scenario-file">
@@ -712,6 +714,46 @@
           </section>
         </div>
       </details>
+      <details id="mortgage-option" class="scenario-file">
+        <summary><span class="scenario-summary-title">04 / HomeBridge / Mortgage renewal and payment support</span><span class="scenario-summary-context">A fixed-rate deal ends soon. Separate a customer who wants to switch lenders from a customer who needs payment support.</span><span class="scenario-summary-hint">Explore the mortgage blueprint</span></summary>
+        <div class="scenario-content">
+          <div><h3>The company and customer</h3><p>HomeBridge is a fictional mortgage lender. It services repayment mortgages and offers product transfers when fixed-rate deals end.</p><p>The customer unit is one mortgage account. Joint borrowers remain linked parties, not duplicate customers. A servicing adviser owns each review.</p></div>
+          <div><h3>The problem and counterexample</h3><p>Identify external refinancing risk 90 days before a fixed-rate deal ends. Route payment difficulties to support before any commercial retention action.</p><p>Alex reports concern about future payments while a product-transfer application repeatedly fails. The adviser must inspect both problems.</p><p>Sam completes a product transfer without payment problems. A quiet portal history alone does not justify an alert.</p></div>
+          <section class="blueprint-section" id="mortgage-submission"><h3>01 / Submission summary</h3><p><strong>Title:</strong> HomeBridge Renewal and Payment-Support Desk.</p><p>Our proposed Fabric solution combines mortgage, payment, application, and servicing history. It predicts external refinancing and explains evidence for human review.</p><p>A separate support policy takes priority when payment difficulties appear. The prototype does not approve lending, change rates, or recommend financial products.</p><p><strong>Distinctive value:</strong> distinguish commercial loss from payment distress. A retained mortgage is not automatically a good customer outcome.</p><p><strong>Scope:</strong> fixed-rate repayment accounts, one renewal cohort, one application-failure replay, and one support case. Default prediction is a separate future extension.</p></section>
+          <section class="blueprint-section" id="mortgage-contracts"><h3>02 / Data contracts and customer view</h3><table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
+          <tr><td>Mortgage: one account and deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Preserve dated product terms. Link joint borrowers through an approved account mapping.</td></tr>
+          <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Preserve reversals. A failed collection is not proof of default. Missing feeds are not zero arrears.</td></tr>
+          <tr><td>Application: one product-transfer state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>Separate customer abandonment from platform failure. Use only state known at the cutoff.</td></tr>
+          <tr><td>Servicing: one case state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>Keep sensitive notes outside features. Expose only the minimum routing information to authorised advisers.</td></tr>
+          <tr><td>Outcome and snapshot: one cycle and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep outcome records separate from features. Do not infer external refinancing from account closure alone.</td></tr>
+          </tbody></table><p>The account view shows deal end, current terms, application problems, segment, score age, evidence, owner, and support priority.</p><p>Use synthetic histories with complete outcomes, reversals, delayed feeds, and successful transfers. Generate labels from separate latent factors, not the alert rule.</p><p>An indicative future payment requires dated rate assumptions and a checked calculation. Label it as an illustration, not an offer or affordability decision.</p></section>
+          <section class="blueprint-section" id="mortgage-architecture"><h3>03 / Proposed architecture and interfaces</h3><ol class="list-decimal"><li>Load dated account, payment, application, and servicing exports through Fabric pipelines into raw Lakehouse tables.</li><li>Validate keys and ledger history. Create clean account histories and frozen feature snapshots in notebooks.</li><li>Train renewal models and behavioural clusters. Register feature signatures, experiments, and model versions with MLflow.</li><li>Publish scores, explanations, and evidence references to curated Delta tables and a restricted Power BI account view.</li><li>Replay an application failure through Eventstream into Eventhouse. Retain original event IDs and timestamps.</li><li>Run an explicit scoring notebook. Publish risk_updated only after scoring succeeds.</li><li>Use Activator and Power Automate to create a human-owned review case in a secured SharePoint list.</li></ol><p><strong>Contract:</strong> risk_updated contains event_id, mortgage_id, cycle_id, snapshot_id, model_version, scored_at, target, score, and evidence IDs.</p><p>Read current support eligibility at case creation. Support priority does not depend on a high churn score or account value.</p><p>Enforce a unique case_key of mortgage_id + cycle_id + action_family. Duplicate writes read the existing case. Other failures remain visible.</p></section>
+          <section class="blueprint-section" id="mortgage-model"><h3>04 / Prediction and segmentation</h3><p><strong>Checkpoint:</strong> deal_end_at minus 90 days. Predict confirmed external refinancing between the checkpoint and deal_end_at plus 30 days.</p><p>Internal transfers and continued servicing are negative outcomes only after the full window. Sales, bereavement closures, and unidentified redemptions remain outside this target.</p><p>Use known redemption reasons or verified refinance records. Incomplete observation produces an unknown label, not assumed retention.</p><p>Compare logistic regression and a small tree model with an application-friction rules baseline. Use application completion, platform errors, complaint age, and contact history.</p><p>Exclude sensitive support details, protected characteristics, names, and fine-grained location from the first prediction model. Check remaining features for unjustified proxies.</p><p>Fit two to five behavioural clusters on application and servicing features. Inspect stability and centroids before naming groups.</p><p>Test later deal cohorts with borrower groups outside training. Require both event and ingestion timestamps at or before the checkpoint.</p><p>Training labels must exist before the simulated model release. Freeze thresholds on validation data. Report precision, recall, calibration, and performance at ten reviews per run.</p><p>Payment difficulty uses an explicit support policy, not a hidden churn label. Predicting default within 90 days would not establish 90 days of advance warning.</p></section>
+          <section class="blueprint-section" id="mortgage-action"><h3>05 / Alert policy and failure handling</h3><p>Route an active payment-support request to trained servicing staff first. Suppress commercial retention tasks while the support case requires review.</p><p>Without a support priority, route verified application failures to technical support and eligible renewal reviews to a servicing adviser.</p><p>A human checks contact policy and suitability before any customer action. The prototype sends no messages and changes no mortgage terms.</p><p>Record model version, snapshot, evidence IDs, routing policy, owner, decision, and ingestion, scoring, alert, and case timestamps.</p><p>Quarantine unknown accounts and conflicting borrower mappings. Flag stale payment feeds. Retry case failures without duplicate cases.</p><p>A payment reversal requests review and rescoring. It does not erase the audit or automatically close a support case.</p></section>
+          <section class="blueprint-section" id="mortgage-delivery"><h3>06 / Build plan, demo, and acceptance tests</h3><table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Owner</th><th scope="col">Deliverable</th></tr></thead><tbody><tr><td>Before idea submission.</td><td>All three people.</td><td>Agree target, observation window, support policy, dataset basis, and tenant access.</td></tr><tr><td>Data and replay.</td><td>Data owner.</td><td>Account histories, reversal fixtures, cutoff checks, and event contract.</td></tr><tr><td>Models and evaluation.</td><td>ML owner.</td><td>Classifier, clusters, baseline, later-cohort report, and registered model.</td></tr><tr><td>Dashboard and action.</td><td>Experience owner.</td><td>Account view, support-first routing, unique case writer, and audit.</td></tr><tr><td>Final submission.</td><td>All three people.</td><td>Reproducible package and a 5-10 minute demonstration.</td></tr></tbody></table><ol class="list-decimal"><li>Show Alex's checkpoint, deal date, evidence, and proposed renewal review.</li><li>Replay an application failure and a support request. Show explicit rescoring and support-first routing.</li><li>Replay the same event. Show one case, not two.</li><li>Show Sam's completed transfer and a reversed collection. Explain why neither proves default.</li><li>Show measured evaluation, latency, and limitations.</li></ol><ul class="list-disc"><li>All features pass both cutoff checks. Checkpoint warnings precede deal end by 90 days.</li><li>Unknown redemption reasons and incomplete windows produce no invented label.</li><li>An active support request takes priority even with a low churn score.</li><li>Duplicate events create exactly one case. Unknown identities create no account alert.</li><li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li><li>No rate change, credit decision, customer message, or claim of prevented default occurs.</li></ul></section>
+          <section class="blueprint-section" id="mortgage-readiness"><h3>07 / Value, controls, and submission package</h3><p>Measure review effort, application faults resolved, support routing time, and confirmed external-refinancing outcomes. Loan balance is exposure, not saved revenue.</p><p>Use pseudonymous accounts and least-privilege roles. Restrict support information separately. Exclude bank details and borrower documents from the prototype.</p><p>Require lending, privacy, and responsible-AI review before real use. Confirm jurisdiction, contact policy, fairness checks, licensing, and connector access.</p><p>Submit the summary, architecture, contracts, synthetic-data specification, notebooks, model card, evaluation, routing tests, audit, setup instructions, and video.</p><p>Organiser fields, team names, and deadline timezone still require confirmation. This is a proposal, not a deployed lending service.</p></section>
+        </div>
+      </details>
+      <details id="insurance-option" class="scenario-file">
+        <summary><span class="scenario-summary-title">05 / HavenCover / Home-claim recovery and renewal</span><span class="scenario-summary-context">After a household flood, repeated repair failures can damage trust. Connect recovery evidence to a renewal review without changing coverage.</span><span class="scenario-summary-hint">Explore the insurance blueprint</span></summary>
+        <div class="scenario-content">
+          <div><h3>The company and customer</h3><p>HavenCover is a fictional home insurer with annual policies. A claims coordinator manages repair partners. A service adviser owns renewal reviews.</p><p>The customer unit is one policy and renewal cycle. Claims and repair jobs link to that policy without merging unrelated household members.</p></div>
+          <div><h3>The problem and counterexample</h3><p>Identify customer-led non-renewal risk 90 days before policy expiry. Investigate unresolved recovery problems before proposing a commercial action.</p><p>Robin's flood claim has repeated missed repair appointments and an unresolved accommodation request. Separate systems hide the continuing problem.</p><p>Casey's larger claim resolves within agreed milestones. Claim size alone does not justify the same action.</p></div>
+          <section class="blueprint-section" id="insurance-submission"><h3>01 / Submission summary</h3><p><strong>Title:</strong> HavenCover Home-Recovery and Renewal Desk.</p><p>Our proposed Fabric solution connects policy, claim, repair, and complaint history. It predicts customer-led non-renewal and groups policies by service experience.</p><p>A service adviser sees model drivers and dated recovery evidence. New missed milestones create a review case for a claims coordinator.</p><p><strong>Distinctive value:</strong> assess recovery experience rather than claim cost. A shared contractor incident links affected policy cases without duplicating incident work.</p><p><strong>Scope:</strong> home policies with observed renewal decisions, one flood-repair story, one controlled replay, and one human-approved action.</p><p>Exclude underwriting, fraud detection, premium setting, claim rejection, and automatic coverage changes. A risk score must never obstruct a claim.</p></section>
+          <section class="blueprint-section" id="insurance-contracts"><h3>02 / Data contracts and customer view</h3><table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
+          <tr><td>Policy: one policy and renewal cycle.</td><td>policy_id, cycle_id, expiry_at, tenure, owner_id, renewal_offer_at, outcome_type, outcome_observed_at.</td><td>Separate customer refusal from insurer withdrawal. Unknown decisions remain unlabelled.</td></tr>
+          <tr><td>Claim: one claim state change.</td><td>claim_id, policy_id, changed_at, ingested_at, stage, status, coordinator_id.</td><td>Preserve historical state. Exclude medical details, free text, and later settlement from earlier features.</td></tr>
+          <tr><td>Repair: one appointment or milestone change.</td><td>event_id, claim_id, job_id, contractor_id, promised_at, occurred_at, ingested_at, status, incident_id.</td><td>Use the promise known at the cutoff. Preserve cancellations, revised promises, and completion evidence.</td></tr>
+          <tr><td>Service: one complaint or assistance state change.</td><td>case_id, policy_id, changed_at, recorded_at, category, status, owner_id, restricted_route.</td><td>Expose minimal routing flags. Restrict accommodation and personal-support details to authorised staff.</td></tr>
+          <tr><td>Snapshot: one policy, cycle, and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, feature_values, evidence_ids.</td><td>Freeze feature and promise versions. Keep future claim closure and renewal outcomes outside inputs.</td></tr>
+          </tbody></table><p>The policy view shows expiry, recovery milestones, complaint history, segment, score age, evidence, coordinator, and case status.</p><p>Use synthetic histories with shared contractor incidents, completed repairs, absent feeds, and censored outcomes. Generate renewal labels independently of routing rules.</p></section>
+          <section class="blueprint-section" id="insurance-architecture"><h3>03 / Proposed architecture and interfaces</h3><ol class="list-decimal"><li>Load policy, claim, repair, and service exports into raw Fabric Lakehouse tables.</li><li>Validate policy-to-claim and claim-to-job keys. Reconstruct dated promises and service history in notebooks.</li><li>Create checkpoint features. Train classifiers and behavioural clusters with MLflow experiment and model records.</li><li>Publish scores, segments, explanations, and evidence references to Delta tables and a restricted Power BI policy view.</li><li>Replay a missed repair appointment through Eventstream into Eventhouse.</li><li>Run a separate notebook to refresh affected features and scores. Publish risk_updated after successful scoring.</li><li>Use Activator and Power Automate to create or update a human-owned SharePoint review case.</li></ol><p>risk_updated contains event_id, policy_id, cycle_id, snapshot_id, model_version, scored_at, score, target, and evidence IDs.</p><p>Enforce a unique case_key of policy_id + cycle_id + action_family. Maintain one contractor incident per incident_id with linked policy cases.</p><p>Record ingestion, score completion, alert, and case timestamps separately. The design does not claim instant per-event inference or dashboard refresh.</p></section>
+          <section class="blueprint-section" id="insurance-model"><h3>04 / Prediction and segmentation</h3><p><strong>Checkpoint:</strong> expiry_at minus 90 days. Predict explicit customer-led non-renewal at that expiry.</p><p>Require a recorded renewal decision and observation through the policy's agreed renewal-processing window. Exclude insurer withdrawal and policy closures outside customer choice.</p><p>Do not infer a negative outcome from an automatic-renewal setting. An incomplete outcome remains unknown.</p><p>Compare logistic regression and a small tree model with a missed-milestone-plus-complaint baseline.</p><p>Use missed appointments, unresolved complaint age, repeated contacts, overdue milestones, and prior service experience. Exclude claim amount from the first model.</p><p>A renewal quote issued after the checkpoint cannot enter checkpoint features. Use only price information actually available at scoring.</p><p>Fit two to five clusters on service and recovery features. Inspect separation and stability before naming groups such as smooth recovery or repair friction.</p><p>Test later renewal cohorts. Keep households and shared contractor incidents separate across training and test sets where feasible.</p><p>Require event and ingestion timestamps at or before cutoff. Exclude training labels unavailable before simulated model release.</p><p>Freeze thresholds on validation data. Report precision, recall, calibration, class counts, and performance at ten reviews per run.</p><p>Explain model contributions alongside source evidence. Neither proves why a customer leaves or whether service recovery prevents departure.</p></section>
+          <section class="blueprint-section" id="insurance-action"><h3>05 / Alert policy and failure handling</h3><p>Route unresolved repair failures to the claims coordinator. Route renewal reviews to the service adviser only after urgent assistance receives attention.</p><p>Urgent assistance does not depend on churn risk, premium value, or a retention threshold. Maintain this operational path separately.</p><p>A human approves contractor escalation and customer contact. The prototype changes no claim decision, premium, settlement, or coverage.</p><p>Store policy and claim IDs, snapshot, model, evidence, promise version, incident link, owner, decision, and operation timestamps.</p><p>Quarantine unmapped jobs. Flag stale repair feeds. Reject malformed events. Retry failed case writes with an operator-visible error.</p><p>A contractor-wide problem creates one incident. Each affected policy can retain a separate linked case and its own support needs.</p><p>Repair completion requests rescoring and review. It does not automatically close complaints or prove the policy will renew.</p></section>
+          <section class="blueprint-section" id="insurance-delivery"><h3>06 / Build plan, demo, and acceptance tests</h3><table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Owner</th><th scope="col">Deliverable</th></tr></thead><tbody><tr><td>Before idea submission.</td><td>All three people.</td><td>Agree target, renewal window, assistance policy, data basis, and tenant access.</td></tr><tr><td>Data and replay.</td><td>Data owner.</td><td>Policy and claim histories, milestone versions, contractor incidents, and fixtures.</td></tr><tr><td>Models and evaluation.</td><td>ML owner.</td><td>Classifier, clusters, baseline, leakage checks, and model card.</td></tr><tr><td>Dashboard and action.</td><td>Experience owner.</td><td>Recovery view, incident linking, unique case writer, and assistance routing.</td></tr><tr><td>Final submission.</td><td>All three people.</td><td>Reproducible package and a 5-10 minute video.</td></tr></tbody></table><ol class="list-decimal"><li>Show Robin's checkpoint warning and unresolved recovery milestones.</li><li>Replay a missed appointment. Show explicit rescoring and a coordinator-owned case.</li><li>Replay the duplicate and a second affected policy. Show one contractor incident with distinct policy cases.</li><li>Show Casey's resolved claim. Explain why claim size is not a service-failure rule.</li><li>Show urgent assistance with a low churn score and the measured evaluation report.</li></ol><ul class="list-disc"><li>Every accepted repair event maps to one claim and policy. Unknown jobs create no retention case.</li><li>Every feature passes both cutoff checks. Later quotes and settlements remain outside checkpoint inputs.</li><li>Insurer withdrawal and unknown renewal outcomes do not become customer-churn labels.</li><li>Duplicate replay creates exactly one policy case. Shared incidents create exactly one contractor incident.</li><li>Urgent assistance receives a route regardless of churn score. No claim or coverage decision changes.</li><li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li></ul></section>
+          <section class="blueprint-section" id="insurance-readiness"><h3>07 / Value, controls, and submission package</h3><p>Measure milestone review effort, confirmed repair problems, assistance routing time, case duplication, and observed renewals. Premium associated with reviews is not saved revenue.</p><p>Use pseudonymous policies and restricted role-based views. Exclude addresses, medical data, bank details, and claim documents from exports and prompts.</p><p>Require claims, privacy, and responsible-AI review before real use. Check proxy discrimination and service access independently of prediction quality.</p><p>Confirm Fabric capacity, Power BI sharing, Power Automate licensing, connector permissions, jurisdiction, and customer-contact policy.</p><p>Submit the summary, architecture, contracts, synthetic-data specification, notebooks, model versions, evaluation, incident and assistance tests, audit, setup instructions, and video.</p><p>Confirm organiser fields, team names, and deadline timezone. The blueprint proposes a service-recovery prototype, not an implemented insurance system.</p></section>
+        </div>
+      </details>
       <p class="mt-4 text-base-content/70">These are design judgements, not researched market rankings. Team expertise or suitable real data could change the recommendation.</p>
       <p class="mt-3 text-base-content/70">Opening a case file does not select a scenario. Record business and data choices in Sitrep, not on this page.</p>
     </section>
@@ -824,8 +866,173 @@
   </main>
   <script>
     const overview = document.querySelector('main');
-    const scenarioIds = ['software-option', 'broadband-option', 'retail-option'];
-    const pageTitles = ['WorkHarbour / Renewal investigation desk', 'HearthNet / Household service-recovery desk', 'PantryPaws / Replenishment and service-recovery desk'];
+    const visualStories = {
+      software: { question: 'A broken workflow, or a quiet season?', signals: ['Jobs decline', 'Invoice failures', 'Ticket reopens'], action: 'Repair the workflow', counter: 'Seasonal demand', date: 'Contract renewal' },
+      broadband: { question: 'A household fault, or a resolved outage?', signals: ['Evening outages', 'Repeat contacts', 'Open complaint'], action: 'Investigate the line', counter: 'Recorded recovery', date: 'Contract expiry' },
+      retail: { question: 'A failed delivery, or a larger pack?', signals: ['Repeat orders', 'Delivery complaint', 'Purchase gap'], action: 'Service recovery first', counter: 'Larger-pack purchase', date: 'Inactivity threshold' },
+      mortgage: { question: 'Renewal friction, or a need for payment support?', signals: ['Deal ending', 'Application fails', 'Support requested'], action: 'Payment support first', counter: 'Completed transfer', date: 'Fixed-rate deal ends' },
+      insurance: { question: 'Repair failure, or a completed recovery?', signals: ['Flood claim', 'Missed repair', 'Help still needed'], action: 'Coordinate recovery', counter: 'Repair milestones met', date: 'Policy expiry' }
+    };
+    const visualStyle = document.createElement('style');
+    visualStyle.textContent = `
+      .visual-story { grid-column: 1 / -1; padding: 1.5rem; background: var(--color-base-200); border-radius: 1rem; }
+      .visual-story figure { margin: 1.25rem 0; }
+      .visual-story svg { width: 100%; color: var(--color-base-content); }
+      .visual-story svg text { fill: currentColor; font: 16px system-ui, sans-serif; text-anchor: middle; }
+      .visual-story svg .node { fill: var(--color-base-100); stroke: var(--color-base-300); stroke-width: 2; }
+      .visual-story svg .wire { fill: none; stroke: var(--color-primary); stroke-width: 3; }
+      .visual-story figcaption { font-size: .85rem; margin-top: .5rem; }
+      .technical-detail { grid-column: 1 / -1; border-top: 1px solid var(--color-base-300); }
+      .scenario-file .technical-detail > summary { display: block; padding: 1rem 0; font-size: 1rem; background: transparent; cursor: pointer; }
+      .technical-detail > .blueprint-section { border: none; padding: 0 0 1rem; }
+      @media print { .technical-detail > summary { display: none !important; } .technical-detail > .blueprint-section { display: block !important; } }
+    `;
+    document.head.append(visualStyle);
+    const escapeVisual = text => text.replace(/[&<>"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[character]));
+    const sectionVisual = (id, title, steps, caption) => {
+      const figure = document.createElement('figure');
+      figure.className = 'section-visual';
+      const node = (index, x, y, width = 324) => {
+        const step = steps[index];
+        return `<g id="${id}-node-${index}"><title>${escapeVisual(step[0] + ': ' + step[1])}</title><rect x="${x}" y="${y}" width="${width}" height="70" rx="12"/><text x="${x + width / 2}" y="${y + 28}">${escapeVisual(step[0])}</text><text class="visual-note" x="${x + width / 2}" y="${y + 51}">${escapeVisual(step[1])}</text></g>`;
+      };
+      const edge = (index, path, label) => `<path id="${id}-edge-${index}" d="${path}" marker-end="url(#${id}-arrow)"><title>${escapeVisual(label)}</title></path>`;
+      let width = 360;
+      let height = steps.length * 96;
+      let nodes;
+      if (id.includes('-architecture-')) {
+        width = 720; height = 430;
+        nodes = node(0, 18, 18) + node(1, 378, 18) + node(2, 198, 145) + node(3, 198, 250) + node(4, 198, 355)
+          + edge(0, 'M 180 88 V 118 H 300 V 140', 'Historical features feed explicit refresh')
+          + edge(1, 'M 540 88 V 118 H 420 V 140', 'Events independently feed explicit refresh')
+          + edge(2, 'M 360 215 V 245', 'Successful result enters the case writer')
+          + edge(3, 'M 360 320 V 350', 'Assigned case reaches its human owner');
+      } else if (id.includes('-delivery-')) {
+        width = 1080; height = 335;
+        nodes = node(0, 378, 18) + node(1, 18, 145) + node(2, 378, 145) + node(3, 738, 145) + node(4, 378, 260)
+          + edge(0, 'M 480 88 V 115 H 180 V 140', 'Agreed contracts unblock data work')
+          + edge(1, 'M 540 88 V 140', 'Agreed contracts unblock model work')
+          + edge(2, 'M 600 88 V 115 H 900 V 140', 'Agreed contracts unblock experience work')
+          + edge(3, 'M 180 215 V 240 H 480 V 255', 'Data joins the integrated demo')
+          + edge(4, 'M 540 215 V 255', 'Model joins the integrated demo')
+          + edge(5, 'M 900 215 V 240 H 600 V 255', 'Experience joins the integrated demo');
+      } else if (id.includes('-action-')) {
+        width = 720; height = 465;
+        nodes = node(0, 18, 18) + node(1, 378, 18) + node(2, 198, 165) + node(3, 198, 270) + node(4, 198, 375)
+          + edge(0, 'M 180 88 V 125 H 300 V 160', 'Required support bypasses the commercial threshold')
+          + edge(1, 'M 540 88 V 125 H 420 V 160', 'Only eligible other reviews create a case')
+          + edge(2, 'M 360 235 V 265', 'Customer action needs human approval')
+          + edge(3, 'M 360 340 V 370', 'Failures and recovery preserve the audit');
+      } else {
+        nodes = steps.map((step, index) => node(index, 18, 18 + index * 96)
+          + (index < steps.length - 1 ? edge(index, `M 180 ${91 + index * 96} v 18`, 'Next stage') : '')).join('');
+      }
+      figure.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="${id}-title"><title id="${id}-title">${escapeVisual(title)}</title><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--color-primary)"/></marker></defs>${nodes}</svg><figcaption>${escapeVisual(caption)}</figcaption>`;
+      return figure;
+    };
+    visualStyle.textContent += `
+      .section-visual { margin: 1rem 0; max-width: 36rem; }
+      .section-visual svg { width: 100%; color: var(--color-base-content); }
+      .section-visual rect { fill: var(--color-base-200); stroke: var(--color-base-300); stroke-width: 2; }
+      .section-visual text { fill: currentColor; font: 17px system-ui, sans-serif; text-anchor: middle; }
+      .section-visual text.visual-note { font-size: 13px; }
+      .section-visual path { fill: none; stroke: var(--color-primary); stroke-width: 2; }
+      .section-visual figcaption { font-size: .9rem; margin-top: .5rem; }
+      .section-reference > summary { cursor: pointer; padding: .75rem 0; font-weight: 600; }
+      .section-reference { margin-bottom: 1rem; }
+      @media print { .section-reference > summary { display: none !important; } }
+    `;
+    const sectionSubjects = {
+      software: ['Account + renewal cycle', 'Contract / product / support', 'Product support + account owner'],
+      broadband: ['Subscription + expiry cycle', 'Billing / network / complaints', 'Network operations + adviser'],
+      retail: ['Customer + anchor order', 'Orders / delivery / consent', 'Customer care + specialist'],
+      mortgage: ['Mortgage + deal cycle', 'Terms / application / support', 'Trained servicing adviser'],
+      insurance: ['Policy + renewal cycle', 'Claim / repairs / complaints', 'Claims coordinator + adviser']
+    };
+    const sectionPlans = (key, story) => {
+      const [unit, sources, owner] = sectionSubjects[key];
+      return {
+        submission: { steps: [['Customer problem', story.signals[1]], ['Checked evidence', sources], ['Human-owned response', story.action]], caption: 'Proposed solution. The counterexample is ' + story.counter + '.' },
+        contracts: { steps: [['Identity', unit], ['Dated source records', sources], ['Frozen snapshot', 'Event time + ingestion time'], ['Account view', 'Evidence / owner / case status']], caption: 'Keep future outcomes outside model inputs. Missing data stays visible; it is not a healthy signal.' },
+        architecture: { steps: [['Historical path', 'Exports / Lakehouse / dated features'], ['Separate event path', 'Eventstream / Eventhouse'], ['Explicit refresh', 'Features / scoring / result event'], ['Case writer', 'Activator / Power Automate'], ['Human review', owner]], caption: 'The two input paths meet at explicit refresh, not at event arrival. Register models with MLflow; publish evidence in Power BI. Support obligations bypass commercial score thresholds.' },
+        model: { steps: [['Freeze inputs', 'Only records known at cutoff'], ['Fit on training data', 'Rules baseline / classifier / clusters'], ['Validate, then test', 'Later cohorts / separate customers'], ['Report measured evidence', 'Precision / recall / review capacity']], caption: 'Unknown outcomes stay unlabelled. Model contributions are not proof of customer intent. Cluster names follow inspection, not predefined routing rules.' },
+        action: { steps: [['Support obligation?', 'Route required assistance first'], ['Other review eligible?', 'Check evidence / policy / owner'], ['Create or update case', 'One identity + cycle + action key'], ['Human approval', 'No automatic customer action'], ['Failure or recovery', 'Visible retry / preserved audit']], caption: 'Required support does not wait for a high commercial-risk score. Duplicate writes reuse the case. A recovery event does not prove retention.' },
+        delivery: { steps: [['Agree shared contracts', 'All three team members'], ['Data + replay', 'Data and event owner'], ['Model + evaluation', 'ML owner; shared fixtures'], ['View + action', 'Experience owner; shared fixtures'], ['Integrated demonstration', 'Failure / duplicate / counterexample']], caption: 'Workstreams can run in parallel after contracts are agreed. Replace score fixtures with real model output before the final demo; report actual latency and failures.' },
+        readiness: { steps: [['Access and data', 'Tenant / licences / provenance'], ['Operational controls', 'Privacy / roles / human approval'], ['Evidence package', 'Notebooks / evaluation / case audit'], ['Submission gate', 'Team fields / timezone / video']], caption: 'Proposal, not a completed build. Synthetic results show mechanics, not saved revenue or prevented harm.' }
+      };
+    };
+    const overviewVisuals = [
+      ['brief-title', [['Customer 360', 'Join dated customer records'], ['Behavioural segments', 'Fit groups; inspect their profiles'], ['Advance warning', 'Freeze inputs before the outcome'], ['Event-driven review', 'New evidence; one human-owned case']], 'Slide requirements. The mortgage support proposal needs organiser approval because it is not a churn-prediction target.'],
+      ['business-title', [['Maintenance company', 'One subscribing business'], ['Field engineers', 'Schedule / complete / invoice jobs'], ['Workflow failure', 'Check incidents, not usage alone'], ['Account manager', 'Review evidence before action']], 'Illustrative software business, not a selected scenario.'],
+      ['data-title', [['Shared account identity', 'Contracts / product / support'], ['Dated records', 'Preserve source and arrival times'], ['Frozen feature snapshot', 'No future outcomes in inputs'], ['Review evidence', 'Owner / source links / case status']], 'Missing feeds remain visible. Synthetic outcomes must not copy the alert rule.'],
+      ['scope-title', [['Agree contracts', 'Account / event / score interfaces'], ['Data and events', 'Validated histories and replay'], ['ML and evaluation', 'Baseline / model / later-cohort test'], ['Dashboard and action', 'Evidence / case writer / human owner']], 'Three workstreams share agreed interfaces. No autonomous discounts or customer messages.'],
+      ['proof-title', [['Freeze the checkpoint', 'Event and ingestion cutoffs'], ['Compare with rules', 'Use later, separate test cohorts'], ['Measure review quality', 'Precision / recall / capacity'], ['Replay twice', 'Exactly one case; visible failures'], ['Show the counterexample', 'Recovery or normal behaviour']], 'Evaluation plan, not measured results. Synthetic demonstrations do not prove saved revenue.']
+    ];
+    overviewVisuals.forEach(([headingId, steps, caption]) => {
+      const heading = document.getElementById(headingId);
+      const container = heading.parentElement;
+      const reference = document.createElement('details');
+      reference.className = 'technical-detail overview-reference';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Read the full rationale and requirements';
+      reference.append(summary);
+      [...container.children].filter(child => child !== heading).forEach(child => reference.append(child));
+      container.append(sectionVisual('overview-' + headingId, heading.textContent, steps, caption), reference);
+    });
+    Object.entries(visualStories).forEach(([key, story]) => {
+      const content = document.querySelector('#' + key + '-option .scenario-content');
+      const panel = document.createElement('section');
+      panel.className = 'visual-story';
+      panel.setAttribute('aria-label', 'Visual solution overview');
+      const row = (name, labels, y) => labels.map((label, index) => {
+        const x = 15 + index * 190;
+        return `<g id="${key}-${name}-${index}"><title>${escapeVisual(label)}</title><rect class="node" x="${x}" y="${y}" width="170" height="65" rx="12"/><text x="${x + 85}" y="${y + 38}">${escapeVisual(label)}</text></g>` + (index < labels.length - 1 ? `<path class="wire" d="M ${x + 173} ${y + 32} h 14 l -5 -5 m 5 5 l -5 5"/>` : '');
+      }).join('');
+      panel.innerHTML = `<h3>${escapeVisual(story.question)}</h3>
+        <figure><svg viewBox="0 0 580 215" role="img" aria-labelledby="${key}-story-title"><title id="${key}-story-title">Evidence sequence and proposed response</title>${row('evidence', story.signals, 15)}<path class="wire" d="M 480 85 V 120 H 290 V 140 l -5 -5 m 5 5 l 5 -5"/><g id="${key}-response"><title>Human-owned response</title><rect class="node" x="150" y="145" width="280" height="55" rx="12"/><text x="290" y="178">${escapeVisual(story.action)}</text></g></svg><figcaption>Illustrative story. Sequence only, not measured data. Counterexample: ${escapeVisual(story.counter)}.</figcaption></figure>
+        <h4>How the proposed solution works</h4>
+        <figure><svg viewBox="0 0 580 300" role="img" aria-labelledby="${key}-system-title"><title id="${key}-system-title">Historical data and event replay meet at explicit scoring</title>${row('history', ['Source exports', 'Fabric Lakehouse', 'Dated features'], 15)}${row('events', ['Replayed event', 'Eventstream', 'Eventhouse'], 110)}<path class="wire" d="M 560 80 H 575 V 205 H 100 V 218 l -5 -5 m 5 5 l 5 -5"/><path class="wire" d="M 480 180 V 195 H 100 V 218 l -5 -5 m 5 5 l 5 -5"/>${row('action', ['Explicit scoring', 'Activator rule', 'Human review'], 220)}</svg><figcaption>Register models with MLflow. Publish evidence in Power BI. Power Automate writes the review case. Scoring and event arrival are separate operations.</figcaption></figure>
+        <h4>What does the warning date mean?</h4>
+        <figure><svg viewBox="0 0 580 115" role="img" aria-labelledby="${key}-time-title"><title id="${key}-time-title">Frozen checkpoint before the target date</title><path class="wire" d="M 85 50 H 495"/><circle cx="85" cy="50" r="8" fill="var(--color-primary)"/><circle cx="495" cy="50" r="8" fill="var(--color-primary)"/><text x="95" y="27">Freeze inputs</text><text x="290" y="38">90-day interval</text><text x="470" y="85">${escapeVisual(story.date)}</text></svg><figcaption>Proposed checkpoint, not a measured result. Mortgage refinancing can occur before deal end: this is not 90 days before every departure.</figcaption></figure>`;
+      panel.querySelector('figure:last-child figcaption').textContent = key === 'mortgage'
+        ? 'Checkpoint: 90 days before deal end, not before every refinancing departure.'
+        : 'Proposed checkpoint. The interval is not a measured result.';
+      const context = document.createElement('details');
+      context.className = 'technical-detail';
+      const contextSummary = document.createElement('summary');
+      contextSummary.textContent = 'Business context and illustrative cases';
+      context.append(contextSummary);
+      [...content.children].filter(child => !child.classList.contains('blueprint-section')).forEach(child => context.append(child));
+      content.prepend(panel, context);
+      content.querySelectorAll(':scope > .blueprint-section').forEach(section => {
+        const disclosure = document.createElement('details');
+        disclosure.className = 'technical-detail';
+        disclosure.open = true;
+        const summary = document.createElement('summary');
+        summary.textContent = section.querySelector('h3').textContent;
+        section.before(disclosure);
+        disclosure.append(summary, section);
+        const suffix = section.id.slice(key.length + 1);
+        const plan = sectionPlans(key, story)[suffix];
+        if (plan) {
+          const reference = document.createElement('details');
+          reference.className = 'section-reference technical-detail';
+          const referenceSummary = document.createElement('summary');
+          referenceSummary.textContent = 'Full specification and submission detail';
+          reference.append(referenceSummary);
+          [...section.children].filter(child => child.tagName !== 'H3').forEach(child => reference.append(child));
+          section.append(sectionVisual(section.id + '-visual', summary.textContent, plan.steps, plan.caption), reference);
+        }
+      });
+    });
+    window.addEventListener('beforeprint', () => {
+      document.querySelectorAll('.technical-detail').forEach(detail => { detail.dataset.printOpen = String(detail.open); detail.open = true; });
+    });
+    window.addEventListener('afterprint', () => {
+      document.querySelectorAll('.technical-detail').forEach(detail => { detail.open = detail.dataset.printOpen === 'true'; delete detail.dataset.printOpen; });
+    });
+    const scenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
+    const pageTitles = ['WorkHarbour / Renewal investigation desk', 'HearthNet / Household service-recovery desk', 'PantryPaws / Replenishment and service-recovery desk', 'HomeBridge / Renewal and payment-support desk', 'HavenCover / Home-recovery and renewal desk'];
     const blueprintPages = scenarioIds.map((id, index) => {
       const scenario = document.getElementById(id);
       const page = document.createElement('main');
@@ -835,7 +1042,7 @@
       const nav = document.createElement('nav');
       nav.className = 'blueprint-nav';
       nav.setAttribute('aria-label', 'Blueprint navigation');
-      [['#overview', 'Back to main page'], ...scenarioIds.map((key, n) => ['#' + key, ['Software', 'Broadband', 'Retail'][n]])].forEach(([href, text]) => {
+      [['#overview', 'Back to main page'], ...scenarioIds.map((key, n) => ['#' + key, ['Software', 'Broadband', 'Retail', 'Mortgages', 'Insurance'][n]])].forEach(([href, text]) => {
         const link = document.createElement('a');
         link.href = href;
         link.className = 'btn btn-outline';
@@ -865,6 +1072,13 @@
         page.hidden = page !== selected;
         page.querySelector('details').open = page === selected;
       });
+      if (target) {
+        let ancestor = target.parentElement;
+        while (ancestor) {
+          if (ancestor.tagName === 'DETAILS') ancestor.open = true;
+          ancestor = ancestor.parentElement;
+        }
+      }
       const themeLabel = document.querySelector('.theme-controller').closest('label');
       (selected ? selected.querySelector('nav') : overview.querySelector('header')).append(themeLabel);
       document.title = selected ? selected.querySelector('h1').textContent : 'Customer Intelligence Engine - choose the customer story';
