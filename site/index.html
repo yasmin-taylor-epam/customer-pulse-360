@@ -39,7 +39,8 @@
     .scenario-picker a { text-decoration: none; padding: 1.25rem; border: 1px solid var(--color-base-300); border-radius: 1rem; background: var(--color-base-200); }
     .scenario-picker a:hover, .scenario-picker a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
     .scenario-picker strong { display: block; margin: .5rem 0; font-size: 1.2rem; }
-    .scenario-file { border: 1px solid var(--color-base-300); border-radius: 1.25rem; margin-top: 1.5rem; overflow: hidden; scroll-margin-top: 1rem; }
+    .scenario-file { border: 1px solid var(--color-base-300); border-radius: 1.25rem; margin-top: 1.5rem; overflow: visible; scroll-margin-top: 1rem; }
+    details:not([open]) > :not(summary) { display: none !important; }
     .scenario-file summary { cursor: pointer; padding: 1.5rem; background: var(--color-base-200); font-size: 1.25rem; font-weight: 600; }
     .scenario-file summary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -4px; }
     .scenario-summary-title { font-size: 1.2rem; font-weight: 600; }
@@ -889,54 +890,131 @@
     `;
     document.head.append(visualStyle);
     const escapeVisual = text => text.replace(/[&<>"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[character]));
+    // Explore surface: an editorial scenario atlas with technical field notes.
+    const scenarioGlyph = key => {
+      const drawings = {
+        software: '<path d="M12 18h72v52H12zM22 30h22v12H22zM54 30h20M54 40h20M22 54h52M38 70v12m20-12v12M28 82h40"/>',
+        broadband: '<path d="M12 48 48 18l36 30M22 42v40h52V42M38 82V62h20v20M34 45q14-14 28 0M41 52q7-7 14 0"/><circle cx="48" cy="58" r="2"/>',
+        retail: '<path d="M18 34 48 18l30 16v42L48 90 18 76zM18 34l30 16 30-16M48 50v40M32 26l30 16"/><path d="m58 62 7 7 15-18"/>',
+        mortgage: '<path d="M10 45 46 15l36 30M20 38v44h40M35 82V58h20v24"/><circle cx="72" cy="68" r="18"/><path d="M72 57v13l8 5"/>',
+        insurance: '<path d="M48 12 80 25v24q0 23-32 39Q16 72 16 49V25zM29 49l19-16 19 16M36 44v22h24V44M44 66V54h8v12"/>'
+      };
+      return `<svg class="scenario-glyph" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${drawings[key]}</svg>`;
+    };
+    visualStyle.textContent += `
+      body { font-family: 'Segoe UI', sans-serif; line-height: 1.65; }
+      main > header h1, .blueprint-page > h1 { font-family: Georgia, serif; font-weight: 400; letter-spacing: -.035em; }
+      main > header { padding-top: 1rem; }
+      .scenario-picker { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; border-top: 1px solid var(--color-base-300); }
+      .scenario-picker a { position: relative; border: 0; border-bottom: 1px solid var(--color-base-300); border-radius: 0; background: transparent; padding: 1.75rem 1.5rem 1.75rem 0; transition: background .2s; }
+      .scenario-picker a:first-child { grid-column: 1 / -1; background: var(--color-base-200); padding-left: 1.5rem; }
+      .scenario-picker strong { font-family: Georgia,serif; font-size: 1.6rem; font-weight: 400; }
+      .scenario-picker .scenario-glyph { float: right; width: 5rem; margin: .25rem 0 1rem 1rem; color: var(--color-primary); }
+      .scenario-picker a:hover { background: var(--color-base-200); }
+      .blueprint-page .scenario-file { border: 0; border-radius: 0; }
+      .blueprint-page .scenario-content { padding: 1.5rem 0; }
+      .blueprint-nav .btn { border-radius: .3rem; }
+      .visual-story { background: transparent; padding: 0; }
+      .story-heading { display: flex; align-items: center; gap: 1.5rem; border-bottom: 1px solid var(--color-base-300); padding: 1rem 0 1.5rem; }
+      .story-heading .scenario-glyph { width: 5rem; flex: 0 0 5rem; color: var(--color-primary); }
+      .visual-story .story-heading h3 { font-family: Georgia,serif; font-size: clamp(1.5rem,3vw,2.25rem); font-weight: 400; margin: 0; }
+      .visual-story h4 { margin-top: 2rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+      .section-visual { max-width: none; margin: 1rem 0 1.5rem; }
+      .section-visual svg { background: var(--color-base-200); border-radius: .4rem; }
+      .section-visual svg text { font-family: 'Segoe UI',sans-serif; font-size: 17px; }
+      .section-visual svg .visual-note { font-size: 13px; }
+      .section-visual .visual-index { fill: var(--color-primary); font: 24px Georgia,serif; }
+      .section-visual .visual-surface { fill: var(--color-base-100); stroke: var(--color-base-300); }
+      .section-visual .visual-accent { fill: var(--color-primary); fill-opacity: .08; stroke: var(--color-primary); }
+      .section-visual .visual-rule { stroke: var(--color-base-content); stroke-opacity: .25; stroke-width: 1; }
+      .section-visual figcaption { max-width: 80ch; color: var(--color-base-content); }
+      .blueprint-section > h3 { display: none; }
+      .scenario-file .technical-detail > summary { min-height: 44px; padding: 1.25rem 0; font-size: 1.1rem; }
+      .technical-detail > summary::after { content: '+'; float: right; color: var(--color-primary); }
+      .technical-detail[open] > summary::after { content: '-'; }
+      .section-reference { padding: .5rem 1.25rem; background: var(--color-base-200); border: 0; }
+      .evidence-note, .decision-card { border-left: 0; border: 1px solid var(--color-base-300); border-radius: .4rem; }
+      @media (max-width:760px) { .scenario-picker { grid-template-columns:minmax(0,1fr); } .scenario-picker .scenario-glyph { width:4rem; } .section-visual { overflow-x:auto; } .section-visual svg { min-width:560px; } }
+      @media (prefers-reduced-motion:reduce) { .scenario-picker a { transition:none; } }
+      @media print { .section-visual { overflow:visible; } .section-visual svg { min-width:0; } .story-heading { break-inside:avoid; } .blueprint-section > h3 { display:block; } }
+    `;
+    document.querySelectorAll('[data-open-scenario]').forEach(link => { link.insertAdjacentHTML('afterbegin', scenarioGlyph(link.dataset.openScenario.replace('-option', ''))); });
     const sectionVisual = (id, title, steps, caption) => {
       const figure = document.createElement('figure');
+      figure.dataset.visualKind = id.includes('-architecture-') ? 'architecture' : id.includes('-delivery-') ? 'delivery' : id.includes('-action-') ? 'action' : 'sequence';
       figure.className = 'section-visual';
-      const node = (index, x, y, width = 324) => {
-        const step = steps[index];
-        return `<g id="${id}-node-${index}"><title>${escapeVisual(step[0] + ': ' + step[1])}</title><rect x="${x}" y="${y}" width="${width}" height="70" rx="12"/><text x="${x + width / 2}" y="${y + 28}">${escapeVisual(step[0])}</text><text class="visual-note" x="${x + width / 2}" y="${y + 51}">${escapeVisual(step[1])}</text></g>`;
+      const label = (index, x, y) => `<text x="${x}" y="${y}">${escapeVisual(steps[index][0])}</text><text class="visual-note" x="${x}" y="${y + 24}">${escapeVisual(steps[index][1])}</text>`;
+      const node = (index, x, y, width = 324, shape = 'record') => {
+        const outline = shape === 'store'
+          ? `<path class="visual-surface" d="M${x} ${y + 15}v66c0 20 ${width} 20 ${width} 0v-66"/><ellipse class="visual-surface" cx="${x + width / 2}" cy="${y + 15}" rx="${width / 2}" ry="15"/>`
+          : shape === 'gate'
+            ? `<path class="visual-accent" d="M${x + 18} ${y}H${x + width - 18}l18 48-18 48H${x + 18}l-18-48z"/>`
+            : `<path class="visual-surface" d="M${x} ${y}H${x + width - 22}l22 22v74H${x}z"/><path class="visual-rule" fill="none" d="M${x + width - 22} ${y}v22h22"/>`;
+        return `<g id="${id}-node-${index}"><title>${escapeVisual(steps[index].join(': '))}</title>${outline}<text class="visual-index" x="${x + 25}" y="${y + 29}">${String(index + 1).padStart(2, '0')}</text>${label(index, x + width / 2, y + 53)}</g>`;
       };
-      const edge = (index, path, label) => `<path id="${id}-edge-${index}" d="${path}" marker-end="url(#${id}-arrow)"><title>${escapeVisual(label)}</title></path>`;
-      let width = 360;
-      let height = steps.length * 96;
+      const edge = (index, path, description) => `<path id="${id}-edge-${index}" d="${path}" marker-end="url(#${id}-arrow)"><title>${escapeVisual(description)}</title></path>`;
+      let width = 720;
+      let height;
       let nodes;
       if (id.includes('-architecture-')) {
-        width = 720; height = 430;
-        nodes = node(0, 18, 18) + node(1, 378, 18) + node(2, 198, 145) + node(3, 198, 250) + node(4, 198, 355)
-          + edge(0, 'M 180 88 V 118 H 300 V 140', 'Historical features feed explicit refresh')
-          + edge(1, 'M 540 88 V 118 H 420 V 140', 'Events independently feed explicit refresh')
-          + edge(2, 'M 360 215 V 245', 'Successful result enters the case writer')
-          + edge(3, 'M 360 320 V 350', 'Assigned case reaches its human owner');
+        height = 500;
+        nodes = edge(0, 'M180 120V155H300V195', 'Historical features feed explicit refresh')
+          + edge(1, 'M540 120V155H420V195', 'Events independently feed explicit refresh')
+          + edge(2, 'M360 296V328', 'Successful scoring enters the case writer')
+          + edge(3, 'M360 428V448', 'Assigned case reaches its human owner')
+          + node(0, 18, 24, 324, 'store') + node(1, 378, 24)
+          + node(2, 198, 200, 324, 'gate') + node(3, 198, 332)
+          + `<g id="${id}-node-4"><title>${escapeVisual(steps[4].join(': '))}</title><circle class="visual-accent" cx="90" cy="460" r="22"/><path class="visual-rule" fill="none" d="M77 472q13-17 26 0M84 451a6 6 0 1 0 12 0a6 6 0 1 0-12 0"/>${label(4, 360, 461)}</g>`;
       } else if (id.includes('-delivery-')) {
-        width = 1080; height = 335;
-        nodes = node(0, 378, 18) + node(1, 18, 145) + node(2, 378, 145) + node(3, 738, 145) + node(4, 378, 260)
-          + edge(0, 'M 480 88 V 115 H 180 V 140', 'Agreed contracts unblock data work')
-          + edge(1, 'M 540 88 V 140', 'Agreed contracts unblock model work')
-          + edge(2, 'M 600 88 V 115 H 900 V 140', 'Agreed contracts unblock experience work')
-          + edge(3, 'M 180 215 V 240 H 480 V 255', 'Data joins the integrated demo')
-          + edge(4, 'M 540 215 V 255', 'Model joins the integrated demo')
-          + edge(5, 'M 900 215 V 240 H 600 V 255', 'Experience joins the integrated demo');
+        width = 1080; height = 440;
+        nodes = edge(0, 'M480 120V155H180V190', 'Agreed contracts unblock data work')
+          + edge(1, 'M540 120V190', 'Agreed contracts unblock model work')
+          + edge(2, 'M600 120V155H900V190', 'Agreed contracts unblock experience work')
+          + edge(3, 'M180 292V325H480V340', 'Data joins the integrated demonstration')
+          + edge(4, 'M540 292V340', 'Model joins the integrated demonstration')
+          + edge(5, 'M900 292V325H600V340', 'Experience joins the integrated demonstration')
+          + node(0, 378, 24, 324, 'gate') + node(1, 18, 196)
+          + node(2, 378, 196) + node(3, 738, 196) + node(4, 378, 344, 324, 'gate');
       } else if (id.includes('-action-')) {
-        width = 720; height = 465;
-        nodes = node(0, 18, 18) + node(1, 378, 18) + node(2, 198, 165) + node(3, 198, 270) + node(4, 198, 375)
-          + edge(0, 'M 180 88 V 125 H 300 V 160', 'Required support bypasses the commercial threshold')
-          + edge(1, 'M 540 88 V 125 H 420 V 160', 'Only eligible other reviews create a case')
-          + edge(2, 'M 360 235 V 265', 'Customer action needs human approval')
-          + edge(3, 'M 360 340 V 370', 'Failures and recovery preserve the audit');
+        height = 580;
+        nodes = edge(0, 'M180 120V158H300V190', 'Required support bypasses the commercial threshold')
+          + edge(1, 'M540 120V158H420V190', 'Eligible commercial reviews enter the case writer')
+          + edge(2, 'M360 292V328', 'Customer action needs human approval')
+          + edge(3, 'M360 428V464', 'Failures and recovery preserve the audit')
+          + node(0, 18, 24, 324, 'gate') + node(1, 378, 24, 324, 'gate')
+          + node(2, 198, 196) + node(3, 198, 332, 324, 'gate') + node(4, 198, 468);
+      } else if (id.includes('-contracts-')) {
+        height = 560;
+        nodes = steps.map((step, index) => {
+          const y = 24 + index * 136;
+          return `<path class="visual-rule" fill="none" d="M36 ${y + 18}h20v96h300"/>`
+            + node(index, 72, y, 576)
+            + (index < steps.length - 1 ? edge(index, `M360 ${y + 98}v32`, 'Preserve provenance into the next record') : '');
+        }).join('');
       } else {
-        nodes = steps.map((step, index) => node(index, 18, 18 + index * 96)
-          + (index < steps.length - 1 ? edge(index, `M 180 ${91 + index * 96} v 18`, 'Next stage') : '')).join('');
+        height = steps.length * 120 + 24;
+        nodes = `<path class="visual-rule" fill="none" d="M52 48V${height - 70}"/>`
+          + steps.map((step, index) => {
+            const y = 24 + index * 120;
+            return `<g id="${id}-node-${index}"><title>${escapeVisual(step.join(': '))}</title><circle class="visual-accent" cx="52" cy="${y + 36}" r="23"/><text class="visual-index" x="52" y="${y + 44}">${String(index + 1).padStart(2, '0')}</text><path class="visual-rule" fill="none" d="M92 ${y + 98}H686"/>${label(index, 390, y + 36)}</g>`;
+          }).join('');
       }
       figure.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="${id}-title"><title id="${id}-title">${escapeVisual(title)}</title><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--color-primary)"/></marker></defs>${nodes}</svg><figcaption>${escapeVisual(caption)}</figcaption>`;
       return figure;
     };
     visualStyle.textContent += `
-      .section-visual { margin: 1rem 0; max-width: 36rem; }
+      .section-visual { margin: 1rem 0 1.5rem; max-width: 54rem; }
       .section-visual svg { width: 100%; color: var(--color-base-content); }
       .section-visual rect { fill: var(--color-base-200); stroke: var(--color-base-300); stroke-width: 2; }
-      .section-visual text { fill: currentColor; font: 17px system-ui, sans-serif; text-anchor: middle; }
+      .section-visual text { fill: currentColor; font: 17px 'Segoe UI', sans-serif; text-anchor: middle; }
+      .section-visual text.visual-index { fill: var(--color-primary); font: 24px Georgia, serif; }
+      .evidence-board { background: var(--color-base-200); border-radius: .4rem; padding: 1rem; }
+      .evidence-paper { fill: var(--color-base-100); stroke: var(--color-base-300); stroke-width: 2; }
+      .evidence-fold { fill: none; stroke: var(--color-base-content); stroke-opacity: .25; }
+      .evidence-pin { fill: var(--color-primary); }
+      .visual-story svg .evidence-number { fill: var(--color-primary); font: 28px Georgia, serif; }
       .section-visual text.visual-note { font-size: 13px; }
-      .section-visual path { fill: none; stroke: var(--color-primary); stroke-width: 2; }
+      .section-visual path:not([class]) { fill: none; stroke: var(--color-primary); stroke-width: 2; }
       .section-visual figcaption { font-size: .9rem; margin-top: .5rem; }
       .section-reference > summary { cursor: pointer; padding: .75rem 0; font-weight: 600; }
       .section-reference { margin-bottom: 1rem; }
@@ -984,16 +1062,17 @@
       const panel = document.createElement('section');
       panel.className = 'visual-story';
       panel.setAttribute('aria-label', 'Visual solution overview');
-      const row = (name, labels, y) => labels.map((label, index) => {
-        const x = 15 + index * 190;
-        return `<g id="${key}-${name}-${index}"><title>${escapeVisual(label)}</title><rect class="node" x="${x}" y="${y}" width="170" height="65" rx="12"/><text x="${x + 85}" y="${y + 38}">${escapeVisual(label)}</text></g>` + (index < labels.length - 1 ? `<path class="wire" d="M ${x + 173} ${y + 32} h 14 l -5 -5 m 5 5 l -5 5"/>` : '');
+      const evidenceIllustration = story.signals.map((signal, index) => {
+        const x = 24 + index * 190;
+        return `<g id="${key}-evidence-${index}"><title>${escapeVisual(signal)}: illustrative evidence to investigate</title><path class="evidence-paper" d="M${x} 30h146l18 18v112H${x}z"/><path class="evidence-fold" d="M${x + 146} 30v18h18"/><circle class="evidence-pin" cx="${x + 82}" cy="30" r="5"/><text class="evidence-number" x="${x + 30}" y="72">${String(index + 1).padStart(2, '0')}</text><text x="${x + 82}" y="109">${escapeVisual(signal)}</text><path class="evidence-fold" d="M${x + 25} 131h114m-114 10h80"/></g>`;
       }).join('');
-      panel.innerHTML = `<h3>${escapeVisual(story.question)}</h3>
-        <figure><svg viewBox="0 0 580 215" role="img" aria-labelledby="${key}-story-title"><title id="${key}-story-title">Evidence sequence and proposed response</title>${row('evidence', story.signals, 15)}<path class="wire" d="M 480 85 V 120 H 290 V 140 l -5 -5 m 5 5 l 5 -5"/><g id="${key}-response"><title>Human-owned response</title><rect class="node" x="150" y="145" width="280" height="55" rx="12"/><text x="290" y="178">${escapeVisual(story.action)}</text></g></svg><figcaption>Illustrative story. Sequence only, not measured data. Counterexample: ${escapeVisual(story.counter)}.</figcaption></figure>
+      panel.innerHTML = `<div class="story-heading">${scenarioGlyph(key)}<div><p class="text-primary text-sm uppercase tracking-wide">Customer story / ${escapeVisual(key)}</p><h3>${escapeVisual(story.question)}</h3></div></div>
+        <figure class="evidence-board"><svg viewBox="0 0 600 280" role="img" aria-labelledby="${key}-story-title"><title id="${key}-story-title">Evidence gathered for a human-owned response</title>${evidenceIllustration}<path id="${key}-evidence-response" class="wire" d="M106 166v20h380v-20M296 186v25"><title>Review the combined evidence before choosing an action</title></path><g id="${key}-response"><title>Human-owned proposed response</title><path class="evidence-paper" d="M112 217h368v48H112z"/><text x="296" y="247">${escapeVisual(story.action)}</text></g></svg><figcaption>Illustrative evidence, not measured data or a causal claim. Counterexample: ${escapeVisual(story.counter)}.</figcaption></figure>
         <h4>How the proposed solution works</h4>
-        <figure><svg viewBox="0 0 580 300" role="img" aria-labelledby="${key}-system-title"><title id="${key}-system-title">Historical data and event replay meet at explicit scoring</title>${row('history', ['Source exports', 'Fabric Lakehouse', 'Dated features'], 15)}${row('events', ['Replayed event', 'Eventstream', 'Eventhouse'], 110)}<path class="wire" d="M 560 80 H 575 V 205 H 100 V 218 l -5 -5 m 5 5 l 5 -5"/><path class="wire" d="M 480 180 V 195 H 100 V 218 l -5 -5 m 5 5 l 5 -5"/>${row('action', ['Explicit scoring', 'Activator rule', 'Human review'], 220)}</svg><figcaption>Register models with MLflow. Publish evidence in Power BI. Power Automate writes the review case. Scoring and event arrival are separate operations.</figcaption></figure>
+        <div data-system-visual></div>
         <h4>What does the warning date mean?</h4>
         <figure><svg viewBox="0 0 580 115" role="img" aria-labelledby="${key}-time-title"><title id="${key}-time-title">Frozen checkpoint before the target date</title><path class="wire" d="M 85 50 H 495"/><circle cx="85" cy="50" r="8" fill="var(--color-primary)"/><circle cx="495" cy="50" r="8" fill="var(--color-primary)"/><text x="95" y="27">Freeze inputs</text><text x="290" y="38">90-day interval</text><text x="470" y="85">${escapeVisual(story.date)}</text></svg><figcaption>Proposed checkpoint, not a measured result. Mortgage refinancing can occur before deal end: this is not 90 days before every departure.</figcaption></figure>`;
+      panel.querySelector('[data-system-visual]').replaceWith(sectionVisual(key + '-architecture-overview', 'Historical and live evidence meet at explicit scoring', sectionPlans(key, story).architecture.steps, sectionPlans(key, story).architecture.caption));
       panel.querySelector('figure:last-child figcaption').textContent = key === 'mortgage'
         ? 'Checkpoint: 90 days before deal end, not before every refinancing departure.'
         : 'Proposed checkpoint. The interval is not a measured result.';
@@ -1007,7 +1086,7 @@
       content.querySelectorAll(':scope > .blueprint-section').forEach(section => {
         const disclosure = document.createElement('details');
         disclosure.className = 'technical-detail';
-        disclosure.open = true;
+        disclosure.open = false;
         const summary = document.createElement('summary');
         summary.textContent = section.querySelector('h3').textContent;
         section.before(disclosure);
