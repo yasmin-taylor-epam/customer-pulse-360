@@ -1216,20 +1216,20 @@
       mortgage: {
         kicker: 'Business challenge / UK mortgage lender',
         question: 'Fixed deals end every month. Who needs support, who is stuck in our process, and who may leave?',
-        lead: 'HomeBridge is fictional. The market facts and rules below are real and cited. A UK lender with a large maturity book has this problem today.',
+        lead: 'HomeBridge is fictional. The market facts and rules below are real and cited. Any UK lender with many fixed deals ending each month has this problem today.',
         facts: [
           ['1.8m', 'UK fixed-rate mortgage deals due to end in 2026. About 1.6 million ended in 2025.', 'ukf'],
-          ['£71bn', 'Remortgage lending that moved to a new lender in 2025. £256bn stayed with the existing lender as product transfers.', 'ukf'],
+          ['£71bn', 'Mortgage balances that moved to a different lender at deal end in 2025. £256bn stayed with the same lender on a new deal, as product transfers.', 'ukf'],
           ['PS24/2', 'FCA rules: support borrowers at risk of payment difficulty, not only borrowers already in arrears.', 'ps242'],
           ['Jul 2023', 'Consumer Duty in force. Lenders must deliver good customer outcomes and show evidence of them.', 'duty']
         ],
         figure: mortgageChallengeFigure,
         pains: [
-          ['Too many maturities, too few advisers', 'Advisers work down a list by balance or date.', 'High-need customers wait. Time goes to customers who need nothing.'],
+          ['Too many deals ending, too few advisers', 'Advisers work down a list by balance or date.', 'High-need customers wait. Time goes to customers who need nothing.'],
           ['Signals sit in separate systems', 'Deal dates, payments, transfer applications, calls, broker submissions, and redemption requests live apart.', 'Nobody sees one customer\'s full situation.'],
-          ['Wrong first contact', 'A retention call reaches a customer who cannot afford the new rate.', 'Conduct risk under Consumer Duty and MCOB 13. Possible harm and complaint.'],
-          ['The lender finds the loss too late', 'The lender learns about a switch from a redemption statement request or a completed redemption.', 'No time remains for a review.'],
-          ['Customers drift to the reversion rate', 'A transfer stalls, or the customer does nothing. The payment rises to the standard variable rate.', 'Payment shock, arrears risk, and complaints.'],
+          ['Wrong first contact', 'A retention call reaches a customer who cannot afford the new rate.',           'Risk of breaking FCA rules on fair treatment (Consumer Duty) and payment difficulty (MCOB 13). Possible harm and complaint.'],
+                    ['The lender finds the loss too late', 'The lender learns about a switch only when the new lender asks for the payoff amount (a redemption statement), or pays the mortgage off.', 'No time remains for a review.'],
+                    ['Customers fall onto a higher rate', 'A transfer stalls, or the customer does nothing. The payment rises to the standard variable rate.', 'Payment shock, arrears risk, and complaints.'],
           ['Fair treatment is hard to prove', 'The board and the FCA ask how the lender treated maturing customers.', 'Manual evidence and a weak audit trail.']
         ],
         people: [
@@ -1237,17 +1237,17 @@
           ['Financial support lead', 'Find at-risk borrowers before a missed payment.'],
           ['Mortgage operations', 'Find and fix failing product-transfer journeys.'],
           ['Conduct risk and Consumer Duty lead', 'Evidence of a fair outcome for each maturing customer.'],
-          ['Intermediary (broker) team', 'See broker-submitted transfers that stall.']
+          ['Broker team', 'See which transfers that brokers arranged have stalled.']
         ],
         value: [
-          'Retained balance = external redemptions avoided × average balance',
+          'Retained balance = mortgages kept that would have moved to another lender × average balance',
           'Annual income kept ≈ retained balance × net interest margin − retention cost',
           'Also count: arrears avoided, complaints avoided, adviser hours saved'
         ],
         today: 'A monthly maturity extract goes into a spreadsheet. Advisers call down the list. Collections flags payment problems, often after a missed payment.',
         map: [
-          ['Signals sit in separate systems', 'Real-time Customer 360 keyed by mortgage_id + deal cycle.'],
-          ['Too many maturities', 'Churn score ranks external-refinance risk. Fitted ML segments group similar customers.'],
+          ['Signals sit in separate systems', 'Customer 360: one live view of each mortgage and its current deal.'],
+          ['Too many deals ending', 'A churn score ranks how likely each customer is to move to another lender. ML segments group similar customers.'],
           ['Wrong first contact', 'Routing rule sends payment support first, whatever the churn score.'],
           ['The lender finds the loss too late', 'Score 90 days before deal end. Live events, such as a failed transfer, refresh the view.'],
           ['Fair treatment is hard to prove', 'Audit record for each warning, route, owner, and outcome.']
@@ -1263,7 +1263,7 @@
           'Who can contact a customer, when, and under which contact rules?',
           'How does the board see Consumer Duty outcome evidence for maturing customers today?',
           'What does one retention conversation cost, compared with one lost mortgage?',
-          'Which data can a pilot use: synthetic, masked, or live?'
+          'Which data can a small trial (pilot) use: synthetic, masked, or live?'
         ],
         assumptions: [
           'Market and rules are UK. Other markets need a new rule check.',
@@ -1280,10 +1280,10 @@
         facts: [
           ['15', 'Home insurers in an FCA claims review. The FCA found weak oversight of outsourced claims suppliers, with delays and high complaint volumes.', 'claims'],
           ['32%', 'Share of 2024 storm-damage claims to the reviewed firms that led to a payment.', 'claims'],
-          ['Late MI', 'The FCA found that weak management information stopped some firms from finding claims problems and delays quickly.', 'claims'],
+          ['Weak reports', 'The FCA found that weak management reports stopped some firms from finding claims problems and delays quickly.', 'claims'],
           ['Jan 2022', 'FCA pricing rules: a renewal price must not be higher than the equivalent new-customer price.', 'gipp']
         ],
-        implication: 'Our view, not a cited fact: insurers cannot use price tactics to keep customers, so claims service matters more at renewal. Test this with client data.',
+        implication: 'Our view, not a cited fact: insurers cannot charge loyal customers more than new customers, so claims service matters more at renewal. Test this with client data.',
         figure: insuranceChallengeFigure,
         pains: [
           ['Suppliers do the claims work', 'Loss adjusters, drying firms, builders, and accommodation providers hold the live status.', 'The insurer finds delays late.'],
@@ -1291,14 +1291,14 @@
           ['Renewal falls inside a bad claim', 'The renewal date arrives during, or soon after, a poor recovery.', 'Lost premium, and a possible Financial Ombudsman complaint.'],
           ['Vulnerable customers wait', 'A family in temporary accommodation needs fast help.', 'Customer harm and a longer accommodation cost.'],
           ['One supplier fails many claims', 'A failing contractor affects many policies before anyone links them.', 'Repeated harm, and no single incident owner.'],
-          ['Good outcomes are hard to prove', 'Consumer Duty needs outcome monitoring and root-cause action.', 'Manual and late board reporting.']
+          ['Good outcomes are hard to prove', 'Consumer Duty requires firms to check customer outcomes and fix the causes of bad outcomes.', 'Manual and late board reporting.']
         ],
         people: [
           ['Claims director', 'Fewer delays and complaints. Evidence of good claim outcomes.', true],
           ['Supplier network manager', 'See which supplier misses which milestone, now.'],
           ['Claims coordinator', 'Know which open claims need action today.'],
           ['Renewals and retention lead', 'Know about a poor claim before the renewal invite.'],
-          ['Customer outcomes and Consumer Duty lead', 'Outcome monitoring with root causes.']
+          ['Customer outcomes and Consumer Duty lead', 'Reports that show customer outcomes and why problems happen.']
         ],
         value: [
           'Retained premium = non-renewals avoided among recent claimants × average annual premium',
@@ -1307,9 +1307,9 @@
         ],
         today: 'Suppliers send status reports on a schedule. Complaints sit in a separate log. Renewal invites go out without claim context.',
         map: [
-          ['Suppliers do the claims work', 'Supplier milestone events stream into the real-time Customer 360.'],
+          ['Suppliers do the claims work', 'Suppliers send each repair step as it happens. The Customer 360 shows it within minutes.'],
           ['Teams do not share a view', 'One policy view: claim, supplier jobs, complaints, and renewal date.'],
-          ['Renewal falls inside a bad claim', 'Churn score 90 days before expiry. Recovery problems go to claims first.'],
+          ['Renewal falls inside a bad claim', 'Churn score 90 days before the policy ends. Recovery problems go to the claims team first.'],
           ['Vulnerable customers wait', 'Assistance route that does not depend on churn score or premium.'],
           ['One supplier fails many claims', 'One supplier incident links all affected policies.'],
           ['Good outcomes are hard to prove', 'Audit record for each warning, route, owner, and outcome.']
@@ -1324,7 +1324,7 @@
           'How do you record and act on customer vulnerability during a claim?',
           'Can policy, claim, supplier job, and complaint records share an ID?',
           'What claims-outcome reporting does the board receive under Consumer Duty?',
-          'Which data can a pilot use: synthetic, masked, or live?'
+          'Which data can a small trial (pilot) use: synthetic, masked, or live?'
         ],
         assumptions: [
           'Market and rules are UK. Other markets need a new rule check.',
@@ -1369,6 +1369,202 @@
       section.append(questions, sources);
       content.prepend(section);
     });
+    // Glossary: plain-English meanings, linked from terms on the mortgage and insurance pages.
+    visualStyle.textContent += `
+      .glossary-term { color: inherit; text-decoration: underline dotted; text-decoration-color: var(--color-primary); text-decoration-thickness: 2px; text-underline-offset: 3px; cursor: help; }
+      .glossary-term:hover, .glossary-term:focus-visible { color: var(--color-primary); }
+      .bc-glossary-hint { font-size: .9rem; margin-top: .5rem; }
+      .glossary h5 { margin-top: 1.5rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; color: var(--color-primary); }
+      .glossary-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .25rem 1.5rem; margin-top: .5rem; }
+      .glossary-entry { padding: .6rem .75rem; border-radius: .4rem; scroll-margin-top: 6rem; }
+      .glossary-entry dt { font-weight: 600; }
+      .glossary-entry dd { margin: .2rem 0 0; font-size: .92rem; }
+      .glossary-entry.is-active { background: color-mix(in oklab, var(--color-primary) 14%, transparent); outline: 2px solid var(--color-primary); }
+      .glossary-back { margin-top: .6rem; }
+      .glossary-print-title { display: none; }
+      @media (max-width: 760px) { .glossary-list { grid-template-columns: minmax(0, 1fr); } }
+      @media print { .glossary-term { text-decoration: none; } .glossary-back { display: none; } .glossary-print-title { display: block; } }
+    `;
+    const glossaryGroups = ['Mortgage words', 'Insurance words', 'Rules and regulators', 'Data and AI words', 'Microsoft tools'];
+    // [group index, id, term, meaning, pattern, pages: b = both, m = mortgage, i = insurance]
+    const glossaryTerms = [
+      [0, 'fixed-deal', 'Fixed-rate deal', "The interest rate stays the same for a set time, often 2 or 5 years. Then the deal ends.", /fixed[- ]rate deals?|fixed deals?/i, 'm'],
+      [0, 'maturity', 'Maturity (deal end)', "The date a fixed-rate deal ends. It is not the end of the mortgage. The customer then picks a new deal, moves to another lender, or pays the standard variable rate.", /\bmaturit(?:y|ies)\b|\bmaturing\b/i, 'm'],
+      [0, 'product-transfer', 'Product transfer', "The customer moves to a new deal with the same lender. The lender keeps the mortgage.", /product[- ]transfers?/i, 'm'],
+      [0, 'external-refinancing', 'External refinancing (remortgage)', "The customer moves the mortgage to a different lender. The old lender loses the balance and the interest income.", /external[- ]refinanc\w*|\bremortgag\w*/i, 'm'],
+      [0, 'redemption-statement', 'Redemption statement', "A document that shows the exact amount to pay off a mortgage. A request for one often means that the customer is moving to another lender.", /redemption statements?/i, 'm'],
+      [0, 'redemption', 'Redemption', "The mortgage is paid off in full. This happens when the customer moves to another lender, sells the home, or repays.", /\bredemptions?\b/i, 'm'],
+      [0, 'svr', 'Standard variable rate (SVR)', "The rate a mortgage moves to when a deal ends and the customer picks no new deal. It is usually much higher than a fixed rate. Also called the reversion rate.", /standard variable rate|reversion rate|\bSVR\b/i, 'm'],
+      [0, 'payment-shock', 'Payment shock', "A large, sudden rise in the monthly payment, for example when a cheap fixed deal ends.", /payment shock/i, 'm'],
+      [0, 'arrears', 'Arrears', "Payments that are due but not paid.", /\barrears\b/i, 'm'],
+      [0, 'default', 'Default', "A serious failure to repay, as the loan terms define it. It is more serious than one missed payment.", /\bdefault\b/i, 'm'],
+      [0, 'broker', 'Broker (intermediary)', "An independent adviser who finds and arranges a mortgage for a customer. Many UK mortgages go through brokers.", /\bbrokers?\b|\bintermediar(?:y|ies)\b/i, 'm'],
+      [0, 'servicing', 'Servicing', "The day-to-day running of a loan: payments, changes, and customer questions.", /\bservicing\b/i, 'm'],
+      [0, 'collections', 'Collection and collections team', "A collection takes a due payment, for example by Direct Debit. The collections team deals with missed payments.", /\bcollections?\b/i, 'm'],
+      [0, 'reversal', 'Reversal', "A payment that the lender took and then had to return, for example a failed Direct Debit.", /\breversals?\b|\breversed\b/i, 'm'],
+      [0, 'ledger', 'Ledger', "The record of every amount due and paid on an account.", /\bledger\b/i, 'm'],
+      [0, 'nim', 'Net interest margin', "The interest a lender earns on loans, minus its cost to borrow the money, as a percentage. It turns a kept balance into yearly income.", /net interest margin/i, 'm'],
+      [0, 'exposure', 'Exposure', "The loan balance at risk. It is not money saved or earned.", /\bexposure\b/i, 'm'],
+      [0, 'suitability', 'Suitability', "Whether a product fits the customer's needs and situation. FCA rules require this check before advice.", /\bsuitability\b/i, 'm'],
+      [1, 'premium', 'Premium', "The price the customer pays for the policy, usually each year.", /\bpremiums?\b/i, 'i'],
+      [1, 'non-renewal', 'Non-renewal', "The customer does not continue the policy when the year ends. Renewal means the policy continues for another year.", /\bnon-renewals?\b/i, 'i'],
+      [1, 'loss-adjuster', 'Loss adjuster', "An expert who inspects the damage and agrees the claim value for the insurer.", /loss adjusters?/i, 'i'],
+      [1, 'outsourced', 'Outsourced supplier', "Another company that does work for the insurer, such as drying, building repairs, or finding a place to stay.", /\boutsourc\w*/i, 'i'],
+      [1, 'accommodation', 'Alternative accommodation', "A temporary place to stay that the insurer pays for while the home is unfit to live in.", /(?:alternative|temporary)[- ]accommodation|\baccommodation\b/i, 'i'],
+      [1, 'milestone', 'Milestone', "A planned step in a repair with a promised date, for example a drying visit or a builder start date.", /\bmilestones?\b/i, 'i'],
+      [1, 'ombudsman', 'Financial Ombudsman Service', "A free, independent UK service. It settles complaints between customers and financial firms when the firm and customer cannot agree.", /financial ombudsman(?: service)?|\bombudsman\b/i, 'i'],
+      [1, 'vulnerable', 'Vulnerable customer', "FCA term for a customer whose situation makes harm more likely, for example illness, a sudden loss of home, or money problems.", /\bvulnerab\w*/i, 'i'],
+      [1, 'claims-coordinator', 'Claims coordinator', "A staff member who tracks one claim and its suppliers until the repair is complete.", /claims coordinators?/i, 'i'],
+      [1, 'contractor-incident', 'Contractor incident', "One supplier problem that affects many claims, for example a builder who misses visits across a region.", /contractor(?:-wide)? (?:incidents?|problem)/i, 'i'],
+      [1, 'insurer-withdrawal', 'Insurer withdrawal', "The insurer chooses not to offer a renewal. This is not the customer leaving.", /insurer withdrawal/i, 'i'],
+      [1, 'underwriting', 'Underwriting', "Deciding whether to insure a risk, and at what price.", /\bunderwriting\b/i, 'i'],
+      [1, 'settlement', 'Settlement', "The payment that closes a claim.", /\bsettlement\b/i, 'i'],
+      [1, 'tenure', 'Tenure', "How long the customer has held the policy.", /\btenure\b/i, 'i'],
+      [2, 'fca', 'FCA (Financial Conduct Authority)', "The UK regulator for how banks, lenders, and insurers treat customers.", /\bFCA\b/, 'b'],
+      [2, 'consumer-duty', 'Consumer Duty', "FCA rules in force since 31 July 2023. Firms must deliver good outcomes for retail customers and show evidence of this.", /consumer duty/i, 'b'],
+      [2, 'ps242', 'PS24/2', "An FCA policy statement from 2024. Lenders must help customers who may struggle to pay, before they miss a payment.", /PS24\/2/, 'm'],
+      [2, 'mcob', 'MCOB 13', "Chapter 13 of the FCA mortgage rulebook (Mortgage Conduct of Business). It covers how lenders treat customers in payment difficulty or arrears.", /MCOB 13|\bMCOB\b/, 'm'],
+      [2, 'charter', 'Mortgage Charter', "A 2023 agreement between the UK Government and lenders. It gives borrowers extra options, for example to lock in a new deal up to six months before the old deal ends.", /mortgage charter/i, 'm'],
+      [2, 'conduct-risk', 'Conduct risk', "The risk that a firm treats customers unfairly or breaks FCA rules.", /conduct risk/i, 'm'],
+      [2, 'gipp', 'Pricing rules (GIPP, PS21/5)', "FCA rules for home and motor insurance, in force since 1 January 2022. A renewal price must not be higher than the price for an equivalent new customer.", /PS21\/5|\bGIPP\b|pricing rules/i, 'i'],
+      [2, 'mi', 'Management information (MI)', "Regular reports that managers use to run the business and that boards use to check customer outcomes.", /management (?:information|reports?)|\bMI\b/, 'i'],
+      [2, 'responsible-ai', 'Responsible-AI review', "A check before real use that an AI system is fair, safe, explainable, and lawful.", /responsible[- ]AI/i, 'b'],
+      [2, 'protected', 'Protected characteristics', "Traits that UK equality law protects, such as age, disability, race, religion, and sex. A model must not use them unfairly.", /protected characteristics/i, 'b'],
+      [2, 'proxy', 'Proxy', "A data field that stands in for a protected characteristic, for example a postcode that reflects ethnicity.", /\bprox(?:y|ies)\b/i, 'b'],
+      [3, 'customer-360', 'Customer 360', "One view that shows everything about one customer from all systems, such as account, payments, contacts, and complaints.", /customer 360/i, 'b'],
+      [3, 'real-time', 'Real-time', "Updates within seconds or minutes of an event, not overnight.", /real[- ]time/i, 'b'],
+      [3, 'ml', 'Machine learning (ML)', "Software that learns patterns from past data and uses them to make estimates about new cases.", /machine learning|\bML\b/, 'b'],
+      [3, 'churn', 'Churn and churn score', "Churn means customers who leave. A churn score is a model estimate of how likely one customer is to leave.", /\bchurn\b/i, 'b'],
+      [3, 'segment', 'Segment (cluster)', "A group of similar customers that a model finds in the data. Clustering is the method. The team names each group only after it checks the result.", /\bsegments?\b|\bclusters?\b|\bclustering\b/i, 'b'],
+      [3, 'retention', 'Retention', "Keeping a customer who may leave. A retention review is a human check of what to offer, if anything.", /\bretention\b/i, 'b'],
+      [3, 'checkpoint', 'Checkpoint and cutoff', "The fixed moment when the system freezes the data and makes a prediction. Here, it is 90 days before the deal or policy ends. The model must not use data from after the cutoff.", /\bcheckpoints?\b|\bcutoffs?\b/i, 'b'],
+      [3, 'snapshot', 'Snapshot', "A saved copy of the data as it was at the checkpoint. The team can then repeat and check each prediction.", /\bsnapshots?\b/i, 'b'],
+      [3, 'feature', 'Feature', "One input to a model, for example the number of missed repair visits in the last 30 days.", /\bfeatures?\b/i, 'b'],
+      [3, 'label', 'Label (target)', "The real outcome that the model learns to predict, for example: moved to another lender. An unknown outcome gets no label.", /\blabels?\b|\bunlabelled\b/i, 'b'],
+      [3, 'classifier', 'Classifier', "A model that predicts a yes or no answer, for example: will this customer leave?", /\bclassifiers?\b/i, 'b'],
+      [3, 'logreg', 'Logistic regression and tree model', "Two simple prediction methods that people can explain. The team compares them before it picks one.", /logistic regression|tree model/i, 'b'],
+      [3, 'baseline', 'Baseline', "A simple rule to compare the model with. The model must do better than the rule to be worth using.", /\bbaselines?\b/i, 'b'],
+      [3, 'cohort', 'Cohort', "A group of customers whose deals or policies end in the same period.", /\bcohorts?\b/i, 'b'],
+      [3, 'training', 'Training, validation, and test data', "Training data teaches the model. Validation data tunes its settings. Separate test data checks the final result.", /\btraining\b|\bvalidation\b/i, 'b'],
+      [3, 'precision-recall', 'Precision and recall', "Precision: of the customers flagged, how many really left. Recall: of the customers who left, how many the system flagged.", /\bprecision\b|\brecall\b/i, 'b'],
+      [3, 'calibration', 'Calibration', "Whether scores match reality. For example, of customers with a 30% score, about 30 in 100 really leave.", /\bcalibration\b/i, 'b'],
+      [3, 'false-positive', 'False positive', "A warning for a customer who did not leave.", /false positives?/i, 'b'],
+      [3, 'threshold', 'Threshold', "The score above which the system raises a warning.", /\bthresholds?\b/i, 'b'],
+      [3, 'contributions', 'Model contributions', "How much each input pushed a score up or down. They show why the model gave a high score. They do not prove why a customer leaves.", /model contributions|model drivers/i, 'b'],
+      [3, 'synthetic', 'Synthetic data', "Made-up data that looks realistic. It contains no real customers.", /\bsynthetic\b/i, 'b'],
+      [3, 'pseudonymous', 'Pseudonymous (masked) data', "Real data with names and other identifiers replaced by codes.", /\bpseudonymous\b|\bmasked\b/i, 'b'],
+      [3, 'pilot', 'Pilot', "A small, time-limited trial with real users before a full roll-out.", /\bpilot\b/i, 'b'],
+      [3, 'audit', 'Audit trail', "A permanent record of each warning: who did what, when, and why.", /audit (?:trail|record)s?|\baudit\b/i, 'b'],
+      [3, 'replay', 'Event replay', "An event is one change, for example a missed repair visit. A replay sends a recorded event again to test the system.", /\breplay\w*/i, 'b'],
+      [3, 'ingestion', 'Event time and ingestion time', "Event time is when something happened. Ingestion time is when the data reached the system. Ingestion time can be later.", /\bingest\w*/i, 'b'],
+      [3, 'duplicate', 'Duplicate event', "The same event received twice. The system must create one case, not two.", /\bduplicat\w*|\bdeduplicat\w*/i, 'b'],
+      [3, 'quarantine', 'Quarantine', "Hold doubtful records aside for a check, instead of using them.", /\bquarantine\b/i, 'b'],
+      [3, 'stale', 'Stale', "Out of date. A stale feed or score did not refresh on time.", /\bstale\b/i, 'b'],
+      [3, 'grain', 'Grain', "What one row in a table stands for, for example one payment.", /\bgrain\b/i, 'b'],
+      [3, 'data-contract', 'Data contract', "An agreed description of a dataset: its fields, their meaning, and the checks on them.", /data contracts?|event contract/i, 'b'],
+      [3, 'latency', 'Latency', "The delay between an event and the result that people see.", /\blatency\b/i, 'b'],
+      [3, 'least-privilege', 'Least privilege', "Each person gets only the access that their job needs.", /least[- ]privilege/i, 'b'],
+      [3, 'counterexample', 'Counterexample', "A customer who looks risky but is fine. It tests that the system does not raise false alarms.", /\bcounterexamples?\b/i, 'b'],
+      [3, 'governed', 'Governed data', "Data with an owner, agreed definitions, and access rules.", /\bgoverned\b/i, 'b'],
+      [3, 'model-card', 'Model card', "A short document that states what a model does, its data, its test results, and its limits.", /model cards?/i, 'b'],
+      [4, 'fabric', 'Microsoft Fabric', "Microsoft's data platform. It stores data, runs analysis and ML, and shows reports in one place.", /\bFabric\b/, 'b'],
+      [4, 'capacity', 'Fabric capacity', "The amount of Fabric computing power that an organisation pays for.", /fabric capacity/i, 'b'],
+      [4, 'lakehouse', 'Lakehouse', "Fabric storage for large amounts of history data, held as tables.", /\blakehouse\b/i, 'b'],
+      [4, 'delta', 'Delta table', "The table format that a Lakehouse uses. It keeps a history of changes.", /delta tables?/i, 'b'],
+      [4, 'eventstream', 'Eventstream', "The Fabric tool that receives live events as they happen.", /\beventstream\b/i, 'b'],
+      [4, 'eventhouse', 'Eventhouse', "The Fabric database for live event data. It answers queries in seconds.", /\beventhouse\b/i, 'b'],
+      [4, 'activator', 'Activator', "The Fabric tool that watches data and starts an alert or action when a rule is met.", /\bactivator\b/i, 'b'],
+      [4, 'pipeline', 'Pipeline', "A scheduled job that copies data from one system to another.", /\bpipelines?\b/i, 'b'],
+      [4, 'notebook', 'Notebook', "A document that mixes code and results. Data teams use notebooks to prepare data and train models.", /\bnotebooks?\b/i, 'b'],
+      [4, 'mlflow', 'MLflow', "A tool that records model versions and test results.", /\bMLflow\b/i, 'b'],
+      [4, 'power-bi', 'Power BI', "Microsoft's report and dashboard tool.", /power bi/i, 'b'],
+      [4, 'power-automate', 'Power Automate', "A Microsoft tool that runs simple automatic workflows, for example to create a task.", /power automate/i, 'b'],
+      [4, 'sharepoint', 'SharePoint list', "A simple shared table in Microsoft 365. Here, it holds the review cases.", /sharepoint(?: list)?/i, 'b'],
+      [4, 'tenant', 'Tenant', "An organisation's own Microsoft 365 and Fabric environment.", /\btenant\b/i, 'b'],
+      [4, 'connector', 'Connector', "A ready-made link that lets one tool read or write data in another tool.", /\bconnectors?\b/i, 'b']
+    ];
+    const glossarySkip = 'svg, a, button, summary, h1, h2, h3, h4, h5, nav, .bc-kicker, .glossary, script, style';
+    const glossaryBlock = '.bc-fact, .bc-pain, .bc-people, .bc-formula, .bc-map, .bc-today, .bc-output, .bc-lead, .evidence-note, figure, details, section, .visual-story';
+    const linkGlossaryTerms = (root, key, terms) => {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: node => node.nodeValue.trim() && !node.parentElement.closest(glossarySkip) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      const used = new Map();
+      const found = new Set();
+      nodes.forEach(node => {
+        const block = node.parentElement.closest(glossaryBlock) || root;
+        if (!used.has(block)) used.set(block, new Set());
+        const seen = used.get(block);
+        let current = node;
+        while (current) {
+          let best = null;
+          terms.forEach(term => {
+            if (seen.has(term.id)) return;
+            const match = term.pattern.exec(current.nodeValue);
+            if (match && (!best || match.index < best.match.index || (match.index === best.match.index && match[0].length > best.match[0].length))) best = { term, match };
+          });
+          if (!best) break;
+          seen.add(best.term.id);
+          found.add(best.term.id);
+          const word = current.splitText(best.match.index);
+          current = word.splitText(best.match[0].length);
+          const link = document.createElement('a');
+          link.className = 'glossary-term';
+          link.href = '#' + key + '-term-' + best.term.id;
+          link.title = best.term.term + ': ' + best.term.meaning;
+          link.textContent = word.nodeValue;
+          word.replaceWith(link);
+        }
+      });
+      return found;
+    };
+    const glossaryBack = document.createElement('button');
+    glossaryBack.type = 'button';
+    glossaryBack.className = 'btn btn-sm btn-outline glossary-back';
+    glossaryBack.textContent = 'Back to where you were';
+    let glossaryReturn = null;
+    glossaryBack.addEventListener('click', () => {
+      glossaryBack.closest('.glossary-entry')?.classList.remove('is-active');
+      glossaryBack.remove();
+      if (glossaryReturn) { glossaryReturn.scrollIntoView({ block: 'center' }); glossaryReturn.focus({ preventScroll: true }); }
+    });
+    ['mortgage', 'insurance'].forEach(key => {
+      const content = document.querySelector('#' + key + '-option .scenario-content');
+      const pageCode = key[0];
+      const terms = glossaryTerms.filter(item => item[5] === 'b' || item[5] === pageCode).map(([group, id, term, meaning, pattern]) => ({ group, id, term, meaning, pattern }));
+      const lead = content.querySelector('.bc-lead');
+      lead.insertAdjacentHTML('afterend', `<p class="bc-glossary-hint">Words with a dotted underline have a plain-English meaning. Hover over a word to read it, or select it to open the <a class="link glossary-jump" href="#${key}-glossary">glossary</a>.</p>`);
+      const found = linkGlossaryTerms(content, key, terms);
+      const listed = terms.filter(term => term.id && found.has(term.id));
+      const glossary = document.createElement('details');
+      glossary.className = 'technical-detail glossary';
+      glossary.id = key + '-glossary';
+      glossary.innerHTML = `<summary>Glossary: plain-English meanings of ${listed.length} terms</summary><h4 class="glossary-print-title">Glossary</h4><p class="bc-glossary-hint">Words with an underscore, such as deal_end_at, are data field names. Each name describes the data in that field.</p>` +
+        glossaryGroups.map((group, index) => {
+          const items = listed.filter(term => term.group === index).sort((a, b) => a.term.localeCompare(b.term));
+          return items.length ? `<h5>${escapeVisual(group)}</h5><dl class="glossary-list">${items.map(term => `<div class="glossary-entry" id="${key}-term-${term.id}" tabindex="-1"><dt>${escapeVisual(term.term)}</dt><dd>${escapeVisual(term.meaning)}</dd></div>`).join('')}</dl>` : '';
+        }).join('');
+      content.append(glossary);
+    });
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a.glossary-term, a.glossary-jump');
+      if (!link) return;
+      const target = document.getElementById(link.hash.slice(1));
+      if (!target) return;
+      event.preventDefault();
+      const glossary = target.closest('details.glossary') || target;
+      glossary.open = true;
+      document.querySelectorAll('.glossary-entry.is-active').forEach(entry => entry.classList.remove('is-active'));
+      glossaryReturn = link;
+      if (target.classList.contains('glossary-entry')) {
+        target.classList.add('is-active');
+        target.append(glossaryBack);
+        target.scrollIntoView({ block: 'center' });
+        target.focus({ preventScroll: true });
+      } else {
+        glossary.scrollIntoView({ block: 'start' });
+      }
+    });
     window.addEventListener('beforeprint', () => {
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.dataset.printOpen = String(detail.open); detail.open = true; });
     });
@@ -1376,13 +1572,13 @@
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.open = detail.dataset.printOpen === 'true'; delete detail.dataset.printOpen; });
     });
     const scenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
-    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Mortgage maturity early warning', 'HavenCover / Claims recovery and renewal early warning'];
+    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Early warning when fixed deals end', 'HavenCover / Claims recovery and renewal early warning'];
     const scenarioDescriptions = {
       'software-option': 'A software provider may only discover that a maintenance company is leaving when it declines renewal, because usage and support records are disconnected. The proposed solution combines history and live activity in a real-time customer view, uses ML to group accounts by behaviour, and aims to flag non-renewal risk about 90 days ahead so a manager can review the evidence and act.',
       'broadband-option': 'A broadband provider may only discover that a household is leaving when it cancels or switches, despite earlier outages and complaints. The proposed solution combines billing, support and live network activity in a real-time customer view, uses ML to group households by behaviour, and aims to flag churn about 90 days ahead for a retention adviser to review.',
       'retail-option': 'A pet-supply subscription retailer may only discover that a customer is leaving when they cancel or decline renewal, with delivery problems and changing usage recorded separately. The proposed solution builds a real-time customer view, learns behavioural segments with ML, and aims to flag subscription non-renewal about 90 days ahead so staff can review the warning and address service problems.',
-      'mortgage-option': 'Fixed-rate deals end in large monthly waves, and advisers cannot call every customer. Some customers need payment support, some are stuck in the lender\'s own process, and some may move to another lender. The proposed solution flags refinancing risk about 90 days before deal end and sends each case to the right team, with payment support first.',
-      'insurance-option': 'Many home insurers use outside suppliers for claims work. A failing repair can stay hidden until the customer complains or leaves at renewal. The proposed solution joins policy, claim, supplier, and complaint data and flags non-renewal risk about 90 days before expiry. Claims coordinators fix recovery problems before any renewal review.'
+      'mortgage-option': 'Fixed-rate deals end in large numbers every month, and advisers cannot call every customer. Some customers need payment support, some are stuck in the lender\'s own process, and some may move to another lender. The proposed solution flags customers likely to move about 90 days before deal end and sends each case to the right team, with payment support first.',
+      'insurance-option': 'Many home insurers use outside suppliers for claims work. A failing repair can stay hidden until the customer complains or leaves at renewal. The proposed solution joins policy, claim, supplier, and complaint data and flags customers likely to leave about 90 days before the policy ends. Claims coordinators fix recovery problems before any renewal review.'
     };
     scenarioIds.forEach(id => {
       const description = scenarioDescriptions[id];
