@@ -116,7 +116,7 @@
     </section>
 
     <section aria-labelledby="options-title">
-      <p class="text-primary text-sm font-semibold uppercase tracking-wide">Scenario lab / Five possible businesses</p>
+      <p class="text-primary text-sm font-semibold uppercase tracking-wide">Scenario lab / <span id="scenario-count">Five</span> possible businesses</p>
       <h2 id="options-title" class="text-3xl font-semibold mt-2">Step inside the customer problem.</h2>
       <p class="mt-3 text-base-content/70">Open a scenario blueprint. Each page includes a submission summary, architecture, data contracts, model design, build plan, and acceptance tests.</p>
       <p class="evidence-note mt-4"><strong>Fictional design sketches.</strong> Company names, stacks, cases, and events below are illustrative assumptions, not researched facts or measured evidence.</p>
@@ -1055,7 +1055,7 @@
       };
     };
     const overviewVisuals = [
-      ['brief-title', [['Real-time Customer 360', 'History joined to live activity'], ['ML segments', 'Fit clusters; assign customers'], ['Churn model', 'Target warnings about 90 days early'], ['Human-owned response', 'Explain risk; review approved action']], 'All five proposals have the same required core. Retail is reframed as a subscription business; mortgages predict external refinancing, not payment difficulty. These are design proposals, not measured results.'],
+      ['brief-title', [['Real-time Customer 360', 'History joined to live activity'], ['ML segments', 'Fit clusters; assign customers'], ['Churn model', 'Target warnings about 90 days early'], ['Human-owned response', 'Explain risk; review approved action']], 'Each proposal has the same required core. The mortgage model predicts a move to another lender, not payment difficulty. These are design proposals, not measured results.'],
       ['business-title', [['Maintenance company', 'One subscribing business'], ['Field engineers', 'Schedule / complete / invoice jobs'], ['Workflow failure', 'Check incidents, not usage alone'], ['Account manager', 'Review evidence before action']], 'Illustrative software business, not a selected scenario.'],
       ['data-title', [['Shared account identity', 'Contracts / product / support'], ['Dated records', 'Preserve source and arrival times'], ['Frozen feature snapshot', 'No future outcomes in inputs'], ['Review evidence', 'Owner / source links / case status']], 'Missing feeds remain visible. Synthetic outcomes must not copy the alert rule.'],
       ['scope-title', [['Agree contracts', 'Account / event / score interfaces'], ['Data and events', 'Validated histories and replay'], ['ML and evaluation', 'Baseline / model / later-cohort test'], ['Dashboard and action', 'Evidence / case writer / human owner']], 'Three workstreams share agreed interfaces. No autonomous discounts or customer messages.'],
@@ -1571,8 +1571,27 @@
     window.addEventListener('afterprint', () => {
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.open = detail.dataset.printOpen === 'true'; delete detail.dataset.printOpen; });
     });
-    const scenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
-    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Early warning when fixed deals end', 'HavenCover / Claims recovery and renewal early warning'];
+    // Hidden scenarios stay in the source. Remove an ID from this set to show it again.
+    const hiddenScenarios = new Set(['software-option', 'broadband-option', 'retail-option']);
+    const allScenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
+    const allPageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Early warning when fixed deals end', 'HavenCover / Claims recovery and renewal early warning'];
+    const allNavNames = ['Software', 'Broadband', 'Retail', 'Mortgages', 'Insurance'];
+    const scenarioIds = allScenarioIds.filter(id => !hiddenScenarios.has(id));
+    const pageTitles = scenarioIds.map(id => allPageTitles[allScenarioIds.indexOf(id)]);
+    const navNames = scenarioIds.map(id => allNavNames[allScenarioIds.indexOf(id)]);
+    hiddenScenarios.forEach(id => {
+      document.querySelector('[data-open-scenario="' + id + '"]')?.remove();
+      document.getElementById(id)?.remove();
+    });
+    if (hiddenScenarios.has('software-option')) document.querySelector('[aria-labelledby="business-title"]').hidden = true;
+    const scenarioCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five'][scenarioIds.length];
+    document.getElementById('scenario-count').textContent = scenarioCount;
+    scenarioIds.forEach((id, n) => {
+      const number = String(n + 1).padStart(2, '0') + ' / ';
+      [document.querySelector('[data-open-scenario="' + id + '"] > strong'), document.querySelector('#' + id + ' .scenario-summary-title')].forEach(label => {
+        label.textContent = label.textContent.replace(/^\d\d \/ /, number);
+      });
+    });
     const scenarioDescriptions = {
       'software-option': 'A software provider may only discover that a maintenance company is leaving when it declines renewal, because usage and support records are disconnected. The proposed solution combines history and live activity in a real-time customer view, uses ML to group accounts by behaviour, and aims to flag non-renewal risk about 90 days ahead so a manager can review the evidence and act.',
       'broadband-option': 'A broadband provider may only discover that a household is leaving when it cancels or switches, despite earlier outages and complaints. The proposed solution combines billing, support and live network activity in a real-time customer view, uses ML to group households by behaviour, and aims to flag churn about 90 days ahead for a retention adviser to review.',
@@ -1594,7 +1613,7 @@
       const nav = document.createElement('nav');
       nav.className = 'blueprint-nav';
       nav.setAttribute('aria-label', 'Blueprint navigation');
-      [['#overview', 'Back to main page'], ...scenarioIds.map((key, n) => ['#' + key, ['Software', 'Broadband', 'Retail', 'Mortgages', 'Insurance'][n]])].forEach(([href, text]) => {
+      [['#overview', 'Back to main page'], ...scenarioIds.map((key, n) => ['#' + key, navNames[n]])].forEach(([href, text]) => {
         const link = document.createElement('a');
         link.href = href;
         link.className = 'btn btn-outline';
