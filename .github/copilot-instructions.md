@@ -14,6 +14,12 @@ npx -y lavish-axi share site/index.html --site efeeb7a1 --update-key "$([Environ
 - The update key is in the user environment variable `LAVISH_CP360_UPDATE_KEY` on the author's machine.
 - Never write the update key into this repository, the HTML, commits, or chat handoffs.
 - If the variable is missing, ask the user for the key. Do not publish to a new URL.
+- The page password is in the user environment variable `LAVISH_CP360_PASSWORD`. Never write it into this repository.
+- To verify the hosted copy after a republish, send the password as the `ht_ml_pwd` cookie:
+
+```powershell
+curl.exe -s -b "ht_ml_pwd=$([Environment]::GetEnvironmentVariable('LAVISH_CP360_PASSWORD','User'))" https://efeeb7a1.ht-ml.app/
+```
 
 ## Writing style
 
