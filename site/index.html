@@ -885,8 +885,8 @@
       software: { question: 'A broken workflow, or a quiet season?', signals: ['Jobs decline', 'Invoice failures', 'Ticket reopens'], action: 'Repair the workflow', counter: 'Seasonal demand', date: 'Contract renewal' },
       broadband: { question: 'A household fault, or a resolved outage?', signals: ['Evening outages', 'Repeat contacts', 'Open complaint'], action: 'Investigate the line', counter: 'Recorded recovery', date: 'Contract expiry' },
       retail: { question: 'Who may cancel their pet-supply subscription?', signals: ['Subscription use', 'Delivery complaint', 'Skipped deliveries'], action: 'Review non-renewal risk', counter: 'Agreed delivery pause', date: 'Subscription renewal' },
-      mortgage: { question: 'Who may refinance with another lender?', signals: ['Deal ending', 'Application fails', 'Contact declines'], action: 'Review refinancing risk', counter: 'Completed transfer', date: 'Fixed-rate deal ends' },
-      insurance: { question: 'Repair failure, or a completed recovery?', signals: ['Flood claim', 'Missed repair', 'Help still needed'], action: 'Coordinate recovery', counter: 'Repair milestones met', date: 'Policy expiry' }
+      mortgage: { question: 'Support, fix our process, or a retention review?', signals: ['Deal ending', 'Transfer fails', 'Payment shock'], action: 'Route to the right team', counter: 'Completed transfer', date: 'Fixed-rate deal ends' },
+      insurance: { question: 'Whose recovery is failing before renewal?', signals: ['Flood claim', 'Missed repair', 'Renewal due'], action: 'Fix the recovery first', counter: 'Repair milestones met', date: 'Policy expiry' }
     };
     const visualStyle = document.createElement('style');
     visualStyle.textContent = `
@@ -1119,6 +1119,256 @@
         }
       });
     });
+    // Business challenge: real-world framing for the financial-services scenarios.
+    visualStyle.textContent += `
+      .business-challenge { grid-column: 1 / -1; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-base-300); }
+      .business-challenge .bc-kicker { color: var(--color-primary); font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+      .business-challenge .bc-question { font-family: Georgia, serif; font-size: clamp(1.6rem, 3.2vw, 2.4rem); font-weight: 400; line-height: 1.2; margin: .5rem 0 .75rem; max-width: 32ch; }
+      .business-challenge .bc-lead { max-width: 75ch; color: color-mix(in oklab, var(--color-base-content) 75%, transparent); }
+      .business-challenge h4 { margin-top: 2rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+      .bc-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+      .bc-fact { background: var(--color-base-200); border-radius: .4rem; padding: 1rem; display: flex; flex-direction: column; gap: .4rem; }
+      .bc-fact strong { font-family: Georgia, serif; font-size: 1.9rem; font-weight: 400; color: var(--color-primary); line-height: 1.1; }
+      .bc-fact span { font-size: .92rem; }
+      .bc-fact a { font-size: .78rem; margin-top: auto; }
+      .bc-figure { margin: 1rem 0 0; }
+      .bc-figure svg { width: 100%; color: var(--color-base-content); background: var(--color-base-200); border-radius: .4rem; }
+      .bc-figure svg text { fill: currentColor; font: 15px 'Segoe UI', sans-serif; }
+      .bc-figure svg .bc-strong { font-weight: 650; font-size: 16px; }
+      .bc-figure svg .bc-small { font-size: 13px; opacity: .8; }
+      .bc-figure svg .bc-card { fill: var(--color-base-100); stroke: var(--color-base-300); stroke-width: 2; }
+      .bc-figure svg .bc-wire { fill: none; stroke: var(--color-primary); stroke-width: 3; }
+      .bc-figure svg .bc-track { fill: none; stroke: var(--color-base-content); stroke-opacity: .25; stroke-width: 6; stroke-linecap: round; }
+      .bc-figure svg .bc-dash { fill: none; stroke: var(--color-base-content); stroke-opacity: .55; stroke-width: 2; stroke-dasharray: 6 5; }
+      .bc-figure svg .bc-warn { fill: var(--color-warning); }
+      .bc-figure svg .bc-error { fill: var(--color-error); }
+      .bc-figure svg .bc-ok { fill: var(--color-success); }
+      .bc-figure svg .bc-main { fill: var(--color-primary); }
+      .bc-figure svg .bc-band-warn { fill: var(--color-warning); fill-opacity: .25; stroke: var(--color-warning); stroke-width: 2; }
+      .bc-figure svg .bc-band { fill: var(--color-primary); fill-opacity: .12; stroke: var(--color-primary); stroke-width: 2; }
+      .bc-figure svg .bc-cross { stroke: var(--color-error); stroke-width: 4; stroke-linecap: round; }
+      .bc-figure figcaption { font-size: .9rem; margin-top: .5rem; max-width: 80ch; }
+      .bc-pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+      .bc-pain { border-top: 3px solid var(--color-primary); background: var(--color-base-200); border-radius: 0 0 .4rem .4rem; padding: 1rem; }
+      .bc-pain strong { display: block; font-size: 1.02rem; }
+      .bc-pain p { margin-top: .4rem; font-size: .92rem; }
+      .bc-pain .bc-cost { color: color-mix(in oklab, var(--color-base-content) 75%, transparent); }
+      .bc-pain .bc-cost b { color: var(--color-error); font-weight: 600; }
+      .bc-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+      .bc-people { list-style: none; padding: 0 !important; margin-top: 1rem; }
+      .bc-people li { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: .75rem; padding: .6rem 0; border-bottom: 1px solid var(--color-base-300); margin: 0 !important; }
+      .bc-people li strong { font-weight: 600; }
+      .bc-people .badge { margin-left: .4rem; vertical-align: middle; }
+      .bc-formula { margin-top: 1rem; padding: 1rem; background: var(--color-base-200); border-radius: .4rem; }
+      .bc-formula code { display: block; font-size: .88rem; white-space: normal; padding: .35rem 0; border-bottom: 1px dashed var(--color-base-300); }
+      .bc-formula p { font-size: .85rem; margin-top: .6rem; }
+      .bc-map { width: 100%; border-collapse: collapse; margin-top: 1rem; table-layout: fixed; }
+      .bc-map th, .bc-map td { text-align: left; vertical-align: top; padding: .6rem .75rem; border-bottom: 1px solid var(--color-base-300); font-size: .92rem; }
+      .bc-map th { background: var(--color-base-200); font-weight: 600; }
+      .bc-output { margin-top: 1rem; padding: 1rem; border: 1px solid var(--color-primary); border-radius: .4rem; }
+      .bc-today { margin-top: 1rem; padding: 1rem; border: 1px dashed var(--color-warning); border-radius: .4rem; }
+      .business-challenge .technical-detail ol, .business-challenge .technical-detail ul { padding-left: 1.25rem; }
+      .business-challenge .technical-detail li + li { margin-top: .4rem; }
+      @media (max-width: 900px) { .bc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bc-pains { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 760px) { .bc-facts, .bc-pains, .bc-two { grid-template-columns: minmax(0, 1fr); } .bc-people li { grid-template-columns: minmax(0, 1fr); gap: .2rem; } .bc-figure { overflow-x: auto; } .bc-figure svg { min-width: 640px; } }
+      @media print { .bc-figure { overflow: visible; } .bc-figure svg { min-width: 0; } .business-challenge { break-inside: auto; } }
+    `;
+    const challengeSources = {
+      ukf: ['UK Finance, Mortgage Market Forecast 2026-2027 (December 2025)', 'https://ukfinance-newsroom.prgloo.com/news/uk-finance-mortgage-market-forecast-2026-2027'],
+      ps242: ['FCA PS24/2, Strengthening protections for borrowers in financial difficulty (2024)', 'https://www.fca.org.uk/publication/policy/ps24-2.pdf'],
+      duty: ['FCA, Consumer Duty (in force 31 July 2023)', 'https://www.fca.org.uk/firms/consumer-duty'],
+      charter: ['HM Treasury, Mortgage Charter (June 2023)', 'https://www.gov.uk/government/publications/mortgage-charter'],
+      claims: ['FCA, Home and travel claims handling arrangements: good practice and areas for improvement (22 July 2025)', 'https://www.fca.org.uk/publications/good-and-poor-practice/home-travel-claims-handling-arrangements'],
+      gipp: ['FCA PS21/5, General insurance pricing practices (pricing rules in force 1 January 2022)', 'https://www.fca.org.uk/publication/policy/ps21-5.pdf']
+    };
+    const mortgageChallengeFigure = () => {
+      const lanes = [
+        ['bc-warn', 'Cannot afford the new rate', 'Payment shock or other difficulty. Financial support team acts first.'],
+        ['bc-main', 'Wants to stay, but our process fails', 'Transfer error or stalled offer. Operations fixes the journey.'],
+        ['bc-main', 'May move to another lender', 'High churn score with evidence. Retention adviser reviews.'],
+        ['bc-ok', 'Transfer complete, no problems', 'No action. Adviser time goes to other customers.']
+      ];
+      const laneSvg = lanes.map(([tone, title, note], index) => {
+        const y = 14 + index * 94;
+        return `<g id="mortgage-route-${index}"><title>${escapeVisual(title + ': ' + note)}</title><path class="bc-wire" d="M290 ${y + 36}H326"/><rect class="bc-card" x="330" y="${y}" width="550" height="72" rx="8"/><rect class="${tone}" x="330" y="${y}" width="9" height="72" rx="3"/><text class="bc-strong" x="358" y="${y + 30}">${escapeVisual(title)}</text><text class="bc-small" x="358" y="${y + 54}">${escapeVisual(note)}</text></g>`;
+      }).join('');
+      return `<figure class="bc-figure"><svg viewBox="0 0 900 384" role="img" aria-labelledby="mortgage-routes-title mortgage-routes-desc"><title id="mortgage-routes-title">One maturity list holds four different customers</title><desc id="mortgage-routes-desc">Fixed deals ending in the next 90 days split into four routes: payment support first, fix the lender's own process, retention review, or no action.</desc><rect class="bc-card" x="40" y="150" width="200" height="110" rx="8"/><rect class="bc-card" x="32" y="142" width="200" height="110" rx="8"/><rect class="bc-card" x="24" y="134" width="200" height="110" rx="8"/><text class="bc-strong" x="124" y="182" text-anchor="middle">Fixed deals</text><text class="bc-strong" x="124" y="206" text-anchor="middle">ending in 90 days</text><text class="bc-small" x="124" y="230" text-anchor="middle">one monthly list</text><path class="bc-wire" d="M232 192H290M290 50V332"/>${laneSvg}</svg><figcaption>Illustrative routes, not measured shares. One customer can need more than one route. Payment support always comes first, whatever the churn score.</figcaption></figure>`;
+    };
+    const insuranceChallengeFigure = () => {
+      const crosses = [585, 665, 745].map((x, index) => `<g id="insurance-missed-${index}"><title>Missed supplier visit</title><path class="bc-cross" d="M${x - 9} 141l18 18m0-18-18 18"/></g>`).join('') + '<text class="bc-small" x="615" y="188" text-anchor="middle">missed visits</text>';
+      return `<figure class="bc-figure"><svg viewBox="0 0 900 330" role="img" aria-labelledby="insurance-lanes-title insurance-lanes-desc"><title id="insurance-lanes-title">The renewal checkpoint arrives while supplier repairs still fail</title><desc id="insurance-lanes-desc">Three lanes over one policy year. The policy lane shows the 90-day checkpoint and renewal. The claim lane shows a flood claim with drying and a failing repair. The insurer lane shows late supplier reports and a complaint.</desc>
+        <text class="bc-strong" x="20" y="65">Policy year</text>
+        <text class="bc-strong" x="20" y="146">Claim recovery</text><text class="bc-small" x="20" y="168">supplier work</text>
+        <text class="bc-strong" x="20" y="246">What the insurer</text><text class="bc-small" x="20" y="268">sees, and when</text>
+        <path class="bc-track" d="M190 60H860"/><text class="bc-small" x="190" y="90" text-anchor="middle">policy start</text>
+        <circle class="bc-main" cx="860" cy="60" r="10"/><text class="bc-strong" x="860" y="34" text-anchor="end">Renewal</text>
+        <path class="bc-dash" d="M692 24V300"/><text class="bc-small" x="684" y="22" text-anchor="end">Score checkpoint: 90 days before renewal</text>
+        <circle class="bc-warn" cx="420" cy="150" r="10"><title>Flood claim reported</title></circle><text class="bc-small" x="420" y="124" text-anchor="middle">flood claim</text>
+        <rect class="bc-band" x="436" y="136" width="110" height="28" rx="6"><title>Drying stage</title></rect><text class="bc-small" x="491" y="155" text-anchor="middle">drying</text>
+        <rect class="bc-band-warn" x="550" y="136" width="250" height="28" rx="6"><title>Repair stage, still open</title></rect><text class="bc-small" x="812" y="155">still open</text>
+        ${crosses}
+        <path class="bc-track" d="M190 240H860" stroke-dasharray="2 14"/>
+        <circle class="bc-main" cx="640" cy="240" r="8"><title>Scheduled supplier report</title></circle><text class="bc-small" x="640" y="270" text-anchor="middle">supplier report</text>
+        <circle class="bc-error" cx="790" cy="240" r="10"><title>Customer complaint</title></circle><text class="bc-small" x="790" y="270" text-anchor="middle">complaint</text>
+      </svg><figcaption>Illustrative sequence, not real data. The insurer may learn about the failing repair only from a late supplier report or a complaint. By then the renewal is close.</figcaption></figure>`;
+    };
+    const businessChallenges = {
+      mortgage: {
+        kicker: 'Business challenge / UK mortgage lender',
+        question: 'Fixed deals end every month. Who needs support, who is stuck in our process, and who may leave?',
+        lead: 'HomeBridge is fictional. The market facts and rules below are real and cited. A UK lender with a large maturity book has this problem today.',
+        facts: [
+          ['1.8m', 'UK fixed-rate mortgage deals due to end in 2026. About 1.6 million ended in 2025.', 'ukf'],
+          ['£71bn', 'Remortgage lending that moved to a new lender in 2025. £256bn stayed with the existing lender as product transfers.', 'ukf'],
+          ['PS24/2', 'FCA rules: support borrowers at risk of payment difficulty, not only borrowers already in arrears.', 'ps242'],
+          ['Jul 2023', 'Consumer Duty in force. Lenders must deliver good customer outcomes and show evidence of them.', 'duty']
+        ],
+        figure: mortgageChallengeFigure,
+        pains: [
+          ['Too many maturities, too few advisers', 'Advisers work down a list by balance or date.', 'High-need customers wait. Time goes to customers who need nothing.'],
+          ['Signals sit in separate systems', 'Deal dates, payments, transfer applications, calls, broker submissions, and redemption requests live apart.', 'Nobody sees one customer\'s full situation.'],
+          ['Wrong first contact', 'A retention call reaches a customer who cannot afford the new rate.', 'Conduct risk under Consumer Duty and MCOB 13. Possible harm and complaint.'],
+          ['The lender finds the loss too late', 'The lender learns about a switch from a redemption statement request or a completed redemption.', 'No time remains for a review.'],
+          ['Customers drift to the reversion rate', 'A transfer stalls, or the customer does nothing. The payment rises to the standard variable rate.', 'Payment shock, arrears risk, and complaints.'],
+          ['Fair treatment is hard to prove', 'The board and the FCA ask how the lender treated maturing customers.', 'Manual evidence and a weak audit trail.']
+        ],
+        people: [
+          ['Head of mortgage retention', 'Keep balances at maturity at an acceptable cost.', true],
+          ['Financial support lead', 'Find at-risk borrowers before a missed payment.'],
+          ['Mortgage operations', 'Find and fix failing product-transfer journeys.'],
+          ['Conduct risk and Consumer Duty lead', 'Evidence of a fair outcome for each maturing customer.'],
+          ['Intermediary (broker) team', 'See broker-submitted transfers that stall.']
+        ],
+        value: [
+          'Retained balance = external redemptions avoided × average balance',
+          'Annual income kept ≈ retained balance × net interest margin − retention cost',
+          'Also count: arrears avoided, complaints avoided, adviser hours saved'
+        ],
+        today: 'A monthly maturity extract goes into a spreadsheet. Advisers call down the list. Collections flags payment problems, often after a missed payment.',
+        map: [
+          ['Signals sit in separate systems', 'Real-time Customer 360 keyed by mortgage_id + deal cycle.'],
+          ['Too many maturities', 'Churn score ranks external-refinance risk. Fitted ML segments group similar customers.'],
+          ['Wrong first contact', 'Routing rule sends payment support first, whatever the churn score.'],
+          ['The lender finds the loss too late', 'Score 90 days before deal end. Live events, such as a failed transfer, refresh the view.'],
+          ['Fair treatment is hard to prove', 'Audit record for each warning, route, owner, and outcome.']
+        ],
+        output: 'One route for each maturing mortgage: payment support, fix our process, retention review, or no action.',
+        questions: [
+          'How many fixed deals end each month? How many advisers review them?',
+          'What share of maturing balances leaves, by count and by value?',
+          'How many customers who left started a product transfer?',
+          'How many customers roll onto the reversion rate, and for how long?',
+          'How do you find customers at risk of payment difficulty before a missed payment?',
+          'Which systems hold deal end, payments, applications, contacts, broker submissions, and redemption requests? Do they share a mortgage ID?',
+          'Who can contact a customer, when, and under which contact rules?',
+          'How does the board see Consumer Duty outcome evidence for maturing customers today?',
+          'What does one retention conversation cost, compared with one lost mortgage?',
+          'Which data can a pilot use: synthetic, masked, or live?'
+        ],
+        assumptions: [
+          'Market and rules are UK. Other markets need a new rule check.',
+          'Redemption requests and broker submissions are available as data. Check this with the client.',
+          'The value formula needs the client\'s own balances, margin, and costs. This page gives no estimate.',
+          'The "today" process is a hypothesis to test in discovery.'
+        ],
+        sources: ['ukf', 'ps242', 'duty', 'charter']
+      },
+      insurance: {
+        kicker: 'Business challenge / UK home insurer',
+        question: 'Which customers is our claims process failing right now, before their renewal date?',
+        lead: 'HavenCover is fictional. The regulator findings below are real and cited. They describe problems that UK home insurers must fix now.',
+        facts: [
+          ['15', 'Home insurers in an FCA claims review. The FCA found weak oversight of outsourced claims suppliers, with delays and high complaint volumes.', 'claims'],
+          ['32%', 'Share of 2024 storm-damage claims to the reviewed firms that led to a payment.', 'claims'],
+          ['Late MI', 'The FCA found that weak management information stopped some firms from finding claims problems and delays quickly.', 'claims'],
+          ['Jan 2022', 'FCA pricing rules: a renewal price must not be higher than the equivalent new-customer price.', 'gipp']
+        ],
+        implication: 'Our view, not a cited fact: insurers cannot use price tactics to keep customers, so claims service matters more at renewal. Test this with client data.',
+        figure: insuranceChallengeFigure,
+        pains: [
+          ['Suppliers do the claims work', 'Loss adjusters, drying firms, builders, and accommodation providers hold the live status.', 'The insurer finds delays late.'],
+          ['Teams do not share a view', 'Claims, complaints, and renewals use separate systems.', 'A renewal invite goes to a customer whose repair still fails.'],
+          ['Renewal falls inside a bad claim', 'The renewal date arrives during, or soon after, a poor recovery.', 'Lost premium, and a possible Financial Ombudsman complaint.'],
+          ['Vulnerable customers wait', 'A family in temporary accommodation needs fast help.', 'Customer harm and a longer accommodation cost.'],
+          ['One supplier fails many claims', 'A failing contractor affects many policies before anyone links them.', 'Repeated harm, and no single incident owner.'],
+          ['Good outcomes are hard to prove', 'Consumer Duty needs outcome monitoring and root-cause action.', 'Manual and late board reporting.']
+        ],
+        people: [
+          ['Claims director', 'Fewer delays and complaints. Evidence of good claim outcomes.', true],
+          ['Supplier network manager', 'See which supplier misses which milestone, now.'],
+          ['Claims coordinator', 'Know which open claims need action today.'],
+          ['Renewals and retention lead', 'Know about a poor claim before the renewal invite.'],
+          ['Customer outcomes and Consumer Duty lead', 'Outcome monitoring with root causes.']
+        ],
+        value: [
+          'Retained premium = non-renewals avoided among recent claimants × average annual premium',
+          'Accommodation cost saved = alternative-accommodation days avoided × daily cost',
+          'Also count: complaints and Ombudsman cases avoided, supplier breaches found earlier'
+        ],
+        today: 'Suppliers send status reports on a schedule. Complaints sit in a separate log. Renewal invites go out without claim context.',
+        map: [
+          ['Suppliers do the claims work', 'Supplier milestone events stream into the real-time Customer 360.'],
+          ['Teams do not share a view', 'One policy view: claim, supplier jobs, complaints, and renewal date.'],
+          ['Renewal falls inside a bad claim', 'Churn score 90 days before expiry. Recovery problems go to claims first.'],
+          ['Vulnerable customers wait', 'Assistance route that does not depend on churn score or premium.'],
+          ['One supplier fails many claims', 'One supplier incident links all affected policies.'],
+          ['Good outcomes are hard to prove', 'Audit record for each warning, route, owner, and outcome.']
+        ],
+        output: 'One route for each policy with an open or recent claim: urgent assistance, fix the recovery, renewal review, or no action.',
+        questions: [
+          'Which suppliers handle claims, repairs, and alternative accommodation? What data do they send, and how often?',
+          'How long after a missed supplier milestone does your team know?',
+          'What is renewal retention for customers with a recent claim, compared with customers without one?',
+          'How many complaints link to claims? How many reach the Financial Ombudsman?',
+          'Does the renewal team see claim and complaint history before the renewal invite?',
+          'How do you record and act on customer vulnerability during a claim?',
+          'Can policy, claim, supplier job, and complaint records share an ID?',
+          'What claims-outcome reporting does the board receive under Consumer Duty?',
+          'Which data can a pilot use: synthetic, masked, or live?'
+        ],
+        assumptions: [
+          'Market and rules are UK. Other markets need a new rule check.',
+          'Suppliers can send milestone events or regular extracts. Check this with the client.',
+          'The link between claim experience and non-renewal is an industry view. The client\'s data must confirm it.',
+          'The "today" process is a hypothesis to test in discovery.'
+        ],
+        sources: ['claims', 'gipp', 'duty']
+      }
+    };
+    const sourceLink = key => `<a class="link" href="${challengeSources[key][1]}" target="_blank" rel="noopener">${escapeVisual(challengeSources[key][0])}</a>`;
+    Object.entries(businessChallenges).forEach(([key, challenge]) => {
+      const content = document.querySelector('#' + key + '-option .scenario-content');
+      const section = document.createElement('section');
+      section.className = 'business-challenge';
+      section.id = key + '-business-challenge';
+      section.setAttribute('aria-labelledby', key + '-challenge-question');
+      section.innerHTML = `<p class="bc-kicker">${escapeVisual(challenge.kicker)}</p>
+        <h3 class="bc-question" id="${key}-challenge-question">${escapeVisual(challenge.question)}</h3>
+        <p class="bc-lead">${escapeVisual(challenge.lead)}</p>
+        <h4>Why this matters now</h4>
+        <div class="bc-facts">${challenge.facts.map(([value, label, source]) => `<div class="bc-fact"><strong>${escapeVisual(value)}</strong><span>${escapeVisual(label)}</span><a class="link" href="${challengeSources[source][1]}" target="_blank" rel="noopener">Source: ${escapeVisual(challengeSources[source][0].split(',')[0])}</a></div>`).join('')}</div>
+        ${challenge.implication ? `<p class="evidence-note mt-4">${escapeVisual(challenge.implication)}</p>` : ''}
+        <h4>The business problem in one picture</h4>
+        ${challenge.figure()}
+        <h4>What goes wrong today, and what it costs</h4>
+        <div class="bc-pains">${challenge.pains.map(([title, problem, cost]) => `<div class="bc-pain"><strong>${escapeVisual(title)}</strong><p>${escapeVisual(problem)}</p><p class="bc-cost"><b>Cost:</b> ${escapeVisual(cost)}</p></div>`).join('')}</div>
+        <p class="bc-today"><strong>Likely current process (hypothesis):</strong> ${escapeVisual(challenge.today)} Check this with the client.</p>
+        <div class="bc-two">
+          <div><h4>Who feels the problem</h4><ul class="bc-people">${challenge.people.map(([role, need, buyer]) => `<li><strong>${escapeVisual(role)}${buyer ? '<span class="badge badge-primary badge-outline badge-sm">likely buyer</span>' : ''}</strong><span>${escapeVisual(need)}</span></li>`).join('')}</ul></div>
+          <div><h4>How to size the value</h4><div class="bc-formula">${challenge.value.map(line => `<code>${escapeVisual(line)}</code>`).join('')}<p>Formula only. The client supplies its own figures. This page gives no estimate and claims no saved revenue.</p></div></div>
+        </div>
+        <h4>From challenge to solution</h4>
+        <table class="bc-map"><thead><tr><th scope="col">Business challenge</th><th scope="col">Proposed solution part</th></tr></thead><tbody>${challenge.map.map(([pain, part]) => `<tr><td>${escapeVisual(pain)}</td><td>${escapeVisual(part)}</td></tr>`).join('')}</tbody></table>
+        <p class="bc-output"><strong>Business output:</strong> ${escapeVisual(challenge.output)} The churn score is one input to the route. It is not the whole answer.</p>`;
+      const questions = document.createElement('details');
+      questions.className = 'technical-detail';
+      questions.innerHTML = `<summary>Questions to ask a real client in discovery</summary><ol class="list-decimal">${challenge.questions.map(question => `<li>${escapeVisual(question)}</li>`).join('')}</ol>`;
+      const sources = document.createElement('details');
+      sources.className = 'technical-detail';
+      sources.innerHTML = `<summary>Sources and assumptions</summary><h5 class="font-semibold mt-2">Sources</h5><ul class="list-disc">${challenge.sources.map(source => `<li>${sourceLink(source)}</li>`).join('')}</ul><h5 class="font-semibold mt-4">Assumptions</h5><ul class="list-disc">${challenge.assumptions.map(item => `<li>${escapeVisual(item)}</li>`).join('')}</ul>`;
+      section.append(questions, sources);
+      content.prepend(section);
+    });
     window.addEventListener('beforeprint', () => {
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.dataset.printOpen = String(detail.open); detail.open = true; });
     });
@@ -1126,13 +1376,13 @@
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.open = detail.dataset.printOpen === 'true'; delete detail.dataset.printOpen; });
     });
     const scenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
-    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Refinancing early warning', 'HavenCover / Customer churn early warning'];
+    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Mortgage maturity early warning', 'HavenCover / Claims recovery and renewal early warning'];
     const scenarioDescriptions = {
       'software-option': 'A software provider may only discover that a maintenance company is leaving when it declines renewal, because usage and support records are disconnected. The proposed solution combines history and live activity in a real-time customer view, uses ML to group accounts by behaviour, and aims to flag non-renewal risk about 90 days ahead so a manager can review the evidence and act.',
       'broadband-option': 'A broadband provider may only discover that a household is leaving when it cancels or switches, despite earlier outages and complaints. The proposed solution combines billing, support and live network activity in a real-time customer view, uses ML to group households by behaviour, and aims to flag churn about 90 days ahead for a retention adviser to review.',
       'retail-option': 'A pet-supply subscription retailer may only discover that a customer is leaving when they cancel or decline renewal, with delivery problems and changing usage recorded separately. The proposed solution builds a real-time customer view, learns behavioural segments with ML, and aims to flag subscription non-renewal about 90 days ahead so staff can review the warning and address service problems.',
-      'mortgage-option': 'A mortgage lender may only discover that a customer is switching lenders when an external refinance completes, because application and servicing signals are disconnected. The proposed solution builds a real-time customer view, learns behavioural segments with ML, and aims to flag refinancing around deal expiry about 90 days ahead for an adviser to review, while payment support remains a separate priority.',
-      'insurance-option': 'A home insurer may only discover that a customer is leaving when they decline renewal, despite earlier repair failures and complaints. The proposed solution combines policy history and live claims activity in a real-time customer view, learns behavioural segments with ML, and aims to flag non-renewal about 90 days ahead for staff to review, without restricting claims or urgent assistance.'
+      'mortgage-option': 'Fixed-rate deals end in large monthly waves, and advisers cannot call every customer. Some customers need payment support, some are stuck in the lender\'s own process, and some may move to another lender. The proposed solution flags refinancing risk about 90 days before deal end and sends each case to the right team, with payment support first.',
+      'insurance-option': 'Many home insurers use outside suppliers for claims work. A failing repair can stay hidden until the customer complains or leaves at renewal. The proposed solution joins policy, claim, supplier, and complaint data and flags non-renewal risk about 90 days before expiry. Claims coordinators fix recovery problems before any renewal review.'
     };
     scenarioIds.forEach(id => {
       const description = scenarioDescriptions[id];

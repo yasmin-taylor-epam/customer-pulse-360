@@ -1,0 +1,27 @@
+# Copilot instructions for Customer Pulse 360
+
+## Hosted scenario document
+
+- The scenario blueprint document is `site/index.html`.
+- The team reviews it as a Lavish artifact. Its hosted copy is at https://efeeb7a1.ht-ml.app (site ID `efeeb7a1`).
+- The hosted page is password protected. Do not change or remove the password unless the user asks.
+- After you change `site/index.html`, update the hosted copy in place. Do not create a new site.
+
+```powershell
+npx -y lavish-axi share site/index.html --site efeeb7a1 --update-key "$([Environment]::GetEnvironmentVariable('LAVISH_CP360_UPDATE_KEY','User'))"
+```
+
+- The update key is in the user environment variable `LAVISH_CP360_UPDATE_KEY` on the author's machine.
+- Never write the update key into this repository, the HTML, commits, or chat handoffs.
+- If the variable is missing, ask the user for the key. Do not publish to a new URL.
+
+## Writing style
+
+- Write reader-facing text in clear, concise British English.
+- Follow ASD-STE100 structural rules: short sentences, active voice, one idea per sentence.
+- Keep chat replies terse (caveman style). Keep every fact, number, and negation.
+
+## Content rules
+
+- Label fictional companies, illustrative cases, and proposed targets as such.
+- Cite a source for every market or regulatory fact. Do not invent figures.
