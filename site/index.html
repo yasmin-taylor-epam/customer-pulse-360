@@ -105,7 +105,7 @@
     <section aria-labelledby="brief-title" class="bg-base-200 rounded-2xl p-6">
       <h2 id="brief-title" class="text-xl font-semibold">What the slides require</h2>
       <ul class="list-disc pl-5 space-y-2 mt-3">
-        <li>Customer 360: a combined view of each customer's records.</li>
+        <li>Real-time Customer 360: a combined customer view that updates as new activity arrives.</li>
         <li>Customer segments from machine learning (ML).</li>
         <li>A churn warning about 90 days ahead, with the factors behind the risk score.</li>
         <li>A retention alert that responds to live events.</li>
@@ -867,11 +867,25 @@
   </main>
   <script>
     const overview = document.querySelector('main');
+    const coreRequirements = {
+      software: { target: 'Company-led non-renewal', date: 'Contract renewal', unit: 'account_id + cycle_id' },
+      broadband: { target: 'Household cancellation or switching', date: 'Contract expiry', unit: 'subscription_id + cycle_id' },
+      retail: { target: 'Customer-led subscription non-renewal', date: 'Subscription renewal', unit: 'customer_id + subscription_id + cycle_id' },
+      mortgage: { target: 'Confirmed external refinancing', date: 'Fixed-rate deal end', unit: 'mortgage_id + cycle_id' },
+      insurance: { target: 'Customer-led policy non-renewal', date: 'Policy expiry', unit: 'policy_id + cycle_id' }
+    };
+    const coreBlueprint = (key) => {
+      const requirement = coreRequirements[key];
+      return `<section class="blueprint-section core-contract" id="${key}-core"><h3>The core build: warn before the customer leaves</h3><p>The business discovers customer loss too late because customer records and new activity are disconnected. The proposed deliverable is a real-time Customer 360, fitted ML segments, and an explainable churn model targeting warnings about 90 days ahead; service recovery is a response, not the prediction target.</p><ol class="list-decimal"><li><strong>Real-time Customer 360:</strong> combine governed account history with accepted live events in an Eventhouse customer view, joined by ${requirement.unit}. Show the latest event, service state, source freshness, and the separately timestamped segment and churn score. A scheduled Lakehouse export alone does not meet this requirement.</li><li><strong>ML segments:</strong> train and register a clustering model on historical behaviour, fit preprocessing on training data, inspect cluster profiles, and assign each eligible customer to a fitted segment. Store segment_model_version, assigned_at, and feature_snapshot_id. Support flags and alert rules are not ML segments.</li><li><strong>Churn model:</strong> predict ${requirement.target.toLowerCase()} using dated inputs. Produce the checkpoint score 90 days before ${requirement.date.toLowerCase()}, then refresh operational scores on an explicit schedule. Explain model contributions without claiming to know customer intent.</li></ol><p><strong>Live path:</strong> validated event → deduplicated customer activity and current-state query in Eventhouse → real-time customer view. Historical Lakehouse context is loaded separately into the query view. Scheduled feature refresh → registered segment assignment and churn scoring → versioned results → Activator warning and human review. A failed scoring job leaves the last score visibly stale; it must not stop current customer activity from updating.</p><p><strong>Proposed clocks:</strong> accepted events visible in the Customer 360 within 60 seconds; affected-customer feature, segment, and score refresh every 15 minutes; eligible alerts within five minutes after successful scoring. Measure ingestion, view refresh, scoring, and notification separately. These are targets to test, not platform guarantees. A manually started notebook is an integration drill only, not the completed operational design.</p><p><strong>Advance-warning evidence:</strong> retain prediction_at, first_eligible_warning_at, outcome_at, outcome_observed_at, snapshot_id, and model versions. Calculate lead_days = outcome_at − first_eligible_warning_at for confirmed churn; report its distribution and recall for customers warned at least 90 days before departure, alongside false positives, missed churn, and capacity-limited precision. A score made 90 days before renewal is not automatically 90 days before an earlier departure.</p><p><strong>Acceptance gate:</strong> replay a new event and show the same customer's live view changing without manual ingestion; show a fitted ML segment and registered churn-model output; replay duplicates without changing counts; verify both event-time and ingestion-time cutoffs; and evaluate later, separate customer cohorts. Report a failed target rather than describing a shorter warning as three months early. Synthetic data demonstrates mechanics, not real-world predictive effectiveness.</p></section>`;
+    };
+    Object.keys(coreRequirements).forEach(key => {
+      document.querySelector('#' + key + '-option .scenario-content').insertAdjacentHTML('afterbegin', coreBlueprint(key));
+    });
     const visualStories = {
       software: { question: 'A broken workflow, or a quiet season?', signals: ['Jobs decline', 'Invoice failures', 'Ticket reopens'], action: 'Repair the workflow', counter: 'Seasonal demand', date: 'Contract renewal' },
       broadband: { question: 'A household fault, or a resolved outage?', signals: ['Evening outages', 'Repeat contacts', 'Open complaint'], action: 'Investigate the line', counter: 'Recorded recovery', date: 'Contract expiry' },
-      retail: { question: 'A failed delivery, or a larger pack?', signals: ['Repeat orders', 'Delivery complaint', 'Purchase gap'], action: 'Service recovery first', counter: 'Larger-pack purchase', date: 'Inactivity threshold' },
-      mortgage: { question: 'Renewal friction, or a need for payment support?', signals: ['Deal ending', 'Application fails', 'Support requested'], action: 'Payment support first', counter: 'Completed transfer', date: 'Fixed-rate deal ends' },
+      retail: { question: 'Who may cancel their pet-supply subscription?', signals: ['Subscription use', 'Delivery complaint', 'Skipped deliveries'], action: 'Review non-renewal risk', counter: 'Agreed delivery pause', date: 'Subscription renewal' },
+      mortgage: { question: 'Who may refinance with another lender?', signals: ['Deal ending', 'Application fails', 'Contact declines'], action: 'Review refinancing risk', counter: 'Completed transfer', date: 'Fixed-rate deal ends' },
       insurance: { question: 'Repair failure, or a completed recovery?', signals: ['Flood claim', 'Missed repair', 'Help still needed'], action: 'Coordinate recovery', counter: 'Repair milestones met', date: 'Policy expiry' }
     };
     const visualStyle = document.createElement('style');
@@ -1023,16 +1037,17 @@
     const sectionSubjects = {
       software: ['Account + renewal cycle', 'Contract / product / support', 'Product support + account owner'],
       broadband: ['Subscription + expiry cycle', 'Billing / network / complaints', 'Network operations + adviser'],
-      retail: ['Customer + anchor order', 'Orders / delivery / consent', 'Customer care + specialist'],
+      retail: ['Subscription + renewal cycle', 'Subscription / delivery / consent', 'Customer care + specialist'],
       mortgage: ['Mortgage + deal cycle', 'Terms / application / support', 'Trained servicing adviser'],
       insurance: ['Policy + renewal cycle', 'Claim / repairs / complaints', 'Claims coordinator + adviser']
     };
     const sectionPlans = (key, story) => {
       const [unit, sources, owner] = sectionSubjects[key];
       return {
-        submission: { steps: [['Customer problem', story.signals[1]], ['Checked evidence', sources], ['Human-owned response', story.action]], caption: 'Proposed solution. The counterexample is ' + story.counter + '.' },
+        core: { steps: [['Real-time Customer 360', 'History + live customer activity'], ['Fitted ML segments', 'Registered clustering model'], ['Churn warning', 'Target about 90 days ahead'], ['Human-owned response', 'Evidence / eligibility / owner']], caption: 'The three required deliverables are the customer view, fitted segments, and early churn prediction. Support and retention actions follow; they do not replace the prediction.' },
+        submission: { steps: [['Customer loss noticed late', coreRequirements[key].target], ['Customer 360 + ML', 'Live view / segments / churn model'], ['Early warning + review', 'Target about 90 days ahead']], caption: 'Proposed early-warning system. The counterexample is ' + story.counter + '. Actual warning lead time must be evaluated against confirmed departures.' },
         contracts: { steps: [['Identity', unit], ['Dated source records', sources], ['Frozen snapshot', 'Event time + ingestion time'], ['Account view', 'Evidence / owner / case status']], caption: 'Keep future outcomes outside model inputs. Missing data stays visible; it is not a healthy signal.' },
-        architecture: { steps: [['Historical path', 'Exports / Lakehouse / dated features'], ['Separate event path', 'Eventstream / Eventhouse'], ['Explicit refresh', 'Features / scoring / result event'], ['Case writer', 'Activator / Power Automate'], ['Human review', owner]], caption: 'The two input paths meet at explicit refresh, not at event arrival. Register models with MLflow; publish evidence in Power BI. Support obligations bypass commercial score thresholds.' },
+        architecture: { steps: [['Historical context', 'Lakehouse / governed customer keys'], ['Live customer activity', 'Eventstream / Eventhouse'], ['Real-time Customer 360', 'Joined context / current activity'], ['Scheduled ML refresh', 'Segments / churn / Activator'], ['Human review', owner]], caption: 'Load governed history into Eventhouse context tables separately from live events. Join both in the real-time customer query view; show activity immediately without waiting for ML. Refresh features, fitted segments, and churn scores on a proposed 15-minute schedule. Publish warnings only after scoring succeeds. Required support follows a separate route.' },
         model: { steps: [['Freeze inputs', 'Only records known at cutoff'], ['Fit on training data', 'Rules baseline / classifier / clusters'], ['Validate, then test', 'Later cohorts / separate customers'], ['Report measured evidence', 'Precision / recall / review capacity']], caption: 'Unknown outcomes stay unlabelled. Model contributions are not proof of customer intent. Cluster names follow inspection, not predefined routing rules.' },
         action: { steps: [['Support obligation?', 'Route required assistance first'], ['Other review eligible?', 'Check evidence / policy / owner'], ['Create or update case', 'One identity + cycle + action key'], ['Human approval', 'No automatic customer action'], ['Failure or recovery', 'Visible retry / preserved audit']], caption: 'Required support does not wait for a high commercial-risk score. Duplicate writes reuse the case. A recovery event does not prove retention.' },
         delivery: { steps: [['Agree shared contracts', 'All three team members'], ['Data + replay', 'Data and event owner'], ['Model + evaluation', 'ML owner; shared fixtures'], ['View + action', 'Experience owner; shared fixtures'], ['Integrated demonstration', 'Failure / duplicate / counterexample']], caption: 'Workstreams can run in parallel after contracts are agreed. Replace score fixtures with real model output before the final demo; report actual latency and failures.' },
@@ -1040,7 +1055,7 @@
       };
     };
     const overviewVisuals = [
-      ['brief-title', [['Customer 360', 'Join dated customer records'], ['Behavioural segments', 'Fit groups; inspect their profiles'], ['Advance warning', 'Freeze inputs before the outcome'], ['Event-driven review', 'New evidence; one human-owned case']], 'Slide requirements. The mortgage support proposal needs organiser approval because it is not a churn-prediction target.'],
+      ['brief-title', [['Real-time Customer 360', 'History joined to live activity'], ['ML segments', 'Fit clusters; assign customers'], ['Churn model', 'Target warnings about 90 days early'], ['Human-owned response', 'Explain risk; review approved action']], 'All five proposals have the same required core. Retail is reframed as a subscription business; mortgages predict external refinancing, not payment difficulty. These are design proposals, not measured results.'],
       ['business-title', [['Maintenance company', 'One subscribing business'], ['Field engineers', 'Schedule / complete / invoice jobs'], ['Workflow failure', 'Check incidents, not usage alone'], ['Account manager', 'Review evidence before action']], 'Illustrative software business, not a selected scenario.'],
       ['data-title', [['Shared account identity', 'Contracts / product / support'], ['Dated records', 'Preserve source and arrival times'], ['Frozen feature snapshot', 'No future outcomes in inputs'], ['Review evidence', 'Owner / source links / case status']], 'Missing feeds remain visible. Synthetic outcomes must not copy the alert rule.'],
       ['scope-title', [['Agree contracts', 'Account / event / score interfaces'], ['Data and events', 'Validated histories and replay'], ['ML and evaluation', 'Baseline / model / later-cohort test'], ['Dashboard and action', 'Evidence / case writer / human owner']], 'Three workstreams share agreed interfaces. No autonomous discounts or customer messages.'],
@@ -1072,10 +1087,10 @@
         <div data-system-visual></div>
         <h4>What does the warning date mean?</h4>
         <figure><svg viewBox="0 0 580 115" role="img" aria-labelledby="${key}-time-title"><title id="${key}-time-title">Frozen checkpoint before the target date</title><path class="wire" d="M 85 50 H 495"/><circle cx="85" cy="50" r="8" fill="var(--color-primary)"/><circle cx="495" cy="50" r="8" fill="var(--color-primary)"/><text x="95" y="27">Freeze inputs</text><text x="290" y="38">90-day interval</text><text x="470" y="85">${escapeVisual(story.date)}</text></svg><figcaption>Proposed checkpoint, not a measured result. Mortgage refinancing can occur before deal end: this is not 90 days before every departure.</figcaption></figure>`;
-      panel.querySelector('[data-system-visual]').replaceWith(sectionVisual(key + '-architecture-overview', 'Historical and live evidence meet at explicit scoring', sectionPlans(key, story).architecture.steps, sectionPlans(key, story).architecture.caption));
+      panel.querySelector('[data-system-visual]').replaceWith(sectionVisual(key + '-architecture-overview', 'History and live activity form the real-time customer view', sectionPlans(key, story).architecture.steps, sectionPlans(key, story).architecture.caption));
       panel.querySelector('figure:last-child figcaption').textContent = key === 'mortgage'
-        ? 'Checkpoint: 90 days before deal end, not before every refinancing departure.'
-        : 'Proposed checkpoint. The interval is not a measured result.';
+        ? 'Primary cohort: refinancing completed at deal end or within the following 30 days. Score 90 days before deal end; measure warning time against the actual refinance date. Earlier departures are reported separately and never counted as 90-day successes without sufficient lead time.'
+        : 'Score 90 days before the scheduled renewal or expiry. Evaluate actual departure dates and report early departures separately. This interval is a design target, not a measured result.';
       const context = document.createElement('details');
       context.className = 'technical-detail';
       const contextSummary = document.createElement('summary');
@@ -1111,7 +1126,19 @@
       document.querySelectorAll('.technical-detail').forEach(detail => { detail.open = detail.dataset.printOpen === 'true'; delete detail.dataset.printOpen; });
     });
     const scenarioIds = ['software-option', 'broadband-option', 'retail-option', 'mortgage-option', 'insurance-option'];
-    const pageTitles = ['WorkHarbour / Renewal investigation desk', 'HearthNet / Household service-recovery desk', 'PantryPaws / Replenishment and service-recovery desk', 'HomeBridge / Renewal and payment-support desk', 'HavenCover / Home-recovery and renewal desk'];
+    const pageTitles = ['WorkHarbour / Customer churn early warning', 'HearthNet / Customer churn early warning', 'PantryPaws / Subscription churn early warning', 'HomeBridge / Refinancing early warning', 'HavenCover / Customer churn early warning'];
+    const scenarioDescriptions = {
+      'software-option': 'A software provider may only discover that a maintenance company is leaving when it declines renewal, because usage and support records are disconnected. The proposed solution combines history and live activity in a real-time customer view, uses ML to group accounts by behaviour, and aims to flag non-renewal risk about 90 days ahead so a manager can review the evidence and act.',
+      'broadband-option': 'A broadband provider may only discover that a household is leaving when it cancels or switches, despite earlier outages and complaints. The proposed solution combines billing, support and live network activity in a real-time customer view, uses ML to group households by behaviour, and aims to flag churn about 90 days ahead for a retention adviser to review.',
+      'retail-option': 'A pet-supply subscription retailer may only discover that a customer is leaving when they cancel or decline renewal, with delivery problems and changing usage recorded separately. The proposed solution builds a real-time customer view, learns behavioural segments with ML, and aims to flag subscription non-renewal about 90 days ahead so staff can review the warning and address service problems.',
+      'mortgage-option': 'A mortgage lender may only discover that a customer is switching lenders when an external refinance completes, because application and servicing signals are disconnected. The proposed solution builds a real-time customer view, learns behavioural segments with ML, and aims to flag refinancing around deal expiry about 90 days ahead for an adviser to review, while payment support remains a separate priority.',
+      'insurance-option': 'A home insurer may only discover that a customer is leaving when they decline renewal, despite earlier repair failures and complaints. The proposed solution combines policy history and live claims activity in a real-time customer view, learns behavioural segments with ML, and aims to flag non-renewal about 90 days ahead for staff to review, without restricting claims or urgent assistance.'
+    };
+    scenarioIds.forEach(id => {
+      const description = scenarioDescriptions[id];
+      document.querySelector('[data-open-scenario="' + id + '"] > span:last-child').textContent = description;
+      document.querySelector('#' + id + ' .scenario-summary-context').textContent = description;
+    });
     const blueprintPages = scenarioIds.map((id, index) => {
       const scenario = document.getElementById(id);
       const page = document.createElement('main');
@@ -1139,7 +1166,10 @@
       heading.tabIndex = -1;
       const note = document.createElement('p');
       note.textContent = 'Hackathon proposal. Fictional business and proposed targets. No implementation results are claimed.';
-      page.append(nav, heading, note, scenario);
+      const description = document.createElement('p');
+      description.className = 'scenario-description text-lg mt-4 mb-4';
+      description.textContent = scenarioDescriptions[id];
+      page.append(nav, heading, description, note, scenario);
       document.body.insertBefore(page, document.body.lastElementChild);
       return page;
     });
