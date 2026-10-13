@@ -1,0 +1,55 @@
+lockfile_version: '1'
+apm_version: 0.30.0
+dependencies:
+- repo_url: _local/lavish
+  name: lavish
+  version: unknown
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/lavish
+  - .agents/skills/lavish/SKILL.md
+  - .agents/skills/lavish/references/submission-blueprints.md
+  - .agents/skills/lavish/references/surfaces.md
+  deployed_file_hashes:
+    .agents/skills/lavish/SKILL.md: sha256:826c7a2c4bba4b331a76ac4080dd54ddfc7f16ca7e8f2a3647d4d01c29b47b08
+    .agents/skills/lavish/references/submission-blueprints.md: sha256:d030143b20081fc2aca632a8317e54351dd8a919f45769647b1acb73594655e3
+    .agents/skills/lavish/references/surfaces.md: sha256:ab0b6e9730230b292fe6fb5e9c46a7971d0063c1b780f4c19bf6f52f19f122d2
+  source: local
+  local_path: C:\Users\LukeHarjulin\.agents\skills\lavish
+deployments:
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/lavish
+  runtime: null
+  scope: project
+  owners:
+  - C:\Users\LukeHarjulin\.agents\skills\lavish
+  active_owner: C:\Users\LukeHarjulin\.agents\skills\lavish
+  content_hash: null
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/lavish/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - C:\Users\LukeHarjulin\.agents\skills\lavish
+  active_owner: C:\Users\LukeHarjulin\.agents\skills\lavish
+  content_hash: sha256:826c7a2c4bba4b331a76ac4080dd54ddfc7f16ca7e8f2a3647d4d01c29b47b08
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/lavish/references/submission-blueprints.md
+  runtime: null
+  scope: project
+  owners:
+  - C:\Users\LukeHarjulin\.agents\skills\lavish
+  active_owner: C:\Users\LukeHarjulin\.agents\skills\lavish
+  content_hash: sha256:d030143b20081fc2aca632a8317e54351dd8a919f45769647b1acb73594655e3
+- kind: project-relative
+  target: copilot
+  value: .agents/skills/lavish/references/surfaces.md
+  runtime: null
+  scope: project
+  owners:
+  - C:\Users\LukeHarjulin\.agents\skills\lavish
+  active_owner: C:\Users\LukeHarjulin\.agents\skills\lavish
+  content_hash: sha256:ab0b6e9730230b292fe6fb5e9c46a7971d0063c1b780f4c19bf6f52f19f122d2

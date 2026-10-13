@@ -1,0 +1,15 @@
+name: luke-harjulin-epam-refactored-happiness
+version: 1.0.0
+description: APM project for luke-harjulin-epam-refactored-happiness
+author: Developer
+# Which agent platforms to deploy to (uncomment to pin):
+# targets:
+#   - copilot
+#   - claude
+
+dependencies:
+  apm:
+    - C:\Users\LukeHarjulin\.agents\skills\lavish
+  mcp: []
+includes: auto
+scripts: {}
