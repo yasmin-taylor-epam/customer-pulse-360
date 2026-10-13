@@ -202,7 +202,9 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     .list-decimal { list-style: decimal; }
     .list-disc { list-style: disc; }
     .spec-section li + li, .prose-block li + li { margin-top: .35rem; }
-    .prose-block h4:first-child { margin-top: .5rem; }
+    .spec-section > h4 { margin-top: 1.5rem; }
+    .prose-block h4:first-child, .spec-section h4:first-child { margin-top: .5rem; }
+    .spec-section li > ul { margin-top: .35rem; }
 
     /* Business challenge styles, ported from the earlier page. */
       .business-challenge { grid-column: 1 / -1; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-base-300); }
@@ -432,6 +434,12 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
         <div class="kpi"><div class="v">15 min</div><p>Between refreshes of features, segments and churn scores.</p></div>
         <div class="kpi"><div class="v">5 min</div><p>From a successful scoring run to the retention alert.</p></div>
       </div>
+      <ul class="list-disc small" style="margin-top: 1.25rem; padding-left: 1.25rem; max-width: 80ch;">
+        <li>Measure ingestion, view refresh, scoring and alert delivery separately. These are targets to test, not platform guarantees.</li>
+        <li>A scheduled Lakehouse export alone is not a real-time view. Live events go through Eventstream into Eventhouse.</li>
+        <li>A notebook started by hand is a test drill. The final design runs scoring on a schedule.</li>
+        <li>A failed scoring run leaves the last score marked stale. The live view still updates.</li>
+      </ul>
     </section>
 
     <section class="band" aria-labelledby="claims-title">
@@ -439,7 +447,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
         <h2 id="claims-title">Do not claim more than the evidence shows</h2>
       </div>
       <div class="cols">
-        <div class="claim"><h3>“90 days early”</h3><p>Calculate the score 90 days before renewal. Freeze the information available at that checkpoint. Evaluate the later renewal outcome. Predicting churn "within 90 days" does not establish 90 days of warning.</p></div>
+        <div class="claim"><h3>“90 days early”</h3><p>Calculate the score 90 days before renewal. Freeze the information available at that checkpoint. Evaluate the later renewal outcome. Predicting churn "within 90 days" does not establish 90 days of warning. If the warning comes later, report the failed target.</p></div>
         <div class="claim"><h3>“We know why”</h3><p>Feature attributions explain how model inputs affect the score. Checked events support investigation. Neither proves the customer's true motivation. Neither proves that a retention action will work.</p></div>
         <div class="claim"><h3>“We saved revenue”</h3><p>A demo can show recurring revenue at risk and recorded actions. Proving improved retention requires evidence from real retention actions and a comparison group. Synthetic results prove only that the process works.</p></div>
       </div>
@@ -455,12 +463,29 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
         <li>Compare the model with a simple rules baseline.</li>
         <li>Measure precision: the share of flagged customers that churn. Measure recall: the share of churned customers that the model flags.</li>
         <li>Evaluate precision and recall at the number of customers the team can contact.</li>
-        <li>Measure the time between the warning and the churn outcome.</li>
+        <li>Measure lead time for each confirmed leaver: <code>outcome_at</code> minus <code>first_eligible_warning_at</code>. Report the distribution.</li>
         <li>Show one live event that creates exactly one retention case. Keep a record that supports an audit.</li>
         <li>Show a healthy or seasonal customer, not only the scripted failure.</li>
         <li>Demonstrate ML segments and alert-routing rules separately. Do not label rules as ML.</li>
       </ul>
       <p class="small muted" style="margin-top: 1rem;">Access, Fabric capacity, alert integration, team availability and the dataset's source remain unconfirmed. Check these before promising the final stack.</p>
+    </section>
+
+    <section class="band" aria-labelledby="package-title">
+      <div class="section-head">
+        <h2 id="package-title">What we submit</h2>
+        <p class="muted measure">The same package for either blueprint. The blueprint pages give the scenario detail.</p>
+      </div>
+      <ul class="checks">
+        <li>Submission summary and architecture diagram.</li>
+        <li>Data contracts and the synthetic-data specification.</li>
+        <li>Notebooks, pipelines and KQL queries.</li>
+        <li>Registered model, model card and evaluation report.</li>
+        <li>Routing tests and audit records.</li>
+        <li>Setup instructions.</li>
+        <li>A 5–10 minute video.</li>
+      </ul>
+      <p class="small muted" style="margin-top: 1rem;">Still to confirm: organiser form fields, team names, deadline timezone, Power BI sharing, Power Automate licences and connector permissions. Synthetic data shows that the process works. It does not show real predictive power. Real use needs privacy, responsible-AI and domain review.</p>
     </section>
 
     <footer class="foot">
@@ -579,23 +604,146 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <section class="band" aria-labelledby="mortgage-full-title">
       <div class="section-head">
         <h2 id="mortgage-full-title">Full submission sections</h2>
-        <p class="muted measure">Open a section to read it. Printing opens every section.</p>
+        <p class="muted measure">The detail behind the specification above. Open a section to read it. Printing opens every section. Rules for both blueprints are on the <a class="link" href="#overview">overview page</a>.</p>
       </div>
       <div class="disclosures" data-spec-list="mortgage">
-        <details class="disclosure"><summary>01 / Submission summary</summary><section class="spec-section" id="mortgage-submission"><p><strong>Title:</strong> HomeBridge Renewal and Payment-Support Desk.</p><p>Our proposed Fabric solution combines mortgage, payment, application, and servicing history. It predicts external refinancing and explains evidence for human review.</p><p>A separate support policy takes priority when payment difficulties appear. The prototype does not approve lending, change rates, or recommend financial products.</p><p><strong>Distinctive value:</strong> distinguish commercial loss from payment distress. A retained mortgage is not automatically a good customer outcome.</p><p><strong>Scope:</strong> fixed-rate repayment accounts, one renewal cohort, one application-failure replay, and one support case. Default prediction is a separate future extension.</p></section></details>
-        <details class="disclosure"><summary>02 / Data contracts and customer view</summary><section class="spec-section" id="mortgage-contracts"><table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
-          <tr><td>Mortgage: one account and deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Preserve dated product terms. Link joint borrowers through an approved account mapping.</td></tr>
-          <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Preserve reversals. A failed collection is not proof of default. Missing feeds are not zero arrears.</td></tr>
-          <tr><td>Application: one product-transfer state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>Separate customer abandonment from platform failure. Use only state known at the cutoff.</td></tr>
-          <tr><td>Servicing: one case state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>Keep sensitive notes outside features. Expose only the minimum routing information to authorised advisers.</td></tr>
-          <tr><td>Outcome and snapshot: one cycle and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep outcome records separate from features. Do not infer external refinancing from account closure alone.</td></tr>
-                    <tr><td>Segment membership: one account, cycle, and scoring run.</td><td>mortgage_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite earlier rows. An auditor can see each account's segment on any past date.</td></tr>
-                    </tbody></table><p>The account view shows deal end, current terms, application problems, segment, score age, evidence, owner, and support priority.</p><p>Use synthetic histories with complete outcomes, reversals, delayed feeds, and successful transfers. Generate labels from separate latent factors, not the alert rule.</p><p>An indicative future payment requires dated rate assumptions and a checked calculation. Label it as an illustration, not an offer or affordability decision.</p></section></details>
-        <details class="disclosure"><summary>03 / Proposed architecture and interfaces</summary><section class="spec-section" id="mortgage-architecture"><ol class="list-decimal"><li>Load dated account, payment, application, and servicing exports through Fabric pipelines into raw Lakehouse tables.</li><li>Validate keys and ledger history. Create clean account histories and frozen feature snapshots in notebooks.</li><li>Train renewal models and behavioural clusters. Register feature signatures, experiments, and model versions with MLflow.</li><li>Publish scores, segments, explanations, and evidence references to curated Gold Delta tables. A Power BI semantic model reads them in Direct Lake mode for a restricted account view.</li><li>Replay an application failure through Eventstream into Eventhouse. Retain original event IDs and timestamps.</li><li>Run KQL journey queries in Eventhouse. One query lists each application's stages and errors in time order. One measures days stalled at a stage. One counts retries after a platform error.</li><li>Run an explicit scoring notebook for the replay. A Fabric pipeline also runs scoring and segment assignment on a schedule. Publish risk_updated only after scoring succeeds.</li><li>Use Activator and Power Automate to create a human-owned review case in a secured SharePoint list.</li></ol><p><strong>Contract:</strong> risk_updated contains event_id, mortgage_id, cycle_id, snapshot_id, model_version, scored_at, target, score, and evidence IDs.</p><p>Read current support eligibility at case creation. Support priority does not depend on a high churn score or account value.</p><p>Enforce a unique case_key of mortgage_id + cycle_id + action_family. Duplicate writes read the existing case. Other failures remain visible.</p></section></details>
-        <details class="disclosure"><summary>04 / Prediction and segmentation</summary><section class="spec-section" id="mortgage-model"><p><strong>Checkpoint:</strong> deal_end_at minus 90 days. Predict confirmed external refinancing between the checkpoint and deal_end_at plus 30 days.</p><p>Internal transfers and continued servicing are negative outcomes only after the full window. Sales, bereavement closures, and unidentified redemptions remain outside this target.</p><p>Use known redemption reasons or verified refinance records. Incomplete observation produces an unknown label, not assumed retention.</p><p>Compare logistic regression and a small tree model with an application-friction rules baseline. Use application completion, platform errors, complaint age, and contact history.</p><p>Derive at least three behavioural signals from dated history: failed application attempts in the last 30 days against the last 90 days, days stalled at one application stage, and the trend in servicing contacts.</p><p>Exclude sensitive support details, protected characteristics, names, and fine-grained location from the first prediction model. Check remaining features for unjustified proxies.</p><p>Fit two to five behavioural clusters on application and servicing features. Inspect stability and centroids before naming groups.</p><p>Fit clusters once per model release. Each scheduled run assigns accounts to the fitted clusters, so a segment ID keeps its meaning over time. Each assignment is a new row in segment_membership.</p><p>Test later deal cohorts with borrower groups outside training. Require both event and ingestion timestamps at or before the checkpoint.</p><p>Training labels must exist before the simulated model release. Freeze thresholds on validation data. Report accuracy, precision, recall, calibration, and lift at ten reviews per run.</p><p>Lift compares the refinancing rate in the ten highest-scored accounts with the cohort's base rate. Accuracy alone misleads when few accounts leave.</p><p>Store per-account feature attributions with each score: SHAP values for the tree model and coefficient contributions for logistic regression. They explain the score, not the borrower's motive.</p><p>Payment difficulty uses an explicit support policy, not a hidden churn label. Predicting default within 90 days would not establish 90 days of advance warning.</p></section></details>
-        <details class="disclosure"><summary>05 / Alert policy and failure handling</summary><section class="spec-section" id="mortgage-action"><p>Route an active payment-support request to trained servicing staff first. Suppress commercial retention tasks while the support case requires review.</p><p>Without a support priority, route verified application failures to technical support and eligible renewal reviews to a servicing adviser.</p><p>A human checks contact policy and suitability before any customer action. The prototype sends no messages and changes no mortgage terms.</p><p>Record model version, snapshot, evidence IDs, routing policy, owner, decision, and ingestion, scoring, alert, and case timestamps.</p><p>Quarantine unknown accounts and conflicting borrower mappings. Flag stale payment feeds. Retry case failures without duplicate cases.</p><p>A payment reversal requests review and rescoring. It does not erase the audit or automatically close a support case.</p></section></details>
-        <details class="disclosure"><summary>06 / Build plan, demo, and acceptance tests</summary><section class="spec-section" id="mortgage-delivery"><table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Deliverable</th></tr></thead><tbody><tr><td>Before idea submission.</td><td>Agree target, observation window, support policy, dataset basis, and tenant access.</td></tr><tr><td>Data and replay.</td><td>Account histories, reversal fixtures, cutoff checks, and event contract.</td></tr><tr><td>Models and evaluation.</td><td>Classifier, clusters, baseline, later-cohort report with lift, and registered model.</td></tr><tr><td>Dashboard and action.</td><td>Direct Lake account view, segment history, sensitivity labels, support-first routing, unique case writer, and audit.</td></tr><tr><td>Final submission.</td><td>Reproducible package and a 5-10 minute demonstration.</td></tr></tbody></table><ol class="list-decimal"><li>Show Alex's checkpoint, deal date, evidence, and proposed renewal review.</li><li>Run the KQL journey query for Alex's application. Show the stage history behind the stalled-application signal.</li><li>Replay an application failure and a support request. Show explicit rescoring and support-first routing.</li><li>Replay the same event. Show one case, not two.</li><li>Show Sam's completed transfer and a reversed collection. Explain why neither proves default.</li><li>Show measured evaluation, latency, and limitations.</li></ol><ul class="list-disc"><li>All features pass both cutoff checks. Checkpoint warnings precede deal end by 90 days.</li><li>Unknown redemption reasons and incomplete windows produce no invented label.</li><li>An active support request takes priority even with a low churn score.</li><li>Duplicate events create exactly one case. Unknown identities create no account alert.</li><li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li><li>No rate change, credit decision, customer message, or claim of prevented default occurs.</li><li>Each scheduled run adds segment rows. Earlier segment rows never change.</li><li>Every Fabric item that holds personal data carries a Purview sensitivity label.</li></ul></section></details>
-        <details class="disclosure"><summary>07 / Value, controls, and submission package</summary><section class="spec-section" id="mortgage-readiness"><p>Measure review effort, application faults resolved, support routing time, and confirmed external-refinancing outcomes. Loan balance is exposure, not saved revenue.</p><p>Use pseudonymous accounts and least-privilege roles. Restrict support information separately. Exclude bank details and borrower documents from the prototype.</p><p>Apply Purview sensitivity labels to the Lakehouse, Eventhouse, semantic model, and report. Every item that holds personal data carries a label.</p><p>Require lending, privacy, and responsible-AI review before real use. Confirm jurisdiction, contact policy, fairness checks, licensing, and connector access.</p><p>Submit the summary, architecture, contracts, synthetic-data specification, notebooks, model card, evaluation, routing tests, audit, setup instructions, and video.</p><p>Organiser fields, team names, and deadline timezone still require confirmation. This is a proposal, not a deployed lending service.</p></section></details>
+        <details class="disclosure"><summary>01 / Submission summary</summary><section class="spec-section" id="mortgage-submission">
+          <ul class="list-disc">
+            <li><strong>Title:</strong> HomeBridge Renewal and Payment-Support Desk.</li>
+            <li><strong>Problem:</strong> HomeBridge finds out about external refinancing only after the borrower leaves.</li>
+            <li><strong>Solution:</strong> A Fabric solution joins mortgage, payment, application and servicing history with live application events. It predicts external refinancing 90 days before a fixed-rate deal ends. It explains each score to a servicing adviser.</li>
+            <li><strong>Business impact:</strong> Advisers get time to fix application problems and offer a renewal review before the borrower leaves. The 90-day lead time is a proposed target. Payment-support needs reach trained staff first.</li>
+            <li><strong>Distinctive value:</strong> The design separates commercial loss from payment distress. A retained mortgage is not always a good customer outcome.</li>
+            <li><strong>Scope:</strong> Fixed-rate repayment accounts, one renewal cohort, one application-failure replay and one support case.</li>
+            <li><strong>Out of scope:</strong> Lending decisions, rate changes, product recommendations and default prediction.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>02 / Data contracts and account view</summary><section class="spec-section" id="mortgage-contracts">
+          <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Checks</th></tr></thead><tbody>
+            <tr><td>Mortgage: one account and deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Keep dated product terms. Link joint borrowers through an approved account mapping.</td></tr>
+            <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Keep reversals. A failed collection is not proof of default.</td></tr>
+            <tr><td>Application: one product-transfer state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>Separate customer abandonment from platform failure.</td></tr>
+            <tr><td>Servicing: one case state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
+            <tr><td>Outcome and snapshot: one cycle and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep outcomes separate from features. Account closure alone does not prove external refinancing.</td></tr>
+            <tr><td>Segment membership: one account, cycle and scoring run.</td><td>mortgage_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite a row. An auditor can see each account's segment on any past date.</td></tr>
+          </tbody></table>
+          <h4>Account view</h4>
+          <p>The view shows deal end, current terms, application problems, segment, score age, evidence, owner and support priority.</p>
+          <h4>Synthetic data</h4>
+          <ul class="list-disc">
+            <li>Include complete outcomes, reversals, delayed feeds and successful transfers.</li>
+            <li>Generate labels from separate hidden factors, not from the alert rule.</li>
+            <li>Label any future payment figure as an illustration. It is not an offer or an affordability decision.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>03 / Architecture and interfaces</summary><section class="spec-section" id="mortgage-architecture">
+          <ol class="list-decimal">
+            <li>Fabric pipelines load dated account, payment, application and servicing exports into raw Lakehouse tables.</li>
+            <li>Notebooks validate keys and ledger history. They build clean account histories and frozen feature snapshots.</li>
+            <li>Notebooks train the renewal model and the behavioural clusters. MLflow records experiments, feature signatures and model versions.</li>
+            <li>Scores, segments, attributions and evidence references go to curated Gold Delta tables. A Power BI semantic model reads them in Direct Lake mode.</li>
+            <li>Eventstream replays an application failure into Eventhouse. Each event keeps its original ID and timestamps.</li>
+            <li>KQL journey queries in Eventhouse find three patterns:
+              <ul class="list-disc">
+                <li>each application's stages and errors in time order</li>
+                <li>days stalled at one stage</li>
+                <li>retries after a platform error.</li>
+              </ul>
+            </li>
+            <li>A Fabric pipeline runs scoring and segment assignment on a schedule. For the replay, the team also starts one scoring run by hand.</li>
+            <li>Activator and Power Automate create a human-owned review case in a secured SharePoint list.</li>
+          </ol>
+          <h4>Interfaces</h4>
+          <ul class="list-disc">
+            <li><code>risk_updated</code> carries event_id, mortgage_id, cycle_id, snapshot_id, model_version, scored_at, target, score and evidence IDs.</li>
+            <li>The case key is <code>mortgage_id + cycle_id + action_family</code>. A duplicate write reads the existing case. Other write failures stay visible.</li>
+            <li>The case writer reads current support eligibility when it creates a case. Support priority does not depend on churn score or account value.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>04 / Prediction and segments</summary><section class="spec-section" id="mortgage-model">
+          <h4>Target</h4>
+          <ul class="list-disc">
+            <li><strong>Checkpoint:</strong> <code>deal_end_at</code> minus 90 days.</li>
+            <li><strong>Positive:</strong> confirmed external refinancing between the checkpoint and <code>deal_end_at</code> plus 30 days. Use known redemption reasons or verified refinance records.</li>
+            <li><strong>Negative:</strong> an internal transfer or continued servicing, only after the full window.</li>
+            <li><strong>Excluded:</strong> sales, bereavement closures and redemptions with no known reason.</li>
+          </ul>
+          <h4>Features</h4>
+          <ul class="list-disc">
+            <li>Use application completion, platform errors, complaint age and contact history.</li>
+            <li>Derive three behavioural signals from dated history:
+              <ul class="list-disc">
+                <li>failed application attempts in the last 30 days against the last 90 days</li>
+                <li>days stalled at one stage</li>
+                <li>the trend in servicing contacts.</li>
+              </ul>
+            </li>
+            <li>Exclude sensitive support details, protected characteristics, names and fine-grained location. Check the remaining features for unjustified proxies.</li>
+            <li>Payment difficulty follows the support policy. It is not a hidden churn label.</li>
+          </ul>
+          <h4>Models and segments</h4>
+          <ul class="list-disc">
+            <li>Compare logistic regression and a small tree model with an application-friction rules baseline.</li>
+            <li>Fit two to five clusters on application and servicing features. Inspect stability and centroids before naming groups.</li>
+            <li>Fit clusters once per model release. Each scheduled run assigns accounts to those clusters, so a segment ID keeps its meaning.</li>
+          </ul>
+          <h4>Evaluation</h4>
+          <ul class="list-disc">
+            <li>Test on later deal cohorts. Keep their borrowers out of training.</li>
+            <li>Training labels must exist before the simulated model release. Freeze thresholds on validation data.</li>
+            <li>Report accuracy, precision, recall, calibration and lift at ten reviews per run.</li>
+            <li>Lift compares the refinancing rate in the ten highest-scored accounts with the cohort's base rate. Accuracy alone misleads when few accounts leave.</li>
+          </ul>
+          <h4>Explanations</h4>
+          <p>Store per-account feature attributions with each score. Use SHAP values for the tree model and coefficient contributions for logistic regression. They explain the score, not the borrower's motive.</p>
+        </section></details>
+        <details class="disclosure"><summary>05 / Alert routing and audit</summary><section class="spec-section" id="mortgage-action">
+          <h4>Routing order</h4>
+          <ol class="list-decimal">
+            <li>An active payment-support request goes to trained servicing staff. Retention tasks wait while that case needs review.</li>
+            <li>A verified application failure goes to technical support.</li>
+            <li>An eligible renewal review goes to a servicing adviser.</li>
+          </ol>
+          <p>A human checks contact policy and suitability before any customer action.</p>
+          <h4>Audit record</h4>
+          <p>Each case stores model version, snapshot, evidence IDs, routing policy, owner and decision. It also stores separate ingestion, scoring, alert and case times.</p>
+          <p>Failure handling follows cases T01 to T06 above.</p>
+        </section></details>
+        <details class="disclosure"><summary>06 / Build plan and demo</summary><section class="spec-section" id="mortgage-delivery">
+          <table class="blueprint-table"><thead><tr><th scope="col">Work package</th><th scope="col">Output</th></tr></thead><tbody>
+            <tr><td>Data and replay.</td><td>Account histories, reversal fixtures, cutoff checks and the event contract.</td></tr>
+            <tr><td>Models and evaluation.</td><td>Classifier, clusters, rules baseline, later-cohort report with lift, and registered model.</td></tr>
+            <tr><td>Dashboard and action.</td><td>Direct Lake account view, segment history, sensitivity labels, support-first routing, case writer and audit.</td></tr>
+          </tbody></table>
+          <h4>Demo script</h4>
+          <ol class="list-decimal">
+            <li>Show Alex's checkpoint, deal date, evidence and proposed renewal review.</li>
+            <li>Run the KQL journey query for Alex's application. Show the stage history behind the stalled-application signal.</li>
+            <li>Replay an application failure and a support request. Show rescoring and support-first routing.</li>
+            <li>Replay the same event. Show one case, not two.</li>
+            <li>Show Sam's completed transfer and a reversed collection. Explain why neither proves default.</li>
+            <li>Show the evaluation, measured latency and limits.</li>
+          </ol>
+          <h4>Acceptance tests</h4>
+          <p>The demo passes INV-1 to INV-6 and T01 to T06. It also shows these results:</p>
+          <ul class="list-disc">
+            <li>Each checkpoint warning comes 90 days before deal end.</li>
+            <li>Each scheduled run adds segment rows. Earlier segment rows never change.</li>
+            <li>Every Fabric item that holds personal data carries a Purview sensitivity label.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>07 / Value and controls</summary><section class="spec-section" id="mortgage-readiness">
+          <h4>Value measures</h4>
+          <p>Measure review effort, application faults fixed, support routing time and confirmed external-refinancing outcomes. Loan balance is exposure, not saved revenue.</p>
+          <h4>Data protection</h4>
+          <ul class="list-disc">
+            <li>Use pseudonymous accounts and least-privilege roles. Restrict support information separately.</li>
+            <li>Exclude bank details and borrower documents.</li>
+            <li>Apply Purview sensitivity labels to the Lakehouse, Eventhouse, semantic model and report.</li>
+          </ul>
+          <h4>Before real use</h4>
+          <p>Get lending, privacy and responsible-AI review. Confirm jurisdiction, contact policy and fairness checks.</p>
+        </section></details>
       </div>
     </section>
   </main>
@@ -709,23 +857,145 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <section class="band" aria-labelledby="insurance-full-title">
       <div class="section-head">
         <h2 id="insurance-full-title">Full submission sections</h2>
-        <p class="muted measure">Open a section to read it. Printing opens every section.</p>
+        <p class="muted measure">The detail behind the specification above. Open a section to read it. Printing opens every section. Rules for both blueprints are on the <a class="link" href="#overview">overview page</a>.</p>
       </div>
       <div class="disclosures" data-spec-list="insurance">
-        <details class="disclosure"><summary>01 / Submission summary</summary><section class="spec-section" id="insurance-submission"><p><strong>Title:</strong> HavenCover Home-Recovery and Renewal Desk.</p><p>Our proposed Fabric solution connects policy, claim, repair, and complaint history. It predicts customer-led non-renewal and groups policies by service experience.</p><p>A service adviser sees model drivers and dated recovery evidence. New missed milestones create a review case for a claims coordinator.</p><p><strong>Distinctive value:</strong> assess recovery experience rather than claim cost. A shared contractor incident links affected policy cases without duplicating incident work.</p><p><strong>Scope:</strong> home policies with observed renewal decisions, one flood-repair story, one controlled replay, and one human-approved action.</p><p>Exclude underwriting, fraud detection, premium setting, claim rejection, and automatic coverage changes. A risk score must never obstruct a claim.</p></section></details>
-        <details class="disclosure"><summary>02 / Data contracts and customer view</summary><section class="spec-section" id="insurance-contracts"><table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Purpose and checks</th></tr></thead><tbody>
-          <tr><td>Policy: one policy and renewal cycle.</td><td>policy_id, cycle_id, expiry_at, tenure, owner_id, renewal_offer_at, outcome_type, outcome_observed_at.</td><td>Separate customer refusal from insurer withdrawal. Unknown decisions remain unlabelled.</td></tr>
-          <tr><td>Claim: one claim state change.</td><td>claim_id, policy_id, changed_at, ingested_at, stage, status, coordinator_id.</td><td>Preserve historical state. Exclude medical details, free text, and later settlement from earlier features.</td></tr>
-          <tr><td>Repair: one appointment or milestone change.</td><td>event_id, claim_id, job_id, contractor_id, promised_at, occurred_at, ingested_at, status, incident_id.</td><td>Use the promise known at the cutoff. Preserve cancellations, revised promises, and completion evidence.</td></tr>
-          <tr><td>Service: one complaint or assistance state change.</td><td>case_id, policy_id, changed_at, recorded_at, category, status, owner_id, restricted_route.</td><td>Expose minimal routing flags. Restrict accommodation and personal-support details to authorised staff.</td></tr>
-          <tr><td>Snapshot: one policy, cycle, and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, feature_values, evidence_ids.</td><td>Freeze feature and promise versions. Keep future claim closure and renewal outcomes outside inputs.</td></tr>
-                    <tr><td>Segment membership: one policy, cycle, and scoring run.</td><td>policy_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite earlier rows. An auditor can see each policy's segment on any past date.</td></tr>
-                    </tbody></table><p>The policy view shows expiry, recovery milestones, complaint history, segment, score age, evidence, coordinator, and case status.</p><p>Use synthetic histories with shared contractor incidents, completed repairs, absent feeds, and censored outcomes. Generate renewal labels independently of routing rules.</p></section></details>
-        <details class="disclosure"><summary>03 / Proposed architecture and interfaces</summary><section class="spec-section" id="insurance-architecture"><ol class="list-decimal"><li>Load policy, claim, repair, and service exports into raw Fabric Lakehouse tables.</li><li>Validate policy-to-claim and claim-to-job keys. Reconstruct dated promises and service history in notebooks.</li><li>Create checkpoint features. Train classifiers and behavioural clusters with MLflow experiment and model records.</li><li>Publish scores, segments, explanations, and evidence references to curated Gold Delta tables. A Power BI semantic model reads them in Direct Lake mode for a restricted policy view.</li><li>Replay a missed repair appointment through Eventstream into Eventhouse.</li><li>Run KQL journey queries in Eventhouse. One query lists each claim's promised and actual repair milestones in time order. One counts missed appointments in the last 30 and 90 days. One measures the time from a missed milestone to the next complaint or contact.</li><li>Run a separate notebook to refresh affected features and scores. A Fabric pipeline also runs scoring and segment assignment on a schedule. Publish risk_updated after successful scoring.</li><li>Use Activator and Power Automate to create or update a human-owned SharePoint review case.</li></ol><p>risk_updated contains event_id, policy_id, cycle_id, snapshot_id, model_version, scored_at, score, target, and evidence IDs.</p><p>Enforce a unique case_key of policy_id + cycle_id + action_family. Maintain one contractor incident per incident_id with linked policy cases.</p><p>Record ingestion, score completion, alert, and case timestamps separately. The design does not claim instant per-event inference or dashboard refresh.</p></section></details>
-        <details class="disclosure"><summary>04 / Prediction and segmentation</summary><section class="spec-section" id="insurance-model"><p><strong>Checkpoint:</strong> expiry_at minus 90 days. Predict explicit customer-led non-renewal at that expiry.</p><p>Require a recorded renewal decision and observation through the policy's agreed renewal-processing window. Exclude insurer withdrawal and policy closures outside customer choice.</p><p>Do not infer a negative outcome from an automatic-renewal setting. An incomplete outcome remains unknown.</p><p>Compare logistic regression and a small tree model with a missed-milestone-plus-complaint baseline.</p><p>Use missed appointments, unresolved complaint age, repeated contacts, overdue milestones, and prior service experience. Exclude claim amount from the first model.</p><p>Derive at least three behavioural signals from dated history: missed appointments in the last 30 days against the last 90 days, unresolved complaint age, and the trend in repeat contacts.</p><p>A renewal quote issued after the checkpoint cannot enter checkpoint features. Use only price information actually available at scoring.</p><p>Fit two to five clusters on service and recovery features. Inspect separation and stability before naming groups such as smooth recovery or repair friction.</p><p>Fit clusters once per model release. Each scheduled run assigns policies to the fitted clusters, so a segment ID keeps its meaning over time. Each assignment is a new row in segment_membership.</p><p>Test later renewal cohorts. Keep households and shared contractor incidents separate across training and test sets where feasible.</p><p>Require event and ingestion timestamps at or before cutoff. Exclude training labels unavailable before simulated model release.</p><p>Freeze thresholds on validation data. Report accuracy, precision, recall, calibration, class counts, and lift at ten reviews per run.</p><p>Lift compares the non-renewal rate in the ten highest-scored policies with the cohort's base rate. Accuracy alone misleads when few policies lapse.</p><p>Store per-policy feature attributions with each score: SHAP values for the tree model and coefficient contributions for logistic regression. Show them alongside source evidence. Neither proves why a customer leaves or whether service recovery prevents departure.</p></section></details>
-        <details class="disclosure"><summary>05 / Alert policy and failure handling</summary><section class="spec-section" id="insurance-action"><p>Route unresolved repair failures to the claims coordinator. Route renewal reviews to the service adviser only after urgent assistance receives attention.</p><p>Urgent assistance does not depend on churn risk, premium value, or a retention threshold. Maintain this operational path separately.</p><p>A human approves contractor escalation and customer contact. The prototype changes no claim decision, premium, settlement, or coverage.</p><p>Store policy and claim IDs, snapshot, model, evidence, promise version, incident link, owner, decision, and operation timestamps.</p><p>Quarantine unmapped jobs. Flag stale repair feeds. Reject malformed events. Retry failed case writes with an operator-visible error.</p><p>A contractor-wide problem creates one incident. Each affected policy can retain a separate linked case and its own support needs.</p><p>Repair completion requests rescoring and review. It does not automatically close complaints or prove the policy will renew.</p></section></details>
-        <details class="disclosure"><summary>06 / Build plan, demo, and acceptance tests</summary><section class="spec-section" id="insurance-delivery"><table class="blueprint-table"><thead><tr><th scope="col">Stage</th><th scope="col">Deliverable</th></tr></thead><tbody><tr><td>Before idea submission.</td><td>Agree target, renewal window, assistance policy, data basis, and tenant access.</td></tr><tr><td>Data and replay.</td><td>Policy and claim histories, milestone versions, contractor incidents, and fixtures.</td></tr><tr><td>Models and evaluation.</td><td>Classifier, clusters, baseline, leakage checks, lift report, and model card.</td></tr><tr><td>Dashboard and action.</td><td>Direct Lake recovery view, segment history, sensitivity labels, incident linking, unique case writer, and assistance routing.</td></tr><tr><td>Final submission.</td><td>Reproducible package and a 5-10 minute video.</td></tr></tbody></table><ol class="list-decimal"><li>Show Robin's checkpoint warning and unresolved recovery milestones.</li><li>Run the KQL journey query for Robin's claim. Show the missed milestones behind the score.</li><li>Replay a missed appointment. Show explicit rescoring and a coordinator-owned case.</li><li>Replay the duplicate and a second affected policy. Show one contractor incident with distinct policy cases.</li><li>Show Casey's resolved claim. Explain why claim size is not a service-failure rule.</li><li>Show urgent assistance with a low churn score and the measured evaluation report.</li></ol><ul class="list-disc"><li>Every accepted repair event maps to one claim and policy. Unknown jobs create no retention case.</li><li>Every feature passes both cutoff checks. Later quotes and settlements remain outside checkpoint inputs.</li><li>Insurer withdrawal and unknown renewal outcomes do not become customer-churn labels.</li><li>Duplicate replay creates exactly one policy case. Shared incidents create exactly one contractor incident.</li><li>Urgent assistance receives a route regardless of churn score. No claim or coverage decision changes.</li><li>Proposed targets: event visibility within 60 seconds and case creation within five minutes after successful scoring.</li><li>Each scheduled run adds segment rows. Earlier segment rows never change.</li><li>Every Fabric item that holds personal data carries a Purview sensitivity label.</li></ul></section></details>
-        <details class="disclosure"><summary>07 / Value, controls, and submission package</summary><section class="spec-section" id="insurance-readiness"><p>Measure milestone review effort, confirmed repair problems, assistance routing time, case duplication, and observed renewals. Premium associated with reviews is not saved revenue.</p><p>Use pseudonymous policies and restricted role-based views. Exclude addresses, medical data, bank details, and claim documents from exports and prompts.</p><p>Apply Purview sensitivity labels to the Lakehouse, Eventhouse, semantic model, and report. Every item that holds personal data carries a label.</p><p>Require claims, privacy, and responsible-AI review before real use. Check proxy discrimination and service access independently of prediction quality.</p><p>Confirm Fabric capacity, Power BI sharing, Power Automate licensing, connector permissions, jurisdiction, and customer-contact policy.</p><p>Submit the summary, architecture, contracts, synthetic-data specification, notebooks, model versions, evaluation, incident and assistance tests, audit, setup instructions, and video.</p><p>Confirm organiser fields, team names, and deadline timezone. The blueprint proposes a service-recovery prototype, not an implemented insurance system.</p></section></details>
+        <details class="disclosure"><summary>01 / Submission summary</summary><section class="spec-section" id="insurance-submission">
+          <ul class="list-disc">
+            <li><strong>Title:</strong> HavenCover Home-Recovery and Renewal Desk.</li>
+            <li><strong>Problem:</strong> HavenCover finds out that a customer is leaving only when the policy does not renew. Repair and complaint records sit in separate systems.</li>
+            <li><strong>Solution:</strong> A Fabric solution joins policy, claim, repair and complaint history with live repair events. It predicts customer-led non-renewal 90 days before expiry. It groups policies by service experience.</li>
+            <li><strong>Business impact:</strong> Claims coordinators get time to fix failed repairs before the renewal decision. The 90-day lead time is a proposed target. Urgent assistance never waits for a churn score.</li>
+            <li><strong>Distinctive value:</strong> The design assesses recovery experience, not claim cost. One contractor incident links all affected policy cases without duplicate work.</li>
+            <li><strong>Scope:</strong> Home policies with observed renewal decisions, one flood-repair story, one controlled replay and one human-approved action.</li>
+            <li><strong>Out of scope:</strong> Underwriting, fraud detection, premium setting, claim rejection and automatic coverage changes. A risk score never blocks a claim.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>02 / Data contracts and policy view</summary><section class="spec-section" id="insurance-contracts">
+          <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Checks</th></tr></thead><tbody>
+            <tr><td>Policy: one policy and renewal cycle.</td><td>policy_id, cycle_id, expiry_at, tenure, owner_id, renewal_offer_at, outcome_type, outcome_observed_at.</td><td>Separate customer refusal from insurer withdrawal.</td></tr>
+            <tr><td>Claim: one claim state change.</td><td>claim_id, policy_id, changed_at, ingested_at, stage, status, coordinator_id.</td><td>Keep historical states. Exclude medical details, free text and later settlement from earlier features.</td></tr>
+            <tr><td>Repair: one appointment or milestone change.</td><td>event_id, claim_id, job_id, contractor_id, promised_at, occurred_at, ingested_at, status, incident_id.</td><td>Use the promise known at the cutoff. Keep cancellations, revised promises and completion evidence.</td></tr>
+            <tr><td>Service: one complaint or assistance state change.</td><td>case_id, policy_id, changed_at, recorded_at, category, status, owner_id, restricted_route.</td><td>Show only routing flags. Restrict accommodation and personal-support details to authorised staff.</td></tr>
+            <tr><td>Snapshot: one policy, cycle and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, feature_values, evidence_ids.</td><td>Freeze feature and promise versions. Keep later claim closures and renewal outcomes out of inputs.</td></tr>
+            <tr><td>Segment membership: one policy, cycle and scoring run.</td><td>policy_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite a row. An auditor can see each policy's segment on any past date.</td></tr>
+          </tbody></table>
+          <h4>Policy view</h4>
+          <p>The view shows expiry, recovery milestones, complaint history, segment, score age, evidence, coordinator and case status.</p>
+          <h4>Synthetic data</h4>
+          <ul class="list-disc">
+            <li>Include shared contractor incidents, completed repairs, absent feeds and incomplete outcomes.</li>
+            <li>Generate renewal labels separately from the routing rules.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>03 / Architecture and interfaces</summary><section class="spec-section" id="insurance-architecture">
+          <ol class="list-decimal">
+            <li>Fabric pipelines load policy, claim, repair and service exports into raw Lakehouse tables.</li>
+            <li>Notebooks validate policy-to-claim and claim-to-job keys. They rebuild dated promises and service history.</li>
+            <li>Notebooks create checkpoint features and train the classifiers and behavioural clusters. MLflow records experiments and model versions.</li>
+            <li>Scores, segments, attributions and evidence references go to curated Gold Delta tables. A Power BI semantic model reads them in Direct Lake mode.</li>
+            <li>Eventstream replays a missed repair appointment into Eventhouse.</li>
+            <li>KQL journey queries in Eventhouse find three patterns:
+              <ul class="list-disc">
+                <li>each claim's promised and actual repair milestones in time order</li>
+                <li>missed appointments in the last 30 and 90 days</li>
+                <li>the time from a missed milestone to the next complaint or contact.</li>
+              </ul>
+            </li>
+            <li>A Fabric pipeline runs scoring and segment assignment on a schedule. For the replay, a separate notebook refreshes the affected features and scores.</li>
+            <li>Activator and Power Automate create or update a human-owned review case in a SharePoint list.</li>
+          </ol>
+          <h4>Interfaces</h4>
+          <ul class="list-disc">
+            <li><code>risk_updated</code> carries event_id, policy_id, cycle_id, snapshot_id, model_version, scored_at, score, target and evidence IDs.</li>
+            <li>The case key is <code>policy_id + cycle_id + action_family</code>. Each <code>incident_id</code> has one contractor incident with linked policy cases.</li>
+            <li>The design records ingestion, scoring, alert and case times separately. It does not claim instant scoring for each event.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>04 / Prediction and segments</summary><section class="spec-section" id="insurance-model">
+          <h4>Target</h4>
+          <ul class="list-disc">
+            <li><strong>Checkpoint:</strong> <code>expiry_at</code> minus 90 days.</li>
+            <li><strong>Positive:</strong> an explicit customer-led non-renewal at that expiry. It needs a recorded renewal decision and observation through the agreed renewal-processing window.</li>
+            <li><strong>Excluded:</strong> insurer withdrawal and closures outside customer choice.</li>
+            <li>An automatic-renewal setting does not prove a negative outcome.</li>
+          </ul>
+          <h4>Features</h4>
+          <ul class="list-disc">
+            <li>Use missed appointments, unresolved complaint age, repeat contacts, overdue milestones and prior service experience. Exclude claim amount from the first model.</li>
+            <li>Derive three behavioural signals from dated history:
+              <ul class="list-disc">
+                <li>missed appointments in the last 30 days against the last 90 days</li>
+                <li>unresolved complaint age</li>
+                <li>the trend in repeat contacts.</li>
+              </ul>
+            </li>
+            <li>Use only price information available at scoring.</li>
+          </ul>
+          <h4>Models and segments</h4>
+          <ul class="list-disc">
+            <li>Compare logistic regression and a small tree model with a missed-milestone-plus-complaint baseline.</li>
+            <li>Fit two to five clusters on service and recovery features. Inspect separation and stability before naming groups such as smooth recovery or repair friction.</li>
+            <li>Fit clusters once per model release. Each scheduled run assigns policies to those clusters, so a segment ID keeps its meaning.</li>
+          </ul>
+          <h4>Evaluation</h4>
+          <ul class="list-disc">
+            <li>Test on later renewal cohorts. Keep households and shared contractor incidents apart across training and test sets where possible.</li>
+            <li>Training labels must exist before the simulated model release. Freeze thresholds on validation data.</li>
+            <li>Report accuracy, precision, recall, calibration, class counts and lift at ten reviews per run.</li>
+            <li>Lift compares the non-renewal rate in the ten highest-scored policies with the cohort's base rate. Accuracy alone misleads when few policies lapse.</li>
+          </ul>
+          <h4>Explanations</h4>
+          <p>Store per-policy feature attributions with each score. Use SHAP values for the tree model and coefficient contributions for logistic regression. Show them beside the source evidence. They do not prove why a customer leaves. They do not prove that service recovery prevents departure.</p>
+        </section></details>
+        <details class="disclosure"><summary>05 / Alert routing and audit</summary><section class="spec-section" id="insurance-action">
+          <h4>Routing order</h4>
+          <ol class="list-decimal">
+            <li>Urgent assistance has its own path. It does not depend on churn risk, premium value or a retention threshold.</li>
+            <li>An unresolved repair failure goes to the claims coordinator.</li>
+            <li>A renewal review goes to the service adviser, only after urgent assistance gets attention.</li>
+          </ol>
+          <p>A human approves contractor escalation and customer contact.</p>
+          <h4>Audit record</h4>
+          <p>Each case stores policy and claim IDs, snapshot, model, evidence, promise version, incident link, owner and decision. It also stores separate operation times.</p>
+          <p>Failure handling follows cases T01 to T06 above.</p>
+        </section></details>
+        <details class="disclosure"><summary>06 / Build plan and demo</summary><section class="spec-section" id="insurance-delivery">
+          <table class="blueprint-table"><thead><tr><th scope="col">Work package</th><th scope="col">Output</th></tr></thead><tbody>
+            <tr><td>Data and replay.</td><td>Policy and claim histories, milestone versions, contractor incidents and fixtures.</td></tr>
+            <tr><td>Models and evaluation.</td><td>Classifier, clusters, baseline, leakage checks, lift report and model card.</td></tr>
+            <tr><td>Dashboard and action.</td><td>Direct Lake recovery view, segment history, sensitivity labels, incident linking, case writer and assistance routing.</td></tr>
+          </tbody></table>
+          <h4>Demo script</h4>
+          <ol class="list-decimal">
+            <li>Show Robin's checkpoint warning and unresolved recovery milestones.</li>
+            <li>Run the KQL journey query for Robin's claim. Show the missed milestones behind the score.</li>
+            <li>Replay a missed appointment. Show rescoring and a coordinator-owned case.</li>
+            <li>Replay the duplicate and a second affected policy. Show one contractor incident with separate policy cases.</li>
+            <li>Show Casey's resolved claim. Explain why claim size is not a service-failure rule.</li>
+            <li>Show urgent assistance with a low churn score. Then show the evaluation report.</li>
+          </ol>
+          <h4>Acceptance tests</h4>
+          <p>The demo passes INV-1 to INV-6 and T01 to T06. It also shows these results:</p>
+          <ul class="list-disc">
+            <li>Each checkpoint warning comes 90 days before policy expiry.</li>
+            <li>Every accepted repair event maps to one claim and one policy.</li>
+            <li>Each scheduled run adds segment rows. Earlier segment rows never change.</li>
+            <li>Every Fabric item that holds personal data carries a Purview sensitivity label.</li>
+          </ul>
+        </section></details>
+        <details class="disclosure"><summary>07 / Value and controls</summary><section class="spec-section" id="insurance-readiness">
+          <h4>Value measures</h4>
+          <p>Measure milestone review effort, confirmed repair problems, assistance routing time, case duplication and observed renewals. Premium linked to reviews is not saved revenue.</p>
+          <h4>Data protection</h4>
+          <ul class="list-disc">
+            <li>Use pseudonymous policies and restricted role-based views.</li>
+            <li>Exclude addresses, medical data, bank details and claim documents from exports and prompts.</li>
+            <li>Apply Purview sensitivity labels to the Lakehouse, Eventhouse, semantic model and report.</li>
+          </ul>
+          <h4>Before real use</h4>
+          <p>Get claims, privacy and responsible-AI review. Check proxy discrimination and service access separately from prediction quality.</p>
+        </section></details>
       </div>
     </section>
   </main>
@@ -1339,10 +1609,6 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
       mortgage: { target: 'Confirmed external refinancing', date: 'Fixed-rate deal end', unit: 'mortgage_id + cycle_id' },
       insurance: { target: 'Customer-led policy non-renewal', date: 'Policy expiry', unit: 'policy_id + cycle_id' }
     };
-    const coreBlueprint = (key) => {
-      const requirement = coreRequirements[key];
-      return `<details class="disclosure"><summary>00 / The core build: warn before the customer leaves</summary><section class="spec-section" id="${key}-core"><p>The business discovers customer loss too late because customer records and new activity are disconnected. The proposed deliverable is a real-time Customer 360, fitted ML segments, and an explainable churn model targeting warnings about 90 days ahead; service recovery is a response, not the prediction target.</p><ol class="list-decimal"><li><strong>Real-time Customer 360:</strong> combine governed account history with accepted live events in an Eventhouse customer view, joined by ${requirement.unit}. Show the latest event, service state, source freshness, and the separately timestamped segment and churn score. A scheduled Lakehouse export alone does not meet this requirement.</li><li><strong>ML segments:</strong> train and register a clustering model on historical behaviour, fit preprocessing on training data, inspect cluster profiles, and assign each eligible customer to a fitted segment. Store segment_model_version, assigned_at, and feature_snapshot_id. Support flags and alert rules are not ML segments.</li><li><strong>Churn model:</strong> predict ${requirement.target.toLowerCase()} using dated inputs. Produce the checkpoint score 90 days before ${requirement.date.toLowerCase()}, then refresh operational scores on an explicit schedule. Explain model contributions without claiming to know customer intent.</li></ol><p><strong>Live path:</strong> validated event → deduplicated customer activity and current-state query in Eventhouse → real-time customer view. Historical Lakehouse context is loaded separately into the query view. Scheduled feature refresh → registered segment assignment and churn scoring → versioned results → Activator warning and human review. A failed scoring job leaves the last score visibly stale; it must not stop current customer activity from updating.</p><p><strong>Proposed clocks:</strong> accepted events visible in the Customer 360 within 60 seconds; affected-customer feature, segment, and score refresh every 15 minutes; eligible alerts within five minutes after successful scoring. Measure ingestion, view refresh, scoring, and notification separately. These are targets to test, not platform guarantees. A manually started notebook is an integration drill only, not the completed operational design.</p><p><strong>Advance-warning evidence:</strong> retain prediction_at, first_eligible_warning_at, outcome_at, outcome_observed_at, snapshot_id, and model versions. Calculate lead_days = outcome_at − first_eligible_warning_at for confirmed churn; report its distribution and recall for customers warned at least 90 days before departure, alongside false positives, missed churn, and capacity-limited precision. A score made 90 days before renewal is not automatically 90 days before an earlier departure.</p><p><strong>Acceptance gate:</strong> replay a new event and show the same customer's live view changing without manual ingestion; show a fitted ML segment and registered churn-model output; replay duplicates without changing counts; verify both event-time and ingestion-time cutoffs; and evaluate later, separate customer cohorts. Report a failed target rather than describing a shorter warning as three months early. Synthetic data demonstrates mechanics, not real-world predictive effectiveness.</p></section></details>`;
-    };
     const scenarioDescriptions = {
       mortgage: "Fixed-rate deals end in large numbers every month, and advisers cannot call every customer. Some customers need payment support, some are stuck in the lender's own process, and some may move to another lender. The proposed solution flags customers likely to move about 90 days before deal end and sends each case to the right team, with payment support first.",
       insurance: 'Many home insurers use outside suppliers for claims work. A failing repair can stay hidden until the customer complains or leaves at renewal. The proposed solution joins policy, claim, supplier, and complaint data and flags customers likely to leave about 90 days before the policy ends. Claims coordinators fix recovery problems before any renewal review.'
@@ -1623,7 +1889,6 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
           <p class="bc-output"><strong>Business output:</strong> ${esc(c.output)} The churn score is one input to the route. It is not the whole answer.</p>
         </div></details></div>`;
       const list = document.querySelector(`[data-spec-list="${key}"]`);
-      list.insertAdjacentHTML('afterbegin', coreBlueprint(key));
       list.insertAdjacentHTML('beforeend', `<details class="disclosure" id="${key}-sources"><summary>Sources and assumptions</summary><div class="spec-section"><h4 style="margin-top:.5rem;">Sources</h4><ul class="list-disc">${c.sources.map(s => `<li>${sourceLink(s)}</li>`).join('')}</ul><h4>Assumptions</h4><ul class="list-disc">${c.assumptions.map(a => `<li>${esc(a)}</li>`).join('')}</ul></div></details>`);
     });
 
