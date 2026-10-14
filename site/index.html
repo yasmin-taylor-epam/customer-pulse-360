@@ -832,9 +832,8 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
 
     <aside class="pause" aria-labelledby="sub-pause">
       <p class="kicker" id="sub-pause">Before you send the form</p>
-      <p class="pause-q">Check four items.</p>
+      <p class="pause-q">Check three items.</p>
       <ul class="list-disc small" style="padding-left: 1.25rem;">
-        <li>Choose the final idea name. The form draft uses a different name.</li>
         <li>Complete the other parts of the form, for example the team names. This pack covers only the Architecture Blueprint section.</li>
         <li>Confirm the deadline timezone with the organiser. The slide says PST.</li>
         <li>Upload files 1 and 2 as a minimum.</li>
@@ -1847,9 +1846,9 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     };
     const mortgageChallengeFigure = () => {
       const lanes = [
-        ['bc-warn', 'Cannot afford the new rate', 'Payment shock or other difficulty. Financial support team acts first.'],
-        ['bc-main', 'Wants to stay, but our process fails', 'Transfer error or stalled offer. Operations fixes the journey.'],
-        ['bc-main', 'May move to another lender', 'High churn score with evidence. Retention adviser reviews.'],
+        ['bc-warn', 'Cannot afford the new rate', 'Payment shock or other difficulty. Trained support staff act first.'],
+        ['bc-main', 'Wants to stay, but our process fails', 'Transfer error or stalled offer. Servicing adviser fixes the application.'],
+        ['bc-main', 'May move to another lender', 'High churn score with evidence. Servicing adviser reviews.'],
         ['bc-ok', 'Transfer complete, no problems', 'No action. Adviser time goes to other customers.']
       ];
       const laneSvg = lanes.map(([tone, title, note], index) => {
@@ -2198,8 +2197,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     // The page renders the text as HTML. The copy button copies the plain text.
     const formFields = [
       { label: 'Idea name', hint: 'Name of the idea', required: true,
-        text: 'Warn mortgage advisers 90 days before a borrower leaves',
-        note: 'The form draft says “Reversing excessive churn trends in mortgage customers”. The name above states the action and the 90-day target. Choose one name.' },
+        text: 'HomeBridge Renewal Early Warning: flags borrowers likely to leave 90 days before their fixed deal ends' },
       { label: 'Target Industry', hint: 'Industry this solution serves',
         text: 'Financial Services (retail mortgages)' },
       { label: 'Business Usecase', hint: 'Business use case this architecture addresses', required: true,
