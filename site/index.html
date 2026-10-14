@@ -1,18 +1,21 @@
 <!doctype html>
 <!--
 ART DIRECTION
-Reader tasks: the main page helps the team and judges understand Hackathon Challenge 4 and the two candidate
-blueprints. Each scenario page is a submission blueprint: a reader approves or rejects a build.
-Surfaces: main page = Broadsheet (understand). Scenario pages = Blueprint (approve a build).
+Reader tasks: the main page helps the team and judges understand Hackathon Challenge 4 and the chosen
+mortgage blueprint. The scenario page is a submission blueprint: a reader approves or rejects a build.
+The submission pack helps the team follow the organiser's form: copy each answer, then upload each file.
+Surfaces: main page = Broadsheet (understand). Scenario page = Blueprint (approve a build).
+Submission pack = Form mirror (follow): answer boxes sit where the organiser's form fields sit.
 Type: serif display (Iowan Old Style / Palatino / Georgia), system sans for body, system mono for field names.
 No web fonts.
 Colour: DaisyUI semantic tokens only. Light is the default theme; "luxury" is the dark theme. Tints use color-mix.
-Signature figures: main page = "today vs with the engine" time line. Scenario pages = architecture lanes.
+Signature figures: main page = "today vs with the engine" time line. Scenario page = architecture lanes.
+Submission pack = the form-field grid, followed by the numbered upload list.
 Shape legend (defined once, on each blueprint architecture): cylinder = stored data, pipe = event stream,
 diamond = gate, pill = person, rectangle = service, dashed = proposed or not joined.
 Honesty stamps: Illustrative, Proposed target, Hypothesis · not measured, Evidence gap.
 Specs: invariants first, then data contract, failure cases, then "Deliberately not specified".
-Archived scenarios (software, broadband, retail) stay in an inert <template> at the end of <body>. They are hidden.
+Archived scenarios (insurance, software, broadband, retail) stay in an inert <template> at the end of <body>. They are hidden.
 -->
 <html lang="en" data-theme="light">
 <head>
@@ -275,13 +278,41 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     .glossary-back { margin-top: .6rem; }
     @media (max-width: 760px) { .glossary-list { grid-template-columns: minmax(0, 1fr); } .grains > div, .inv li { grid-template-columns: minmax(0, 1fr); gap: .2rem; } }
 
+    .form-grid { display: grid; gap: 1.25rem; }
+    @media (min-width: 900px) { .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .ff { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: .75rem; background: var(--color-base-100); min-width: 0; }
+    .ff-wide { grid-column: 1 / -1; }
+    .ff-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; padding: .9rem 1rem .7rem; }
+    .ff-label { display: block; font-weight: 700; }
+    .ff-req { color: var(--color-error); margin-left: .2rem; }
+    .ff-hint { display: block; font-size: .82rem; color: var(--soft); }
+    .ff-body { flex: 1; margin: 0 1rem; padding: .85rem 1rem; font-size: .95rem; background: var(--color-base-200); border: 1px solid var(--line); border-radius: .4rem; }
+    .ff-body p + p, .ff-body p + ul, .ff-body ul + p { margin-top: .6rem; }
+    .ff-body ul { list-style: disc; padding-left: 1.25rem; margin: 0; }
+    .ff-body li + li, .ff-body li > ul { margin-top: .3rem; }
+    .ff-body h5 { font: 700 .72rem/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--color-primary); margin: 1.1rem 0 .45rem; }
+    .ff-body h5:first-child { margin-top: 0; }
+    .ff-note { font-size: .82rem; color: var(--warn-ink); margin: .6rem 1rem 0; }
+    .ff-meta { font: .75rem var(--mono); color: var(--soft); padding: .55rem 1rem .8rem; }
+    .btn-mini { display: inline-flex; align-items: center; min-height: 2.25rem; font: 600 .82rem var(--sans); padding: .3rem .85rem; border: 1px solid var(--color-primary); border-radius: 999px; color: var(--color-primary); background: transparent; cursor: pointer; white-space: nowrap; }
+    .btn-mini:hover, .btn-mini:focus-visible { background: color-mix(in oklab, var(--color-primary) 12%, transparent); }
+    .btn-mini:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .btn-mini.is-done { background: var(--color-primary); color: var(--color-primary-content); }
+    .uploads { list-style: none; padding: 0; margin: 0; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: .75rem; overflow: hidden; }
+    .uploads li { background: var(--color-base-100); padding: 1rem 1.25rem; display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); gap: .6rem 1.25rem; }
+    @media (min-width: 900px) { .uploads li { grid-template-columns: 2.25rem minmax(0, 1fr) auto; align-items: center; } }
+    .uploads .num { font-family: var(--serif); font-size: 1.8rem; line-height: 1; color: var(--color-primary); }
+    .uploads .fmt { font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-left: .6rem; }
+    .uploads .acts { display: flex; flex-wrap: wrap; gap: .5rem; grid-column: 2 / -1; }
+    @media (min-width: 900px) { .uploads .acts { grid-column: auto; justify-content: flex-end; } }
+
     @media print {
       body { font-size: 11pt; background: #fff; }
       .page { max-width: none; padding: 0; }
-      .topbar nav, .theme-switch, .glossary-back, .scroll-hint { display: none !important; }
+      .topbar nav, .theme-switch, .glossary-back, .scroll-hint, .btn-mini, .uploads .acts, .ff-meta { display: none !important; }
       .fig-scroll > svg.wide, .bc-figure svg { min-width: 0 !important; }
       .fig-scroll, .tbl-wrap, .bc-figure { overflow: visible; }
-      .fig, .pause, .bp-card, .claim, .kpi, .req, figure, tr { break-inside: avoid; }
+      .fig, .pause, .bp-card, .claim, .kpi, .req, figure, tr, .ff, .uploads li { break-inside: avoid; }
       .disclosure > summary::after { content: ""; }
       .glossary-term { text-decoration: none; }
       a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
@@ -294,7 +325,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
       <span class="brand">Customer Pulse 360 · Hackathon</span>
       <nav aria-label="Pages">
         <a class="navlink" href="#mortgage-option">Mortgages blueprint</a>
-        <a class="navlink" href="#insurance-option">Insurance blueprint</a>
+        <a class="navlink" href="#submission">Submission pack</a>
         <span data-theme-slot></span>
       </nav>
     </header>
@@ -313,7 +344,8 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <dl class="meta">
       <div><dt>Build</dt><dd>26 Oct – 6 Nov 2026</dd></div>
       <div><dt>Video</dt><dd>5–10 minutes</dd></div>
-      <div><dt>Status</dt><dd>Proposal · scenario not agreed</dd></div>
+      <div><dt>Scenario</dt><dd>Mortgages · HomeBridge</dd></div>
+      <div><dt>Status</dt><dd>Proposal · not built</dd></div>
     </dl>
 
     <section class="band" aria-labelledby="ov-fig-title">
@@ -378,14 +410,14 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
         <h2 id="judging-title">How we win</h2>
         <dl class="facts" style="margin-top: 1.25rem;">
           <div><dt><span class="big-num">50</span><span class="muted"> of 100 points</span></dt><dd>Business value and solution quality together carry 50 of 100 points. We prioritise a working, clear retention story over extra features.</dd></div>
-          <div><dt>Optional suggestions · stretch</dt><dd>The challenge page's “Solution” text lists ideas. The organiser says they are suggestions, not requirements. Both blueprints include KQL journey queries, segment history, accuracy and lift, Direct Lake and Purview labels. Identity resolution, a Fabric IQ ontology and a Copilot Studio retention brief are stretch features. A custom application, autonomous discounts and multiple agents are out of scope.</dd></div>
+          <div><dt>Optional suggestions · stretch</dt><dd>The challenge page's “Solution” text lists ideas. The organiser says they are suggestions, not requirements. The blueprint includes KQL journey queries, segment history, accuracy and lift, Direct Lake and Purview labels. Identity resolution, a Fabric IQ ontology and a Copilot Studio retention brief are stretch features. A custom application, autonomous discounts and multiple agents are out of scope.</dd></div>
         </dl>
       </div>
       <div>
         <h2 id="milestones-title">Milestones</h2>
         <ol class="milestones" aria-labelledby="milestones-title" style="margin-top: 1.25rem;">
-          <li class="now"><time>13 Oct</time><strong>Today</strong><span class="muted small">Two candidate blueprints are ready for review.</span></li>
-          <li class="gate"><time>18 Oct</time><strong>Idea submission</strong><span class="muted small">Agree one scenario before this date.</span></li>
+          <li class="now"><time>14 Oct</time><strong>Scenario chosen</strong><span class="muted small">The team chose the mortgage scenario.</span></li>
+          <li class="gate"><time>18 Oct</time><strong>Idea submission</strong><span class="muted small">Send the blueprint form. The <a class="link" href="#submission">submission pack</a> has the answers.</span></li>
           <li><time>26 Oct – 6 Nov</time><strong>Build</strong><span class="muted small">Data, model, alert and demo.</span></li>
           <li><time>6 Nov</time><strong>Solution submission</strong><span class="muted small">Include a 5–10 minute video.</span></li>
         </ol>
@@ -394,15 +426,15 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     </section>
 
     <aside class="pause" aria-labelledby="ov-pause">
-      <p class="kicker" id="ov-pause">Decision point · 18 October</p>
-      <p class="pause-q">Agree one scenario before idea submission.</p>
-      <p class="small">Opening a blueprint does not select it.</p>
+      <p class="kicker" id="ov-pause">Decision · 14 October</p>
+      <p class="pause-q">The team chose the mortgage scenario: HomeBridge.</p>
+      <p class="small">Next: send the blueprint form before 18 October. The insurance blueprint is archived.</p>
     </aside>
 
     <section class="band" aria-labelledby="bp-title" style="border-top: 0;">
       <div class="section-head">
-        <h2 id="bp-title">Two candidate blueprints</h2>
-        <p class="muted measure">Both companies are fictional. Each page is a submission blueprint for one scenario.</p>
+        <h2 id="bp-title">The chosen blueprint</h2>
+        <p class="muted measure">HomeBridge is a fictional company. The blueprint page gives the full design. The submission pack gives the form answers and the files to upload.</p>
       </div>
       <div class="bp-cards">
         <a class="bp-card" href="#mortgage-option">
@@ -412,22 +444,22 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
           <p data-description="mortgage"></p>
           <span class="go">Open the blueprint →</span>
         </a>
-        <a class="bp-card" href="#insurance-option">
-          <svg class="glyph" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M48 12 80 25v24q0 23-32 39Q16 72 16 49V25zM29 49l19-16 19 16M36 44v22h24V44M44 66V54h8v12"/></svg>
-          <span class="kicker">Insurance · Fictional company</span>
-          <h3>HavenCover</h3>
-          <p data-description="insurance"></p>
-          <span class="go">Open the blueprint →</span>
+        <a class="bp-card" href="#submission">
+          <svg class="glyph" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10h38l18 18v62H22z"/><path d="M60 10v18h18"/><path d="M50 74V42M37 55l13-13 13 13"/></svg>
+          <span class="kicker">Blueprint form · due 18 Oct</span>
+          <h3>Submission pack</h3>
+          <p>The answer for each form field, ready to copy. The diagrams and documents to upload. The checklist for the final solution on 6 November.</p>
+          <span class="go">Open the submission pack →</span>
         </a>
       </div>
-      <p class="small muted" style="margin-top: 1rem;">These are design judgements, not researched market rankings. Three earlier scenarios (software, broadband and retail) are archived and hidden.</p>
+      <p class="small muted" style="margin-top: 1rem;">These are design judgements, not researched market rankings. The insurance scenario (HavenCover) and three earlier scenarios (software, broadband and retail) are archived and hidden.</p>
     </section>
 
     <section class="band" aria-labelledby="clocks-title">
       <div class="section-head">
         <h2 id="clocks-title">Shared core: three clocks</h2>
         <span class="stamp stamp-proposed">Proposed target</span>
-        <p class="muted measure">Both blueprints use the same three timing targets. A live event and an ML score refresh are separate operations. The demo shows and measures both.</p>
+        <p class="muted measure">The blueprint uses three timing targets. A live event and an ML score refresh are separate operations. The demo shows and measures both.</p>
       </div>
       <div class="kpis">
         <div class="kpi"><div class="v">60 s</div><p>From a live event to its appearance in the Customer 360 view.</p></div>
@@ -456,7 +488,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <section class="band" aria-labelledby="proof-title">
       <div class="section-head">
         <h2 id="proof-title">Show the proof</h2>
-        <p class="muted measure">What the demo and video must show, whichever scenario we choose.</p>
+        <p class="muted measure">What the demo and video must show.</p>
       </div>
       <ul class="checks">
         <li>Test on a later time period that training excludes. Do not use information from after each feature snapshot.</li>
@@ -474,18 +506,10 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <section class="band" aria-labelledby="package-title">
       <div class="section-head">
         <h2 id="package-title">What we submit</h2>
-        <p class="muted measure">The same package for either blueprint. The blueprint pages give the scenario detail.</p>
+        <p class="muted measure">Two submissions: the blueprint form on 18 October and the solution on 6 November.</p>
       </div>
-      <ul class="checks">
-        <li>Submission summary and architecture diagram.</li>
-        <li>Data contracts and the synthetic-data specification.</li>
-        <li>Notebooks, pipelines and KQL queries.</li>
-        <li>Registered model, model card and evaluation report.</li>
-        <li>Routing tests and audit records.</li>
-        <li>Setup instructions.</li>
-        <li>A 5–10 minute video.</li>
-      </ul>
-      <p class="small muted" style="margin-top: 1rem;">Still to confirm: organiser form fields, team names, deadline timezone, Power BI sharing, Power Automate licences and connector permissions. Synthetic data shows that the process works. It does not show real predictive power. Real use needs privacy, responsible-AI and domain review.</p>
+      <p><a class="navlink" href="#submission">Open the submission pack →</a></p>
+      <p class="small muted" style="margin-top: 1rem;">Synthetic data shows that the process works. It does not show real predictive power. Real use needs privacy, responsible-AI and domain review.</p>
     </section>
 
     <footer class="foot">
@@ -501,7 +525,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
       <nav aria-label="Pages">
         <a class="navlink" href="#overview">← Overview</a>
         <a class="navlink" href="#mortgage-option" aria-current="page">Mortgages</a>
-        <a class="navlink" href="#insurance-option">Insurance</a>
+        <a class="navlink" href="#submission">Submission pack</a>
         <button class="navlink" type="button" data-print>Print this blueprint</button>
         <span data-theme-slot></span>
       </nav>
@@ -542,9 +566,9 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     </section>
 
     <aside class="pause" aria-labelledby="mortgage-pause">
-      <p class="kicker" id="mortgage-pause">Decision point · before 18 October</p>
-      <p class="pause-q">Approve this build, or choose the insurance blueprint?</p>
-      <p class="small">To approve, agree five things: the target, the observation window, the payment-support policy, the dataset basis and tenant access.</p>
+      <p class="kicker" id="mortgage-pause">Decision · 14 October</p>
+      <p class="pause-q">The team chose this blueprint.</p>
+      <p class="small">Before 18 October, agree five things: the target, the observation window, the payment-support policy, the dataset basis and tenant access. The <a class="link" href="#submission">submission pack</a> has the form answers.</p>
     </aside>
 
     <section class="band" aria-labelledby="mortgage-glance-title" style="border-top: 0;">
@@ -604,7 +628,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     <section class="band" aria-labelledby="mortgage-full-title">
       <div class="section-head">
         <h2 id="mortgage-full-title">Full submission sections</h2>
-        <p class="muted measure">The detail behind the specification above. Open a section to read it. Printing opens every section. Rules for both blueprints are on the <a class="link" href="#overview">overview page</a>.</p>
+        <p class="muted measure">The detail behind the specification above. Open a section to read it. Printing opens every section. Shared rules are on the <a class="link" href="#overview">overview page</a>.</p>
       </div>
       <div class="disclosures" data-spec-list="mortgage">
         <details class="disclosure"><summary>01 / Submission summary</summary><section class="spec-section" id="mortgage-submission">
@@ -616,6 +640,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
             <li><strong>Distinctive value:</strong> The design separates commercial loss from payment distress. A retained mortgage is not always a good customer outcome.</li>
             <li><strong>Scope:</strong> Fixed-rate repayment accounts, one renewal cohort, one application-failure replay and one support case.</li>
             <li><strong>Out of scope:</strong> Lending decisions, rate changes, product recommendations and default prediction.</li>
+            <li><strong>Form answers:</strong> The <a class="link" href="#submission">submission pack</a> gives the text for each field of the blueprint form.</li>
           </ul>
         </section></details>
         <details class="disclosure"><summary>02 / Data contracts and account view</summary><section class="spec-section" id="mortgage-contracts">
@@ -748,6 +773,95 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     </section>
   </main>
 
+  <main id="submission" class="page" data-scenario-page="submission" aria-labelledby="submission-title" hidden>
+    <header class="topbar">
+      <span class="brand">Customer Pulse 360 · Blueprint submission</span>
+      <nav aria-label="Pages">
+        <a class="navlink" href="#overview">← Overview</a>
+        <a class="navlink" href="#mortgage-option">Mortgages</a>
+        <a class="navlink" href="#submission" aria-current="page">Submission pack</a>
+        <button class="navlink" type="button" data-print>Print this pack</button>
+        <span data-theme-slot></span>
+      </nav>
+    </header>
+    <section class="bp-head">
+      <svg class="glyph" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10h38l18 18v62H22z"/><path d="M60 10v18h18"/><path d="M50 74V42M37 55l13-13 13 13"/></svg>
+      <p class="kicker">Blueprint submission · Mortgages · HomeBridge is a fictional company</p>
+      <div>
+        <h1 id="submission-title" tabindex="-1">Submission pack</h1>
+        <p class="dek">Copy five answers into the form. Then upload the files in the second section.</p>
+      </div>
+      <dl class="meta">
+        <div><dt>Form</dt><dd>Architecture Blueprint</dd></div>
+        <div><dt>Idea submission</dt><dd>18 Oct 2026</dd></div>
+        <div><dt>Solution submission</dt><dd>6 Nov 2026</dd></div>
+        <div><dt>Status</dt><dd>Draft · not sent</dd></div>
+      </dl>
+      <p class="small muted">The answers describe a proposal. The system is not built. The 90-day lead time and the timing targets are proposed targets, not measured results.</p>
+    </section>
+
+    <section class="band" aria-labelledby="sub-form-title">
+      <div class="section-head">
+        <h2 id="sub-form-title">1 · Form answers</h2>
+        <p class="muted measure">The boxes follow the layout of the organiser's form. Each box has a copy button. The copied text is plain text, so it pastes cleanly into the form. A red star marks a required field.</p>
+      </div>
+      <div class="form-grid" data-form-fields></div>
+      <p class="sr-only" aria-live="polite" data-copy-status></p>
+      <p class="why"><b>Why this form:</b> each box sits where its field sits on the organiser's form, so you can copy each answer to the matching field. <b>Trade-off:</b> the answers are short. The blueprint page gives the full detail.</p>
+    </section>
+
+    <section class="band" aria-labelledby="sub-docs-title">
+      <div class="section-head">
+        <h2 id="sub-docs-title">2 · Architecture and design documents</h2>
+        <p class="muted measure">The form accepts PDF, PNG, JPG, SVG, Excel, CSV, video, PPTX and DOCX files, up to 100 MB each. Upload files 1 and 2 as a minimum. Files 3 to 5 add detail.</p>
+      </div>
+      <ol class="uploads">
+        <li><span class="num">1</span><div><strong>Architecture diagram</strong><span class="fmt">PNG or SVG</span><p class="small muted">The proposed design in four lanes: history, live events, scheduled scoring and support. The file includes the title, the shape legend and the caption.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="arch" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="arch" data-format="svg">Download SVG</button></div></li>
+        <li><span class="num">2</span><div><strong>Blueprint document</strong><span class="fmt">PDF</span><p class="small muted">The full HomeBridge blueprint. The button opens the blueprint page and the print window. Select “Save as PDF”. Printing opens every section.</p></div><div class="acts"><button class="btn-mini" type="button" data-print-page="mortgage-option">Print blueprint to PDF</button></div></li>
+        <li><span class="num">3</span><div><strong>Signals-to-action diagram</strong><span class="fmt">PNG</span><p class="small muted">An illustrative case. Three signals lead to one action, and the payment-support check runs first.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="flow" data-format="png">Download PNG</button></div></li>
+        <li><span class="num">4</span><div><strong>Checkpoint time line</strong><span class="fmt">PNG</span><p class="small muted">The checkpoint 90 days before the deal ends, and the outcome window.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="timeline" data-format="png">Download PNG</button></div></li>
+        <li><span class="num">5</span><div><strong>Data contract</strong><span class="fmt">CSV</span><p class="small muted">Each dataset with its grain, its required fields and its checks. Excel opens this file.</p></div><div class="acts"><button class="btn-mini" type="button" data-export-csv>Download CSV</button></div></li>
+      </ol>
+      <p class="small" style="margin-top: 1rem;"><strong>Do not paste the hosted page URL.</strong> The page has a password, so reviewers cannot open it.</p>
+      <p class="small muted" style="margin-top: .5rem;">Downloads use the light theme. Previews of files 1, 3 and 4 follow.</p>
+      <div class="sub-figs" style="margin-top: 1.5rem;">
+        <div data-sub-arch></div>
+        <div class="two-up" data-sub-evidence style="margin-top: 1.25rem;"></div>
+      </div>
+    </section>
+
+    <aside class="pause" aria-labelledby="sub-pause">
+      <p class="kicker" id="sub-pause">Before you send the form</p>
+      <p class="pause-q">Check four items.</p>
+      <ul class="list-disc small" style="padding-left: 1.25rem;">
+        <li>Choose the final idea name. The form draft uses a different name.</li>
+        <li>Complete the other parts of the form, for example the team names. This pack covers only the Architecture Blueprint section.</li>
+        <li>Confirm the deadline timezone with the organiser. The slide says PST.</li>
+        <li>Upload files 1 and 2 as a minimum.</li>
+      </ul>
+    </aside>
+
+    <section class="band" aria-labelledby="sub-final-title" style="border-top: 0;">
+      <div class="section-head">
+        <h2 id="sub-final-title">3 · Solution submission · 6 November</h2>
+        <p class="muted measure">The team builds from 26 October to 6 November. Then the team sends this package.</p>
+      </div>
+      <ul class="checks">
+        <li>Submission summary and architecture diagram.</li>
+        <li>Data contracts and the synthetic-data specification.</li>
+        <li>Notebooks, pipelines and KQL queries.</li>
+        <li>Registered model, model card and evaluation report.</li>
+        <li>Routing tests and audit records.</li>
+        <li>Setup instructions.</li>
+        <li>A 5–10 minute video.</li>
+      </ul>
+      <p class="small muted" style="margin-top: 1rem;">Still to confirm: Power BI sharing, Power Automate licences and connector permissions. Synthetic data shows that the process works. It does not show real predictive power.</p>
+    </section>
+  </main>
+
+  <!-- Archived scenarios (insurance, software, broadband, retail). Kept on purpose and hidden: a <template> is inert and does not render or print. -->
+  <template id="archived-scenarios">
+    <!-- Insurance (HavenCover) blueprint. Archived on 14 Oct 2026 when the team chose the mortgage scenario. -->
   <main id="insurance-option" class="page" data-scenario-page="insurance" aria-labelledby="insurance-title" hidden>
     <header class="topbar">
       <span class="brand">Customer Pulse 360 · Submission blueprint</span>
@@ -999,9 +1113,6 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
       </div>
     </section>
   </main>
-
-  <!-- Archived scenarios (software, broadband, retail). Kept on purpose and hidden: a <template> is inert and does not render or print. -->
-  <template id="archived-scenarios">
       <details id="software-option" class="scenario-file">
         <summary>
           <span class="scenario-summary-title">01 / WorkHarbour / Field-service software</span>
@@ -1601,7 +1712,7 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
   <script>
     const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const escapeVisual = esc;
-    const SCENARIOS = ['mortgage', 'insurance'];
+    const SCENARIOS = ['mortgage'];
     const coreRequirements = {
       software: { target: 'Company-led non-renewal', date: 'Contract renewal', unit: 'account_id + cycle_id' },
       broadband: { target: 'Household cancellation or switching', date: 'Contract expiry', unit: 'subscription_id + cycle_id' },
@@ -2083,9 +2194,221 @@ Archived scenarios (software, broadband, retail) stay in an inert <template> at 
     try { applyTheme(localStorage.getItem('cp360-theme') === 'luxury'); } catch (e) { applyTheme(false); }
     themeInput.addEventListener('change', () => { applyTheme(themeInput.checked); try { localStorage.setItem('cp360-theme', themeInput.checked ? 'luxury' : 'light'); } catch (e) { } });
 
+    // Submission pack. One text source per form field: "# " = heading, "- " = bullet, "  - " = sub-bullet.
+    // The page renders the text as HTML. The copy button copies the plain text.
+    const formFields = [
+      { label: 'Idea name', hint: 'Name of the idea', required: true,
+        text: 'Warn mortgage advisers 90 days before a borrower leaves',
+        note: 'The form draft says “Reversing excessive churn trends in mortgage customers”. The name above states the action and the 90-day target. Choose one name.' },
+      { label: 'Target Industry', hint: 'Industry this solution serves',
+        text: 'Financial Services (retail mortgages)' },
+      { label: 'Business Usecase', hint: 'Business use case this architecture addresses', required: true,
+        text: 'At the end of a fixed-rate deal, many borrowers move their mortgage to a new lender. The new lender then repays the old loan in full. Usually, the old lender learns that the borrower left only at that time. Then it is too late to keep the borrower. Warning signs occur earlier. For example, the renewal application shows errors or stops at one step. Or the borrower contacts the service team many times. These signs are in separate systems. Nobody sees them together, so nobody acts on them. HomeBridge is a fictional lender.' },
+      { label: 'Business Impact', hint: 'How the architecture solves the problem', required: true,
+        text: [
+          '- Microsoft Fabric joins payment, renewal-application and service-contact records into one cleaned table. This table has one row for each mortgage.',
+          '- Eventstream and Eventhouse receive live events from the renewal application, such as a submitted form or an error.',
+          '- KQL queries change these events into behavioural signals. A behavioural signal measures what the borrower does over time.',
+          '- Fabric notebooks train a churn model. The model gives each mortgage a score. The score is the probability that the borrower moves to another lender. MLflow registers the model.',
+          '- A pipeline scores each mortgage on a fixed schedule. Each score lists the factors that increased or decreased it most.',
+          '- The checkpoint is 90 days before the fixed-rate deal ends. At the checkpoint, Activator compares each score with a set limit. If a score is above the limit, Power Automate creates a review case for a servicing adviser.',
+          '- The review case shows the score, the main factors and the records behind them.',
+          '- The adviser can then fix the application problem or offer a renewal review before the borrower leaves.',
+          '- A Power BI dashboard shows high-risk mortgages and groups of borrowers with similar behaviour.',
+          '- Some borrowers have difficulty with payments. These borrowers go to trained support staff first. The churn score does not change this.',
+          '- The 90-day lead time is a proposed target. It is not a measured result.'
+        ].join('\n') },
+      { label: 'Architecture / Tech Specification', hint: 'Services, pipelines, integrations, and boundaries', required: true, wide: true,
+        text: [
+          '# Components (Microsoft Fabric)',
+          '- Data Factory pipelines load files from the payment, application and service systems into Lakehouse tables. For the build, these files contain synthetic data.',
+          '- The pipelines then clean the data and write Gold Delta tables. Gold is the final, cleaned data layer.',
+          '- Notebooks calculate each model input only from data that existed at the checkpoint. This stops later information from leaking into the model.',
+          '- Notebooks train two models: logistic regression and a small decision tree. A set of simple fixed rules gives a comparison. MLflow registers the better model.',
+          '- Notebooks put borrowers into two to five groups (segments) with similar behaviour.',
+          '- A history table records the group of each mortgage at each scoring run. Auditors can use this table to see changes over time.',
+          '- Eventstream sends live renewal-application events to Eventhouse. KQL queries calculate three signals:',
+          '  - application attempts that end in an error in the last 30 days, compared with the last 90 days',
+          '  - days since the application last moved to its next step',
+          '  - whether contacts with the service team increase or decrease each month',
+          '- A pipeline runs every 15 minutes. It scores each mortgage and assigns its group.',
+          '- The pipeline writes the scores and SHAP values to Gold tables. SHAP values show how much each factor changed the score.',
+          '- Power BI reads the Gold tables in Direct Lake mode. Direct Lake reads the tables where they are, without a copy.',
+          '- Activator starts a Power Automate flow. The flow adds one review case for each high-risk mortgage to a SharePoint list.',
+          '',
+          '# Timing targets (proposed, not measured)',
+          '- 60 seconds from a live event to its display in the mortgage view.',
+          '- 15 minutes between scoring runs.',
+          '- 5 minutes from a successful scoring run to the alert.',
+          '',
+          '# Tenancy and boundaries',
+          '- The build uses one Fabric workspace in the team\'s tenant.',
+          '- It uses only synthetic data. No record contains details of a real customer.',
+          '- Each user gets only the access that their role needs.',
+          '- Purview sensitivity labels apply to each table, report and file that holds personal data.',
+          '- The system does not make lending, rate or credit decisions. It does not recommend products.',
+          '- The system does not send messages to customers. An adviser approves every action.'
+        ].join('\n') }
+    ];
+    const plainText = text => text.split('\n').map(line => line.startsWith('# ') ? line.slice(2) : line).join('\n');
+    const fieldHtml = text => {
+      let html = '', depth = 0;
+      const close = to => { while (depth > to) { html += '</li></ul>'; depth--; } };
+      text.split('\n').forEach(line => {
+        const sub = line.startsWith('  - '), bullet = line.startsWith('- ');
+        if (sub) { if (depth === 2) html += '</li><li>'; else { html += '<ul><li>'; depth = 2; } html += esc(line.slice(4)); return; }
+        if (bullet) { close(1); if (depth === 1) html += '</li><li>'; else { html += '<ul><li>'; depth = 1; } html += esc(line.slice(2)); return; }
+        close(0);
+        if (line.startsWith('# ')) html += `<h5>${esc(line.slice(2))}</h5>`;
+        else if (line.trim()) html += `<p>${esc(line)}</p>`;
+      });
+      close(0);
+      return html;
+    };
+    document.querySelector('[data-form-fields]').innerHTML = formFields.map((f, i) => {
+      const copy = plainText(f.text);
+      return `<article class="ff${f.wide ? ' ff-wide' : ''}" aria-labelledby="ff-${i}-label">
+        <div class="ff-head"><div><span class="ff-label" id="ff-${i}-label">${esc(f.label)}${f.required ? '<span class="ff-req" aria-label="required">*</span>' : ''}</span><span class="ff-hint">${esc(f.hint)}</span></div>
+        <button class="btn-mini" type="button" data-copy="${i}" aria-describedby="ff-${i}-label">Copy</button></div>
+        <div class="ff-body">${fieldHtml(f.text)}</div>
+        ${f.note ? `<p class="ff-note">${esc(f.note)}</p>` : ''}
+        <p class="ff-meta">${copy.length.toLocaleString('en-GB')} characters</p></article>`;
+    }).join('');
+    const copyStatus = document.querySelector('[data-copy-status]');
+    const copyText = async text => {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) {
+        const area = Object.assign(document.createElement('textarea'), { value: text });
+        area.style.cssText = 'position:fixed;opacity:0'; document.body.append(area); area.select();
+        let ok = false; try { ok = document.execCommand('copy'); } catch (e2) { }
+        area.remove(); return ok;
+      }
+    };
+    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+      const f = formFields[+button.dataset.copy];
+      const ok = await copyText(plainText(f.text));
+      button.textContent = ok ? 'Copied' : 'Copy failed';
+      button.classList.toggle('is-done', ok);
+      copyStatus.textContent = ok ? `${f.label} copied.` : `${f.label} not copied. Select the text and copy it by hand.`;
+      setTimeout(() => { button.textContent = 'Copy'; button.classList.remove('is-done'); }, 2000);
+    }));
+
+    // Upload previews: copies of the mortgage figures with their own IDs, so SVG markers resolve on this page.
+    const archHtml = architectureFigure('mortgage');
+    document.querySelector('[data-sub-arch]').innerHTML = (archHtml.slice(0, archHtml.indexOf('</figure>')) + '</figure>').replaceAll('mortgage-arch', 'sub-arch').replace('id="mortgage-architecture-figure"', 'id="sub-architecture-figure"');
+    document.querySelector('[data-sub-evidence]').innerHTML = evidenceFigures('mortgage').replaceAll('mortgage-ev', 'sub-ev');
+    const exportFigures = () => {
+      const evidence = document.querySelectorAll('[data-sub-evidence] figure');
+      return { arch: [document.getElementById('sub-architecture-figure'), 'homebridge-architecture'], flow: [evidence[0], 'homebridge-signals-to-action'], timeline: [evidence[1], 'homebridge-checkpoint-timeline'] };
+    };
+
+    // Export: inline computed light-theme styles, so the file looks the same outside this page.
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const probe = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }).getContext('2d', { willReadFrequently: true });
+    const toRgb = value => {
+      if (!value || value === 'none' || value.startsWith('url(')) return null;
+      probe.clearRect(0, 0, 1, 1); probe.fillStyle = '#000'; probe.fillStyle = value; probe.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data;
+      return { rgb: `rgb(${r},${g},${b})`, a: a / 255 };
+    };
+    const inlineStyles = (src, dst) => {
+      const cs = getComputedStyle(src);
+      const style = [];
+      ['fill', 'stroke'].forEach(prop => {
+        const value = cs.getPropertyValue(prop);
+        const c = toRgb(value);
+        if (!c) { style.push(`${prop}:${value || 'none'}`); return; }
+        const parsed = parseFloat(cs.getPropertyValue(prop + '-opacity')), own = Number.isNaN(parsed) ? 1 : parsed;
+        style.push(`${prop}:${c.rgb}`, `${prop}-opacity:${+(c.a * own).toFixed(3)}`);
+      });
+      ['stroke-width', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'letter-spacing', 'text-anchor'].forEach(prop => {
+        const value = cs.getPropertyValue(prop);
+        if (value && value !== 'normal') style.push(`${prop}:${value}`);
+      });
+      dst.setAttribute('style', style.join(';'));
+      dst.removeAttribute('class');
+    };
+    const inlineTree = svg => {
+      const clone = svg.cloneNode(true);
+      const src = [svg, ...svg.querySelectorAll('*')], dst = [clone, ...clone.querySelectorAll('*')];
+      src.forEach((el, i) => { if (!['title', 'desc', 'defs', 'marker'].includes(el.localName)) inlineStyles(el, dst[i]); });
+      return clone;
+    };
+    const wrapWords = (text, max) => text.split(' ').reduce((rows, word) => {
+      const last = rows[rows.length - 1];
+      if (last && (last + ' ' + word).length <= max) rows[rows.length - 1] = last + ' ' + word; else rows.push(word);
+      return rows;
+    }, []);
+    const buildExportSvg = figure => {
+      const root = document.documentElement, previous = root.dataset.theme, wasDark = themeInput.checked;
+      root.dataset.theme = 'light'; themeInput.checked = false;
+      try {
+        const main = figure.querySelector('svg');
+        const vb = main.viewBox.baseVal;
+        const W = Math.max(vb.width, 600), pad = 24, font = getComputedStyle(document.body).fontFamily;
+        const ink = toRgb(getComputedStyle(document.body).color).rgb, paper = toRgb(getComputedStyle(document.body).backgroundColor).rgb;
+        const out = document.createElementNS(svgNS, 'svg');
+        const add = (tag, attrs, text) => { const el = document.createElementNS(svgNS, tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); if (text != null) el.textContent = text; out.append(el); return el; };
+        let y = pad;
+        add('rect', { x: 0, y: 0, width: '100%', height: '100%', fill: paper });
+        add('text', { x: pad, y: y + 18, style: `font-family:${font};font-size:20px;font-weight:650;fill:${ink}` }, figure.querySelector('.fig-title').textContent);
+        const stamp = figure.querySelector('.stamp');
+        if (stamp) add('text', { x: W + pad, y: y + 16, style: `font-family:ui-monospace,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:1px;text-anchor:end;fill:${toRgb(getComputedStyle(stamp).color).rgb}` }, stamp.textContent.toUpperCase());
+        y += 44;
+        const body = inlineTree(main);
+        ['role', 'aria-labelledby', 'class'].forEach(a => body.removeAttribute(a));
+        Object.entries({ x: pad, y, width: vb.width, height: vb.height }).forEach(([k, v]) => body.setAttribute(k, v));
+        out.append(body);
+        y += vb.height + 16;
+        const legend = [...figure.querySelectorAll('.legend li')];
+        legend.forEach((li, i) => {
+          const col = i % 3, row = Math.floor(i / 3), x = pad + col * Math.floor(W / 3);
+          const icon = inlineTree(li.querySelector('svg'));
+          Object.entries({ x, y: y + row * 28, width: 30, height: 20 }).forEach(([k, v]) => icon.setAttribute(k, v));
+          out.append(icon);
+          add('text', { x: x + 38, y: y + row * 28 + 15, style: `font-family:${font};font-size:13px;fill:${ink}` }, li.textContent);
+        });
+        if (legend.length) y += Math.ceil(legend.length / 3) * 28 + 8;
+        const caption = figure.querySelector('figcaption');
+        const rows = caption ? wrapWords(caption.textContent.trim(), Math.floor(W / 7.4)) : [];
+        rows.forEach((line, i) => add('text', { x: pad, y: y + 16 + i * 20, style: `font-family:${font};font-size:13.5px;fill:${ink};fill-opacity:.8` }, line));
+        y += rows.length * 20 + 10;
+        add('text', { x: pad, y: y + 16, style: `font-family:${font};font-size:12px;fill:${ink};fill-opacity:.6` }, 'Customer Pulse 360 · HomeBridge is a fictional company · Hackathon proposal');
+        y += 24 + pad;
+        Object.entries({ xmlns: svgNS, width: W + pad * 2, height: y, viewBox: `0 0 ${W + pad * 2} ${y}` }).forEach(([k, v]) => out.setAttribute(k, v));
+        return { markup: new XMLSerializer().serializeToString(out), width: W + pad * 2, height: y };
+      } finally { root.dataset.theme = previous; themeInput.checked = wasDark; }
+    };
+    const saveBlob = (blob, name) => {
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    };
+    document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', () => {
+      const [figure, name] = exportFigures()[button.dataset.export];
+      const { markup, width, height } = buildExportSvg(figure);
+      if (button.dataset.format === 'svg') { saveBlob(new Blob([markup], { type: 'image/svg+xml' }), name + '.svg'); return; }
+      const img = new Image();
+      img.onload = () => {
+        const scale = 2, canvas = Object.assign(document.createElement('canvas'), { width: width * scale, height: height * scale });
+        const ctx = canvas.getContext('2d'); ctx.scale(scale, scale); ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => saveBlob(blob, name + '.png'), 'image/png');
+      };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+    }));
+    document.querySelector('[data-export-csv]').addEventListener('click', () => {
+      const cell = v => `"${v.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`;
+      const rows = [...document.querySelectorAll('#mortgage-contracts table tr')].map(tr => [...tr.children].map(td => cell(td.textContent)).join(','));
+      saveBlob(new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'homebridge-data-contract.csv');
+    });
+    document.querySelectorAll('[data-print-page]').forEach(button => button.addEventListener('click', () => {
+      location.hash = '#' + button.dataset.printPage;
+      setTimeout(() => window.print(), 400);
+    }));
+
     // Routing: one page is visible at a time. Deep links open the disclosures that hold the target.
     const pages = [...document.querySelectorAll('main.page')];
-    const pageTitles = { overview: 'Customer Intelligence Engine · Hackathon Challenge 4', mortgage: 'HomeBridge / Early warning when fixed deals end · Blueprint', insurance: 'HavenCover / Claims recovery and renewal early warning · Blueprint' };
+    const pageTitles = { overview: 'Customer Intelligence Engine · Hackathon Challenge 4', mortgage: 'HomeBridge / Early warning when fixed deals end · Blueprint', submission: 'Submission pack · HomeBridge · Blueprint form' };
     const activePage = () => pages.find(p => !p.hidden) || pages[0];
     const route = () => {
       let id = '';
