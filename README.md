@@ -9,7 +9,7 @@ This repository holds a proposal for a real-time customer intelligence system on
 ## Review the proposal
 
 - [Open the scenario page](site/index.html) for the challenge, candidate scenarios, and design.
-- [Open the hosted review copy](https://efeeb7a1.ht-ml.app). The page requires a password.
+- [Open the hosted review copy](https://yasmin-taylor-epam.github.io/customer-pulse-360/) on GitHub Pages. The page is public.
 
 The scenario page is the current source for the project. This repository does not contain a deployed Customer 360 service or production churn model.
 
@@ -42,6 +42,10 @@ The scenario page maps these goals to Microsoft Fabric tools. The suggested tool
 - `site/index.html` — current scenario page and proposal.
 - `docs/archive/previous-readme.md` — previous repository overview.
 - `docs/archive/technical-blueprint.md` — earlier technical blueprint, retained for reference.
+
+## Publishing
+
+The `Deploy scenario blueprints to GitHub Pages` workflow (`.github/workflows/pages.yml`) publishes `site/` to GitHub Pages. It runs on every push to `main`. You can also run it manually from the Actions tab. Do not put credentials or customer records in `site/`.
 
 ## Preview
 
