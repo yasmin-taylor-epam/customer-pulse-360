@@ -10,9 +10,11 @@ Type: serif display (Iowan Old Style / Palatino / Georgia), system sans for body
 No web fonts.
 Colour: DaisyUI semantic tokens only. Light is the default theme; "luxury" is the dark theme. Tints use color-mix.
 Signature figures: main page = "today vs with the engine" time line. Scenario page = architecture lanes.
+The architecture appendix uses engineering sheets: components, data relationships, scoring sequence and case routing.
+The high-level figure remains the entry point. Detailed views name proposed interfaces, keys and failure paths.
 Submission pack = the form-field grid, followed by the numbered upload list.
 Shape legend (defined once, on each blueprint architecture): cylinder = stored data, pipe = event stream,
-diamond = gate, pill = person, rectangle = service, dashed = proposed or not joined.
+diamond = gate, pill = person, rectangle = component, dashed = proposed or not joined.
 Honesty stamps: Illustrative, Proposed target, Hypothesis · not measured, Evidence gap.
 Specs: invariants first, then data contract, failure cases, then "Deliberately not specified".
 Archived scenarios (insurance, software, broadband, retail) stay in an inert <template> at the end of <body>. They are hidden.
@@ -112,9 +114,60 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     svg .dot-error { fill: var(--color-error); }
     svg .axis { stroke: color-mix(in oklab, var(--color-base-content) 35%, transparent); stroke-width: 2; }
     svg .tick { stroke: color-mix(in oklab, var(--color-base-content) 50%, transparent); stroke-width: 1.5; stroke-dasharray: 4 4; }
+    /* Architecture colour zones. Each zone colour comes from a theme token. */
+    [data-theme] { --z-hist: var(--color-info); --z-live: var(--color-secondary); --z-score: var(--color-success); --z-act: var(--color-primary); --z-support: var(--color-warning); }
+    [data-theme="luxury"] { --z-live: color-mix(in oklab, var(--color-error) 55%, var(--color-primary)); --z-act: color-mix(in oklch shorter hue, var(--color-info) 55%, var(--color-error)); }
+    [data-theme] { --z-live-ink: color-mix(in oklab, var(--z-live) 82%, var(--color-base-content)); }
+    :is(svg.arch, svg.detail) { --z: color-mix(in oklab, var(--color-base-content) 50%, transparent); --zf: 0%; --zs: var(--z); --zi: var(--color-primary); }
+    :is(svg.arch, svg.detail) .z-hist { --z: var(--z-hist); }
+    :is(svg.arch, svg.detail) .z-live { --z: var(--z-live); }
+    :is(svg.arch, svg.detail) .z-score { --z: var(--z-score); }
+    :is(svg.arch, svg.detail) .z-act { --z: var(--z-act); }
+    :is(svg.arch, svg.detail) .z-support { --z: var(--z-support); }
+    :is(svg.arch, svg.detail) .z-error { --z: var(--color-error); }
+    :is(svg.arch, svg.detail) :is(.z-hist, .z-live, .z-score, .z-act, .z-support, .z-error) { --zf: 12%; --zs: color-mix(in oklab, var(--z) 78%, var(--color-base-content)); --zi: color-mix(in oklab, var(--z) 62%, var(--color-base-content)); }
+    [data-theme="luxury"] :is(svg.arch, svg.detail) :is(.z-hist, .z-live, .z-score, .z-act, .z-support, .z-error) { --zf: 18%; }
+    :is(svg.arch, svg.detail) .n { fill: color-mix(in oklab, var(--z) var(--zf), var(--color-base-100)); stroke: var(--zs); }
+    :is(svg.arch, svg.detail) .n-gate { --zf: 24%; stroke-width: 2; }
+    :is(svg.arch, svg.detail) .n-actor { --zf: 28%; stroke-width: 1.75; }
+    :is(svg.arch, svg.detail) .n-cap { fill: color-mix(in oklab, var(--z) 42%, var(--color-base-100)); stroke: var(--zs); stroke-width: 1.5; }
+    :is(svg.arch, svg.detail) .n-head { fill: color-mix(in oklab, var(--z) 26%, var(--color-base-100)); stroke: var(--zs); stroke-width: 1.5; }
+    :is(svg.arch, svg.detail) .n-half { fill: color-mix(in oklab, var(--z) 20%, var(--color-base-100)); stroke: none; }
+    :is(svg.arch, svg.detail) .n-hex { fill: none; stroke: var(--color-primary); stroke-width: 2.25; }
+    :is(svg.arch, svg.detail) .zone-band { fill: color-mix(in oklab, var(--z) 7%, transparent); stroke: color-mix(in oklab, var(--z) 45%, transparent); stroke-width: 1; }
+    :is(svg.arch, svg.detail) .t-lane { fill: var(--zi); }
+    :is(svg.arch, svg.detail) .e-live { stroke: var(--z-live-ink); }
+    :is(svg.arch, svg.detail) .head-live { fill: var(--z-live-ink); }
+    .detail-view { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    .detail-view > p { margin: .75rem 0 1rem; }
+    .detail-nav, .figure-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .detail-notes { margin: 1rem 0 0; padding-left: 1.25rem; font-size: .92rem; }
+    .detail-notes li + li { margin-top: .4rem; }
+    .detail-preview > * + * { margin-top: 1.5rem; }
+    .export-status { margin-top: 1rem; color: var(--color-error); font-size: .92rem; }
+    svg.detail .t-strong { font-size: 16px; }
+    svg.detail .t-small { font-size: 13px; }
+    svg.detail .t-mono { font-size: 12px; }
+    svg.detail .d-boundary { fill: color-mix(in oklab, var(--color-base-content) 3%, transparent); stroke: var(--color-primary); stroke-width: 1.5; stroke-dasharray: 7 5; }
+    svg.detail .d-phase { fill: color-mix(in oklab, var(--color-primary) 8%, var(--color-base-100)); }
+    svg.detail .d-life { stroke: color-mix(in oklab, var(--color-base-content) 20%, transparent); stroke-width: 1.5; }
+    svg.detail .d-error { stroke: var(--color-error); }
+    svg.detail .d-error-head { fill: var(--color-error); }
+    svg.detail .d-label { fill: var(--color-base-200); }
+    :is(svg.arch, svg.detail) .step-badge rect { fill: var(--color-base-content); stroke: var(--color-base-100); stroke-width: 1.5; }
+    :is(svg.arch, svg.detail) .step-badge text { fill: var(--color-base-100); font: 700 11px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: .06em; }
+    .step-list { list-style: none; padding-left: 0; }
+    .legend.step-key { color: var(--color-base-content); font-weight: 500; }
+    .legend.step-key::before { content: "Steps in this view"; flex-basis: 100%; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+    .step-list > li { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr); gap: .65rem; align-items: start; }
+    .step-list > li + li { margin-top: .55rem; }
+    .step-tag { display: inline-block; text-align: center; border-radius: 999px; background: var(--color-base-content); color: var(--color-base-100); font: 700 .7rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: .06em; text-transform: uppercase; margin-top: .15rem; }
+    .step-where { margin-left: .35rem; font-size: .8rem; white-space: nowrap; color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+    @media (max-width: 1100px) { .fig-scroll > svg.detail { min-width: 1000px; } }
     .legend { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: .9rem 0 0; padding: .75rem 0 0; border-top: 1px solid var(--line); font-size: .82rem; color: var(--soft); }
     .legend li { display: flex; align-items: center; gap: .4rem; }
     .legend svg { width: 30px; height: 20px; flex: none; }
+    .legend + .legend { border-top: 0; margin-top: .4rem; padding-top: 0; }
 
     .req-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: .75rem; overflow: hidden; }
     @media (min-width: 760px) { .req-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -310,7 +363,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       body { font-size: 11pt; background: #fff; }
       .page { max-width: none; padding: 0; }
       .topbar nav, .theme-switch, .glossary-back, .scroll-hint, .btn-mini, .uploads .acts, .ff-meta { display: none !important; }
-      .fig-scroll > svg.wide, .bc-figure svg { min-width: 0 !important; }
+      .fig-scroll > svg.wide, .fig-scroll > svg.detail, .bc-figure svg { min-width: 0 !important; }
       .fig-scroll, .tbl-wrap, .bc-figure { overflow: visible; }
       .fig, .pause, .bp-card, .claim, .kpi, .req, figure, tr, .ff, .uploads li { break-inside: avoid; }
       .disclosure > summary::after { content: ""; }
@@ -334,7 +387,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       <div>
         <p class="kicker">Hackathon challenge 4 · Advanced · Cloud &amp; AI Platforms</p>
         <h1 id="overview-title" tabindex="-1">Customer Intelligence Engine</h1>
-        <p class="dek">Real-time 360, segmentation and proactive churn.</p>
+        <p class="dek">Live Customer 360, behavioural segments and early churn warnings.</p>
       </div>
       <blockquote class="card-quote">
         <p>“You find out a customer left after they've already left. Build the AI that warns you 3 months early.”</p>
@@ -351,19 +404,19 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     <section class="band" aria-labelledby="ov-fig-title">
       <figure class="fig">
         <div class="fig-head">
-          <h2 id="ov-fig-title" class="fig-title" style="font-family: var(--sans); font-size: .95rem; letter-spacing: 0;">The engine moves the warning from after departure to about 90 days before it.</h2>
+          <h2 id="ov-fig-title" class="fig-title" style="font-family: var(--sans); font-size: .95rem; letter-spacing: 0;">Proposed warning: about 90 days before a fixed-rate deal ends.</h2>
           <span class="stamp stamp-illustrative">Illustrative</span>
         </div>
         <p class="scroll-hint">Scroll sideways to see the whole figure.</p>
         <div class="fig-scroll">
           <svg class="wide" viewBox="0 0 960 330" role="img" aria-labelledby="ov-svg-title ov-svg-desc">
             <title id="ov-svg-title">Today versus with the engine</title>
-            <desc id="ov-svg-desc">Today, usage, support and billing signals sit in separate systems, and the business finds the loss after the customer has left. With the engine, a Customer 360 view and an ML model raise a warning with drivers about 90 days before the contract end. That leaves about 90 days to review and act.</desc>
+            <desc id="ov-svg-desc">Today, portal activity, servicing contacts and mortgage payments sit in separate systems. The lender finds the loss after the customer leaves. The proposed engine combines these records and aims to warn about external refinancing 90 days before the fixed-rate deal ends.</desc>
             <defs><marker id="ov-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-live" d="M0 0 10 5 0 10z"/></marker></defs>
             <text class="t-lane" x="40" y="36">TODAY</text>
-            <rect class="n n-proposed" x="40" y="52" width="120" height="48" rx="6"/><text class="mid" x="100" y="81">Usage</text>
-            <rect class="n n-proposed" x="180" y="52" width="120" height="48" rx="6"/><text class="mid" x="240" y="81">Support</text>
-            <rect class="n n-proposed" x="320" y="52" width="120" height="48" rx="6"/><text class="mid" x="380" y="81">Billing</text>
+            <rect class="n n-proposed" x="40" y="52" width="120" height="48" rx="6"/><text class="mid" x="100" y="81">Portal activity</text>
+            <rect class="n n-proposed" x="180" y="52" width="120" height="48" rx="6"/><text class="mid" x="240" y="81">Servicing</text>
+            <rect class="n n-proposed" x="320" y="52" width="120" height="48" rx="6"/><text class="mid" x="380" y="81">Payments</text>
             <text class="t-small" x="470" y="81">Signals sit in separate systems</text>
             <path class="tick" d="M780 24V290"/>
             <circle class="dot-error" cx="860" cy="76" r="8"/>
@@ -381,12 +434,12 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <text class="mid t-small" x="300" y="262">Warning with drivers</text>
             <path class="axis" d="M40 290H920"/>
             <path class="axis" d="M300 283V297M780 283V297"/>
-            <text class="mid t-small" x="300" y="314">90 days before contract end</text>
-            <text class="mid t-small" x="780" y="314">Contract end</text>
+            <text class="mid t-small" x="300" y="314">90 days before fixed-rate deal end</text>
+            <text class="mid t-small" x="780" y="314">Fixed-rate deal end</text>
             <text class="end t-small" x="920" y="314">time</text>
           </svg>
         </div>
-        <figcaption>“Contract end” stands for the renewal, expiry or deal-end date in each scenario. The 90-day window is the challenge's goal and a proposed target. The team must test it against real departure dates.</figcaption>
+        <figcaption>Here, deal end means the end of the fixed interest-rate period, not repayment of the whole mortgage. Churn means confirmed refinancing with another lender. The 90-day warning is a proposed target, not a measured result. The team must test it against actual refinancing dates.</figcaption>
       </figure>
       <p class="why"><b>Why this form:</b> a time line shows the gap between finding the loss and having time to act. <b>Trade-off:</b> it hides the system design. Each blueprint page shows the architecture.</p>
     </section>
@@ -410,7 +463,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         <h2 id="judging-title">How we win</h2>
         <dl class="facts" style="margin-top: 1.25rem;">
           <div><dt><span class="big-num">50</span><span class="muted"> of 100 points</span></dt><dd>Business value and solution quality together carry 50 of 100 points. We prioritise a working, clear retention story over extra features.</dd></div>
-          <div><dt>Optional suggestions · stretch</dt><dd>The challenge page's “Solution” text lists ideas. The organiser says they are suggestions, not requirements. The blueprint includes KQL journey queries, segment history, accuracy and lift, Direct Lake and Purview labels. Identity resolution, a Fabric IQ ontology and a Copilot Studio retention brief are stretch features. A custom application, autonomous discounts and multiple agents are out of scope.</dd></div>
+          <div><dt>Optional suggestions · stretch</dt><dd>The challenge page's “Solution” text lists ideas. The organiser says they are suggestions, not requirements. The blueprint includes KQL journey queries, segment history, accuracy and lift, Direct Lake and Purview sensitivity labels. Identity resolution, a Fabric IQ ontology and a Copilot Studio retention brief are stretch features. Building a custom software application, autonomous discounts and multiple agents are out of scope.</dd></div>
         </dl>
       </div>
       <div>
@@ -428,7 +481,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     <aside class="pause" aria-labelledby="ov-pause">
       <p class="kicker" id="ov-pause">Decision · 14 October</p>
       <p class="pause-q">The team chose the mortgage scenario: HomeBridge.</p>
-      <p class="small">Next: send the blueprint form before 18 October. The insurance blueprint is archived.</p>
+      <p class="small">Next: send the blueprint form by the 18 October deadline. Confirm the deadline timezone with the organiser. The insurance blueprint is archived.</p>
     </aside>
 
     <section class="band" aria-labelledby="bp-title" style="border-top: 0;">
@@ -463,7 +516,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       </div>
       <div class="kpis">
         <div class="kpi"><div class="v">60 s</div><p>From a live event to its appearance in the Customer 360 view.</p></div>
-        <div class="kpi"><div class="v">15 min</div><p>Between refreshes of features, segments and churn scores.</p></div>
+        <div class="kpi"><div class="v">15 min</div><p>Between scoring runs that refresh features, assign segments and calculate refinancing risk scores. These runs do not retrain the models.</p></div>
         <div class="kpi"><div class="v">5 min</div><p>From a successful scoring run to the retention alert.</p></div>
       </div>
       <ul class="list-disc small" style="margin-top: 1.25rem; padding-left: 1.25rem; max-width: 80ch;">
@@ -539,16 +592,20 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       </div>
       <p class="desc" data-description="mortgage"></p>
       <dl class="meta">
-        <div><dt>Target</dt><dd data-core="mortgage-target"></dd></div>
+        <div><dt>Prediction target</dt><dd data-core="mortgage-target"></dd></div>
         <div><dt>Checkpoint</dt><dd>90 days before deal end</dd></div>
-        <div><dt>Customer unit</dt><dd><code data-core="mortgage-unit"></code></dd></div>
-        <div><dt>Owner</dt><dd>Servicing adviser</dd></div>
+        <div><dt>Scoring unit</dt><dd><code data-core="mortgage-unit"></code></dd></div>
+        <div><dt>Renewal review owner</dt><dd>Servicing adviser</dd></div>
         <div><dt>Status</dt><dd>Proposal · not built</dd></div>
       </dl>
       <p class="small muted">Hackathon proposal. Fictional business and proposed targets. No implementation results are claimed.</p>
+      <p class="small"><strong>Terms on this page:</strong> a product-transfer request is the customer's mortgage application for a new deal with HomeBridge. The renewal portal is HomeBridge's software for that request. Payment support means help with mortgage payments. Technical support investigates verified portal faults.</p>
     </section>
 
-    <section class="band" aria-label="Proposed architecture"><div data-arch="mortgage"></div></section>
+    <section class="band" aria-label="Proposed architecture">
+      <div data-arch="mortgage"></div>
+      <p style="margin-top: 1rem;"><a class="navlink" href="#mortgage-architecture">Open the detailed architecture →</a></p>
+    </section>
 
     <section class="band" aria-labelledby="mortgage-flow-title">
       <div class="section-head"><h2 id="mortgage-flow-title">How one warning becomes one action</h2></div>
@@ -560,7 +617,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       <div class="disclosures">
         <details class="disclosure" id="mortgage-context">
           <summary>Company, customer and counterexample (illustrative)</summary>
-          <div class="prose-block"><h4>The company and customer</h4><p>HomeBridge is a fictional mortgage lender. It services repayment mortgages and offers product transfers when fixed-rate deals end.</p><p>The customer unit is one mortgage account. Joint borrowers remain linked parties, not duplicate customers. A servicing adviser owns each review.</p><h4>The problem and counterexample</h4><p>Identify external refinancing risk 90 days before a fixed-rate deal ends. Route payment difficulties to support before any commercial retention action.</p><p>Alex reports concern about future payments while a product-transfer application repeatedly fails. The adviser must inspect both problems.</p><p>Sam completes a product transfer without payment problems. A quiet portal history alone does not justify an alert.</p></div>
+          <div class="prose-block"><h4>The company and customer</h4><p>HomeBridge is a fictional mortgage lender. It services repayment mortgages and offers product transfers when fixed-rate deals end.</p><p>The customer unit is one mortgage account, not an individual borrower. Joint borrowers remain linked parties, not duplicate customers. A servicing adviser owns each renewal review.</p><h4>The problem and counterexample</h4><p>Score external refinancing risk at the checkpoint, 90 days before the fixed-rate deal ends. Payment-support needs take priority over commercial retention reviews.</p><p>Alex reports concern about future payments while the renewal portal repeatedly fails during a product-transfer request. The adviser must inspect both problems.</p><p>Sam completes a product transfer without payment problems. A quiet renewal-portal history alone does not justify an alert.</p></div>
         </details>
       </div>
     </section>
@@ -568,7 +625,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     <aside class="pause" aria-labelledby="mortgage-pause">
       <p class="kicker" id="mortgage-pause">Decision · 14 October</p>
       <p class="pause-q">The team chose this blueprint.</p>
-      <p class="small">Before 18 October, agree five things: the target, the observation window, the payment-support policy, the dataset basis and tenant access. The <a class="link" href="#submission">submission pack</a> has the form answers.</p>
+      <p class="small">For the 18 October deadline, agree five things: the prediction target, outcome-observation window, payment-support policy, dataset basis and tenant access. The <a class="link" href="#submission">submission pack</a> has the form answers.</p>
     </aside>
 
     <section class="band" aria-labelledby="mortgage-glance-title" style="border-top: 0;">
@@ -582,8 +639,8 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           <ol class="inv">
             <li><span class="id">INV-1</span><span>An active payment-support request routes to trained servicing staff first, whatever the churn score.</span></li>
             <li><span class="id">INV-2</span><span>Features use only data known at the checkpoint. Both <code>occurred_at</code> and <code>ingested_at</code> must be at or before <code>cutoff_at</code>.</span></li>
-            <li><span class="id">INV-3</span><span>At most one open case exists per <code>mortgage_id + cycle_id + action_family</code>.</span></li>
-            <li><span class="id">INV-4</span><span>An unknown or incomplete outcome stays unlabelled. It never counts as retained.</span></li>
+            <li><span class="id">INV-3</span><span>At most one open internal review case exists per <code>mortgage_id + cycle_id + action_family</code>.</span></li>
+            <li><span class="id">INV-4</span><span>An unknown or incomplete refinancing outcome gets no model label. It never counts as retained.</span></li>
             <li><span class="id">INV-5</span><span><code>risk_updated</code> fires only after a scoring run succeeds. A failed run leaves the last score marked stale.</span></li>
             <li><span class="id">INV-6</span><span>The prototype sends no customer messages. It makes no rate or credit decisions.</span></li>
           </ol>
@@ -591,14 +648,14 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         <div>
           <h3>Data contract</h3>
           <dl class="grains">
-            <div><dt>Mortgage</dt><dd>One account and deal cycle.</dd></div>
+            <div><dt>Mortgage account</dt><dd>One loan account and fixed-rate deal cycle.</dd></div>
             <div><dt>Payment</dt><dd>One posted ledger change.</dd></div>
-            <div><dt>Application</dt><dd>One product-transfer state change.</dd></div>
-            <div><dt>Servicing</dt><dd>One case state change.</dd></div>
-            <div><dt>Snapshot</dt><dd>One cycle and cutoff, with its outcome.</dd></div>
-            <div><dt>Segment</dt><dd>One account, cycle and scoring run.</dd></div>
+            <div><dt>Transfer request</dt><dd>One product-transfer request state change.</dd></div>
+            <div><dt>Servicing history</dt><dd>One source servicing case state change. This is separate from a new review case.</dd></div>
+            <div><dt>Feature snapshot</dt><dd>One mortgage, deal cycle and cutoff time. The observed refinancing outcome stays separate.</dd></div>
+            <div><dt>Segment assignment</dt><dd>One mortgage account, deal cycle and scoring run.</dd></div>
           </dl>
-          <p class="small" style="margin-top: .75rem;">Key: <code>mortgage_id + cycle_id</code>. Every event carries an event time and an ingestion time. The <code>risk_updated</code> event carries the snapshot, model version, score, segment, evidence IDs and score time.</p>
+          <p class="small" style="margin-top: .75rem;">Key: <code>mortgage_id + cycle_id</code>. The cycle identifies a fixed-rate deal, not a scoring run. Every event carries event time and ingestion time. The <code>risk_updated</code> event carries snapshot, model version, refinancing risk score, segment, evidence IDs and score time.</p>
         </div>
       </div>
       <h3 style="margin: 2rem 0 .75rem; font-size: 1.25rem;">Failure cases the demo must pass</h3>
@@ -606,12 +663,12 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         <table class="tbl">
           <thead><tr><th scope="col">ID</th><th scope="col">Case</th><th scope="col">Expected result</th></tr></thead>
           <tbody>
-            <tr><td class="id">T01</td><td>The same event is replayed.</td><td>One case only.</td></tr>
+            <tr><td class="id">T01</td><td>The same eligible event is replayed.</td><td>One review case for the same case key.</td></tr>
             <tr><td class="id">T02</td><td>An unknown account or a conflicting borrower mapping arrives.</td><td>The record goes to quarantine.</td></tr>
             <tr><td class="id">T03</td><td>The payment feed is stale or missing.</td><td>The view flags the feed as stale. A missing feed is not zero arrears.</td></tr>
             <tr><td class="id">T04</td><td>A payment is reversed.</td><td>Review and rescoring start. The audit record stays.</td></tr>
-            <tr><td class="id">T05</td><td>A scoring run fails.</td><td>The score is marked stale. The live view still updates. No alert fires.</td></tr>
-            <tr><td class="id">T06</td><td>A case write fails.</td><td>The write retries. No duplicate case appears.</td></tr>
+            <tr><td class="id">T05</td><td>A scoring run fails.</td><td>The last score is marked stale. The live view still updates. No new <code>risk_updated</code> event fires. Service alerts remain independent.</td></tr>
+            <tr><td class="id">T06</td><td>A review-case write fails.</td><td>The write retries with the same key. No duplicate review case appears.</td></tr>
           </tbody>
         </table>
       </div>
@@ -619,7 +676,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       <ul class="not-spec">
         <li>Alert thresholds. The team freezes them on validation data.</li>
         <li>Segment names. They follow inspection of the clusters.</li>
-        <li>Default prediction. This build predicts external refinancing, not default.</li>
+        <li>Mortgage default prediction. This build predicts external refinancing, not failure to repay the loan.</li>
         <li>Contact scripts and customer messages.</li>
         <li>Fabric capacity and licences.</li>
       </ul>
@@ -635,87 +692,107 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           <ul class="list-disc">
             <li><strong>Title:</strong> HomeBridge Renewal and Payment-Support Desk.</li>
             <li><strong>Problem:</strong> HomeBridge finds out about external refinancing only after the borrower leaves.</li>
-            <li><strong>Solution:</strong> A Fabric solution joins mortgage, payment, application and servicing history with live application events. It predicts external refinancing 90 days before a fixed-rate deal ends. It explains each score to a servicing adviser.</li>
-            <li><strong>Business impact:</strong> Advisers get time to fix application problems and offer a renewal review before the borrower leaves. The 90-day lead time is a proposed target. Payment-support needs reach trained staff first.</li>
+            <li><strong>Solution:</strong> Fabric joins mortgage, payment, product-transfer request and servicing history with live renewal-portal events. It scores external refinancing risk at the checkpoint, 90 days before the fixed-rate deal ends. It explains each score to a servicing adviser.</li>
+            <li><strong>Business impact:</strong> Advisers get time to arrange fixes for portal faults and review renewal needs before the borrower leaves. The 90-day lead time is a proposed target. Payment-support needs reach trained staff first.</li>
             <li><strong>Distinctive value:</strong> The design separates commercial loss from payment distress. A retained mortgage is not always a good customer outcome.</li>
-            <li><strong>Scope:</strong> Fixed-rate repayment accounts, one renewal cohort, one application-failure replay and one support case.</li>
-            <li><strong>Out of scope:</strong> Lending decisions, rate changes, product recommendations and default prediction.</li>
+            <li><strong>Scope:</strong> Fixed-rate repayment mortgage accounts, one renewal cohort, one renewal-portal fault replay and one payment-support case.</li>
+            <li><strong>Out of scope:</strong> Lending decisions, rate changes, product recommendations and mortgage default prediction.</li>
             <li><strong>Form answers:</strong> The <a class="link" href="#submission">submission pack</a> gives the text for each field of the blueprint form.</li>
           </ul>
         </section></details>
         <details class="disclosure"><summary>02 / Data contracts and account view</summary><section class="spec-section" id="mortgage-contracts">
           <table class="blueprint-table"><thead><tr><th scope="col">Dataset and grain</th><th scope="col">Required fields</th><th scope="col">Checks</th></tr></thead><tbody>
-            <tr><td>Mortgage: one account and deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Keep dated product terms. Link joint borrowers through an approved account mapping.</td></tr>
+            <tr><td>Mortgage: one loan account and fixed-rate deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Keep dated product terms. Deal end is not the end of the loan. Link joint borrowers through an approved account mapping.</td></tr>
             <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Keep reversals. A failed collection is not proof of default.</td></tr>
-            <tr><td>Application: one product-transfer state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>Separate customer abandonment from platform failure.</td></tr>
-            <tr><td>Servicing: one case state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
-            <tr><td>Outcome and snapshot: one cycle and cutoff.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep outcomes separate from features. Account closure alone does not prove external refinancing.</td></tr>
+            <tr><td>Product-transfer request: one request state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>application_id identifies the product-transfer request. Separate request rejection or abandonment from a verified portal fault.</td></tr>
+            <tr><td>Source servicing case: one recorded state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>This is source history, not a new SharePoint review case. Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
+            <tr><td>Feature snapshot: one mortgage, deal cycle and cutoff time. Observed outcome: one mortgage and deal cycle, recorded separately.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep observed outcomes separate from prediction inputs. Account closure alone does not prove external refinancing.</td></tr>
             <tr><td>Segment membership: one account, cycle and scoring run.</td><td>mortgage_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite a row. An auditor can see each account's segment on any past date.</td></tr>
           </tbody></table>
           <h4>Account view</h4>
-          <p>The view shows deal end, current terms, application problems, segment, score age, evidence, owner and support priority.</p>
+          <p>The mortgage view shows fixed-rate deal end, current terms, request status, portal faults, segment, refinancing risk score age and source evidence. It also shows the assigned review owner and payment-support priority.</p>
           <h4>Synthetic data</h4>
           <ul class="list-disc">
             <li>Include complete outcomes, reversals, delayed feeds and successful transfers.</li>
-            <li>Generate labels from separate hidden factors, not from the alert rule.</li>
+            <li>Generate model outcome labels from separate hidden factors, not from the alert rule.</li>
             <li>Label any future payment figure as an illustration. It is not an offer or an affordability decision.</li>
           </ul>
         </section></details>
         <details class="disclosure"><summary>03 / Architecture and interfaces</summary><section class="spec-section" id="mortgage-architecture">
-          <ol class="list-decimal">
-            <li>Fabric pipelines load dated account, payment, application and servicing exports into raw Lakehouse tables.</li>
-            <li>Notebooks validate keys and ledger history. They build clean account histories and frozen feature snapshots.</li>
-            <li>Notebooks train the renewal model and the behavioural clusters. MLflow records experiments, feature signatures and model versions.</li>
-            <li>Scores, segments, attributions and evidence references go to curated Gold Delta tables. A Power BI semantic model reads them in Direct Lake mode.</li>
-            <li>Eventstream replays an application failure into Eventhouse. Each event keeps its original ID and timestamps.</li>
-            <li>KQL journey queries in Eventhouse find three patterns:
+          <p>Keep the high-level design as the entry point. These four detailed views name components, stores, messages and failure paths.</p>
+          <p class="small muted">Proposed implementation detail, not a deployed system. Table names and job boundaries are proposed. Tenant access and connector permissions remain unconfirmed.</p>
+          <nav class="detail-nav" aria-label="Detailed architecture views">
+            <a class="btn-mini" href="#mortgage-detail-components-figure">Components</a>
+            <a class="btn-mini" href="#mortgage-detail-data-figure">Data relationships</a>
+            <a class="btn-mini" href="#mortgage-detail-scoring-figure">Scoring sequence</a>
+            <a class="btn-mini" href="#mortgage-detail-routing-figure">Case routing</a>
+          </nav>
+          <div data-architecture-details></div>
+          <p class="export-status" data-export-status role="status" hidden></p>
+          <h4>Processing steps</h4>
+          <ol class="step-list">
+            <li><span class="step-tag">Step 1</span><span>Fabric pipelines load dated mortgage account, payment, product-transfer request and servicing exports into raw Lakehouse tables. <a class="step-where" href="#mortgage-detail-components-figure">See components</a></span></li>
+            <li><span class="step-tag">Step 2</span><span>Notebooks validate keys and ledger history. They build clean account histories and frozen feature snapshots. <a class="step-where" href="#mortgage-detail-components-figure">See components</a></span></li>
+            <li><span class="step-tag">Step 3</span><span>Notebooks train the renewal model and the behavioural clusters. MLflow records experiments, feature signatures and model versions. <a class="step-where" href="#mortgage-detail-data-figure">See data and evidence</a></span></li>
+            <li><span class="step-tag">Step 4</span><span>Scores, segments, attributions and evidence references go to curated Gold Delta tables. A completed-run marker makes them eligible for publication. A Power BI semantic model reads completed outputs in Direct Lake mode. <a class="step-where" href="#mortgage-detail-components-figure">See components</a></span></li>
+            <li><span class="step-tag">Step 5</span><span>Eventstream replays a renewal-portal software fault into Eventhouse. Each event keeps its original ID and timestamps. <a class="step-where" href="#mortgage-detail-components-figure">See components</a></span></li>
+            <li><span class="step-tag">Step 6</span><span>KQL journey queries in Eventhouse find three patterns: <a class="step-where" href="#mortgage-detail-components-figure">See components</a>
               <ul class="list-disc">
-                <li>each application's stages and errors in time order</li>
-                <li>days stalled at one stage</li>
-                <li>retries after a platform error.</li>
-              </ul>
+                <li>each product-transfer request's stages and portal errors in time order</li>
+                <li>days that a request remains at one stage</li>
+                <li>retries after a renewal-portal software error.</li>
+              </ul></span>
             </li>
-            <li>A Fabric pipeline runs scoring and segment assignment on a schedule. For the replay, the team also starts one scoring run by hand.</li>
-            <li>Activator and Power Automate create a human-owned review case in a secured SharePoint list.</li>
+            <li><span class="step-tag">Step 7</span><span>A Fabric pipeline copies versioned account context and completed score summaries into Eventhouse. KQL joins these copies with accepted live events. <a class="step-where" href="#mortgage-detail-components-figure">See components</a></span></li>
+            <li><span class="step-tag">Step 8</span><span>A separate pipeline copies cutoff-filtered KQL journey results into Lakehouse staging tables. Notebooks combine these results with dated history. <a class="step-where" href="#mortgage-detail-scoring-figure">See scoring sequence</a></span></li>
+            <li><span class="step-tag">Step 9</span><span>A Fabric pipeline runs scoring and segment assignment on a schedule. For the replay, the team also starts one scoring run by hand. <a class="step-where" href="#mortgage-detail-scoring-figure">See scoring sequence</a></span></li>
+            <li><span class="step-tag">Step 10</span><span>Activator and Power Automate create an internal review case, assigned to a person, in a secured SharePoint list. <a class="step-where" href="#mortgage-detail-routing-figure">See case routing</a></span></li>
           </ol>
           <h4>Interfaces</h4>
           <ul class="list-disc">
-            <li><code>risk_updated</code> carries event_id, mortgage_id, cycle_id, snapshot_id, model_version, scored_at, target, score and evidence IDs.</li>
-            <li>The case key is <code>mortgage_id + cycle_id + action_family</code>. A duplicate write reads the existing case. Other write failures stay visible.</li>
-            <li>The case writer reads current support eligibility when it creates a case. Support priority does not depend on churn score or account value.</li>
+            <li><code>risk_updated</code> carries event_id, mortgage_id, cycle_id, run_id, snapshot_id, model_version, cluster_model_version, segment_id, scored_at, cutoff_at, target, score and evidence IDs.</li>
+            <li>A persisted publication record keeps the same <code>event_id</code> on retry. Activator passes the required fields to a Power Automate custom action.</li>
+            <li>The review-case key is <code>mortgage_id + cycle_id + action_family</code>. A duplicate write reads the existing review case. Other write failures stay visible.</li>
+            <li>The case writer checks current payment-support needs before creating a review case. Payment-support priority does not depend on refinancing risk or loan balance.</li>
+          </ul>
+          <h4>Capability sources and unresolved settings</h4>
+          <p class="small">Microsoft documents <a class="link" href="https://learn.microsoft.com/en-us/fabric/data-factory/connector-kql-database-copy-activity" target="_blank" rel="noopener">KQL database copy activities</a> and <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-trigger-power-automate-flows" target="_blank" rel="noopener">Activator custom actions for Power Automate</a>. These capabilities do not confirm tenant access.</p>
+          <ul class="not-spec">
+            <li>Confirm context-copy frequency, live-view presentation and report refresh settings. The 60-second view target is not a Direct Lake guarantee.</li>
+            <li>Confirm retry limits, timeout values and exception ownership before the build. No automatic retry can bypass an eligibility check.</li>
           </ul>
         </section></details>
         <details class="disclosure"><summary>04 / Prediction and segments</summary><section class="spec-section" id="mortgage-model">
           <h4>Target</h4>
           <ul class="list-disc">
             <li><strong>Checkpoint:</strong> <code>deal_end_at</code> minus 90 days.</li>
-            <li><strong>Positive:</strong> confirmed external refinancing between the checkpoint and <code>deal_end_at</code> plus 30 days. Use known redemption reasons or verified refinance records.</li>
-            <li><strong>Negative:</strong> an internal transfer or continued servicing, only after the full window.</li>
+            <li><strong>Positive model label:</strong> confirmed external refinancing between the checkpoint and <code>deal_end_at</code> plus 30 days. Use known redemption reasons or verified refinance records.</li>
+            <li><strong>Negative model label:</strong> a same-lender product transfer or continued servicing. Assign it only after the observation window ends, 30 days after deal end.</li>
             <li><strong>Excluded:</strong> sales, bereavement closures and redemptions with no known reason.</li>
           </ul>
           <h4>Features</h4>
           <ul class="list-disc">
-            <li>Use application completion, platform errors, complaint age and contact history.</li>
+            <li>Use product-transfer request completion, renewal-portal errors, complaint age and servicing-contact history.</li>
             <li>Derive three behavioural signals from dated history:
               <ul class="list-disc">
-                <li>failed application attempts in the last 30 days against the last 90 days</li>
-                <li>days stalled at one stage</li>
+                <li>failed product-transfer request attempts in the last 30 days compared with the last 90 days</li>
+                <li>days that a request remains at one stage</li>
                 <li>the trend in servicing contacts.</li>
               </ul>
             </li>
             <li>Exclude sensitive support details, protected characteristics, names and fine-grained location. Check the remaining features for unjustified proxies.</li>
-            <li>Payment difficulty follows the support policy. It is not a hidden churn label.</li>
+            <li>Payment difficulty follows the payment-support policy. It is not a hidden external-refinancing outcome label.</li>
           </ul>
           <h4>Models and segments</h4>
           <ul class="list-disc">
-            <li>Compare logistic regression and a small tree model with an application-friction rules baseline.</li>
-            <li>Fit two to five clusters on application and servicing features. Inspect stability and centroids before naming groups.</li>
+            <li>Compare logistic regression and a small tree model with a product-transfer request-friction rules baseline.</li>
+            <li>Fit two to five clusters on product-transfer request and servicing features. Inspect stability and centroids before naming groups.</li>
             <li>Fit clusters once per model release. Each scheduled run assigns accounts to those clusters, so a segment ID keeps its meaning.</li>
           </ul>
           <h4>Evaluation</h4>
           <ul class="list-disc">
             <li>Test on later deal cohorts. Keep their borrowers out of training.</li>
-            <li>Training labels must exist before the simulated model release. Freeze thresholds on validation data.</li>
+            <li>Training outcome labels must exist before the simulated model release. Freeze thresholds on model-validation data.</li>
             <li>Report accuracy, precision, recall, calibration and lift at ten reviews per run.</li>
             <li>Lift compares the refinancing rate in the ten highest-scored accounts with the cohort's base rate. Accuracy alone misleads when few accounts leave.</li>
           </ul>
@@ -725,28 +802,28 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         <details class="disclosure"><summary>05 / Alert routing and audit</summary><section class="spec-section" id="mortgage-action">
           <h4>Routing order</h4>
           <ol class="list-decimal">
-            <li>An active payment-support request goes to trained servicing staff. Retention tasks wait while that case needs review.</li>
-            <li>A verified application failure goes to technical support.</li>
-            <li>An eligible renewal review goes to a servicing adviser.</li>
+            <li>An active payment-support request goes to trained servicing staff. Commercial renewal tasks wait while the payment-support case needs review.</li>
+            <li>A verified renewal-portal software fault goes to technical support.</li>
+            <li>An eligible external-refinancing risk candidate goes to a servicing adviser for a renewal review.</li>
           </ol>
-          <p>A human checks contact policy and suitability before any customer action.</p>
+          <p>Eligibility here permits an internal review case. It does not approve a mortgage, a rate, or customer contact. A human checks contact policy and suitability before any customer-facing action.</p>
           <h4>Audit record</h4>
-          <p>Each case stores model version, snapshot, evidence IDs, routing policy, owner and decision. It also stores separate ingestion, scoring, alert and case times.</p>
+          <p>Every review case records evidence IDs, routing policy, assigned owner and decision. Score-based cases also record model version, run and snapshot. Record ingestion, scoring, alert and case-creation times separately where those operations apply.</p>
           <p>Failure handling follows cases T01 to T06 above.</p>
         </section></details>
         <details class="disclosure"><summary>06 / Build plan and demo</summary><section class="spec-section" id="mortgage-delivery">
           <table class="blueprint-table"><thead><tr><th scope="col">Work package</th><th scope="col">Output</th></tr></thead><tbody>
             <tr><td>Data and replay.</td><td>Account histories, reversal fixtures, cutoff checks and the event contract.</td></tr>
             <tr><td>Models and evaluation.</td><td>Classifier, clusters, rules baseline, later-cohort report with lift, and registered model.</td></tr>
-            <tr><td>Dashboard and action.</td><td>Direct Lake account view, segment history, sensitivity labels, support-first routing, case writer and audit.</td></tr>
+            <tr><td>Dashboard and action.</td><td>Power BI mortgage report (Direct Lake), segment history, sensitivity labels, payment-support-first routing, review-case writer and audit.</td></tr>
           </tbody></table>
           <h4>Demo script</h4>
           <ol class="list-decimal">
             <li>Show Alex's checkpoint, deal date, evidence and proposed renewal review.</li>
-            <li>Run the KQL journey query for Alex's application. Show the stage history behind the stalled-application signal.</li>
-            <li>Replay an application failure and a support request. Show rescoring and support-first routing.</li>
-            <li>Replay the same event. Show one case, not two.</li>
-            <li>Show Sam's completed transfer and a reversed collection. Explain why neither proves default.</li>
+            <li>Run the KQL journey query for Alex's product-transfer request. Show the stage history behind the stalled-request signal.</li>
+            <li>Replay a renewal-portal fault and a payment-support request. Show rescoring and payment-support-first routing.</li>
+            <li>Replay the same event. Show one review case for the same key, not two.</li>
+            <li>Show Sam's completed product transfer and a reversed payment collection. Explain why neither proves mortgage default.</li>
             <li>Show the evaluation, measured latency and limits.</li>
           </ol>
           <h4>Acceptance tests</h4>
@@ -759,7 +836,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         </section></details>
         <details class="disclosure"><summary>07 / Value and controls</summary><section class="spec-section" id="mortgage-readiness">
           <h4>Value measures</h4>
-          <p>Measure review effort, application faults fixed, support routing time and confirmed external-refinancing outcomes. Loan balance is exposure, not saved revenue.</p>
+          <p>Measure review effort, renewal-portal faults fixed, payment-support routing time and confirmed external-refinancing outcomes. Loan balance is exposure, not saved revenue.</p>
           <h4>Data protection</h4>
           <ul class="list-disc">
             <li>Use pseudonymous accounts and least-privilege roles. Restrict support information separately.</li>
@@ -813,20 +890,29 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     <section class="band" aria-labelledby="sub-docs-title">
       <div class="section-head">
         <h2 id="sub-docs-title">2 · Architecture and design documents</h2>
-        <p class="muted measure">The form accepts PDF, PNG, JPG, SVG, Excel, CSV, video, PPTX and DOCX files, up to 100 MB each. Upload files 1 and 2 as a minimum. Files 3 to 5 add detail.</p>
+        <p class="muted measure">The form accepts PDF, PNG, JPG, SVG, Excel, CSV, video, PPTX and DOCX files, up to 100 MB each. Upload files 1 and 2 as a minimum. Files 3 to 9 add evidence and architectural detail.</p>
       </div>
       <ol class="uploads">
-        <li><span class="num">1</span><div><strong>Architecture diagram</strong><span class="fmt">PNG or SVG</span><p class="small muted">The proposed design in four lanes: history, live events, scheduled scoring and support. The file includes the title, the shape legend and the caption.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="arch" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="arch" data-format="svg">Download SVG</button></div></li>
+        <li><span class="num">1</span><div><strong>High-level architecture</strong><span class="fmt">PNG or SVG</span><p class="small muted">The proposed design in four lanes: history, live events, scheduled scoring and support. Files 6 to 9 expand this view.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="arch" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="arch" data-format="svg">Download SVG</button></div></li>
         <li><span class="num">2</span><div><strong>Blueprint document</strong><span class="fmt">PDF</span><p class="small muted">The full HomeBridge blueprint. The button opens the blueprint page and the print window. Select “Save as PDF”. Printing opens every section.</p></div><div class="acts"><button class="btn-mini" type="button" data-print-page="mortgage-option">Print blueprint to PDF</button></div></li>
         <li><span class="num">3</span><div><strong>Signals-to-action diagram</strong><span class="fmt">PNG</span><p class="small muted">An illustrative case. Three signals lead to one action, and the payment-support check runs first.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="flow" data-format="png">Download PNG</button></div></li>
         <li><span class="num">4</span><div><strong>Checkpoint time line</strong><span class="fmt">PNG</span><p class="small muted">The checkpoint 90 days before the deal ends, and the outcome window.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="timeline" data-format="png">Download PNG</button></div></li>
         <li><span class="num">5</span><div><strong>Data contract</strong><span class="fmt">CSV</span><p class="small muted">Each dataset with its grain, its required fields and its checks. Excel opens this file.</p></div><div class="acts"><button class="btn-mini" type="button" data-export-csv>Download CSV</button></div></li>
+        <li><span class="num">6</span><div><strong>Components and data movement</strong><span class="fmt">PNG or SVG</span><p class="small muted">Fabric items, storage boundaries, explicit context copies, KQL joins and the two reporting paths.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="components" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="components" data-format="svg">Download SVG</button></div></li>
+        <li><span class="num">7</span><div><strong>Data relationships and keys</strong><span class="fmt">PNG or SVG</span><p class="small muted">Snapshots, scores, model versions, segment history, publication records and review cases.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="data" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="data" data-format="svg">Download SVG</button></div></li>
+        <li><span class="num">8</span><div><strong>Scoring and publication sequence</strong><span class="fmt">PNG or SVG</span><p class="small muted">Event arrival, scheduled scoring, frozen inputs, completed outputs and publication retries.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="scoring" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="scoring" data-format="svg">Download SVG</button></div></li>
+        <li><span class="num">9</span><div><strong>Payment-support-first review-case routing</strong><span class="fmt">PNG or SVG</span><p class="small muted">Independent service rules, review-case eligibility checks, unique case writes and visible failure handling.</p></div><div class="acts"><button class="btn-mini" type="button" data-export="routing" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="routing" data-format="svg">Download SVG</button></div></li>
       </ol>
-      <p class="small" style="margin-top: 1rem;"><strong>Do not paste the hosted page URL.</strong> The page has a password, so reviewers cannot open it.</p>
+      <p class="export-status" data-export-status role="status" hidden></p>
+      <p class="small" style="margin-top: 1rem;"><strong>Do not use the protected page URL instead of file uploads.</strong> Submission reviewers do not receive the page password. Upload the exported files.</p>
       <p class="small muted" style="margin-top: .5rem;">Downloads use the light theme. Previews of files 1, 3 and 4 follow.</p>
       <div class="sub-figs" style="margin-top: 1.5rem;">
         <div data-sub-arch></div>
         <div class="two-up" data-sub-evidence style="margin-top: 1.25rem;"></div>
+        <details class="disclosure" id="submission-architecture-details" style="margin-top: 1.5rem;">
+          <summary>Preview the four detailed architecture diagrams</summary>
+          <div class="detail-preview" data-sub-details></div>
+        </details>
       </div>
     </section>
 
@@ -1298,9 +1384,9 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           <section class="blueprint-section" id="software-readiness">
             <h3>07 / Value, controls, and submission package</h3>
             <p>Measure review effort, confirmed workflow incidents, and annual contract value associated with eligible cases. Value at risk is not saved revenue.</p>
-            <p>Use pseudonymous IDs and least-privilege workspace roles. Exclude personal messages and credentials from exports. Apply approved retention periods.</p>
+            <p>Use pseudonymous IDs and least-privilege workspace roles. Exclude personal messages and credentials from exports. Apply approved data-retention periods.</p>
             <p>Capacity, Power BI sharing, Power Automate licensing, and connector permissions remain unconfirmed. Test the complete action path before promising it.</p>
-            <p>If the case connector fails, demonstrate an internal review record and identify the missing integration. Do not claim an external case exists.</p>
+            <p>If the SharePoint connector fails, show a local review record and identify the missing integration. Do not claim that SharePoint created a review case.</p>
             <p>Submit this proposal, architecture, dataset provenance, reproducible notebooks, model versions, evaluation report, action audit, setup instructions, and video.</p>
             <p>Confirm organiser fields, team names, and deadline timezone before submission. This blueprint is a proposed design, not a completed entry.</p>
             <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
@@ -1495,7 +1581,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <p>Use pseudonymous subscription and device IDs. Exclude addresses and browsing history. Restrict household evidence to authorised workspace roles.</p>
             <p>Confirm Fabric capacity, Power BI sharing, connector permissions, and Power Automate licensing before the build.</p>
             <p>The main risk is historical identity quality. If valid device mappings are absent, restrict the dataset to verified subscriptions.</p>
-            <p>If the action connector fails, show an internal review record with the missing integration clearly labelled. Do not claim an external case.</p>
+            <p>If the SharePoint connector fails, show a local review record and label the missing integration. Do not claim that SharePoint created a review case.</p>
             <p>Submit this proposal, mapping contract, architecture, data provenance, reproducible notebooks, model versions, evaluation, case audit, setup instructions, and video.</p>
             <p>Confirm organiser fields, team names, and deadline timezone. This page is a proposed blueprint, not an implemented service.</p>
             <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
@@ -1689,10 +1775,10 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <h3>07 / Value, controls, and submission package</h3>
             <p>Measure review effort, confirmed delivery problems, duplicate cases, and eligible customer counts. Report repeat-order value separately from claimed savings.</p>
             <p>Real retention improvement requires controlled intervention evidence. Synthetic results demonstrate mechanics only.</p>
-            <p>Use pseudonymous customer IDs. Exclude names, addresses, payment data, and message contents. Restrict exports and apply approved retention periods.</p>
+            <p>Use pseudonymous customer IDs. Exclude names, addresses, payment data, and message contents. Restrict exports and apply approved data-retention periods.</p>
             <p>Confirm Fabric capacity, Power BI sharing, Power Automate licensing, connector access, and contact policy before the build.</p>
             <p>The main risk is the target definition. If organisers require contractual churn, select software or broadband instead of disguising inactivity as renewal.</p>
-            <p>If the action connector fails, demonstrate an internal review record and label the missing integration. Do not claim an external case exists.</p>
+            <p>If the SharePoint connector fails, show a local review record and label the missing integration. Do not claim that SharePoint created a review case.</p>
             <p>Submit this proposal, architecture, target definition, data provenance, notebooks, model versions, evaluation, consent tests, case audit, setup instructions, and video.</p>
             <p>Confirm organiser fields, team names, and deadline timezone. This blueprint is a proposed design, not a completed entry.</p>
             <p><a class="link" href="https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict">Fabric batch model scoring</a> supports the scoring design. <a class="link" href="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-introduction">Fabric Activator</a> describes event rules and actions.</p>
@@ -1720,7 +1806,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       insurance: { target: 'Customer-led policy non-renewal', date: 'Policy expiry', unit: 'policy_id + cycle_id' }
     };
     const scenarioDescriptions = {
-      mortgage: "Fixed-rate deals end in large numbers every month, and advisers cannot call every customer. Some customers need payment support, some are stuck in the lender's own process, and some may move to another lender. The proposed solution flags customers likely to move about 90 days before deal end and sends each case to the right team, with payment support first.",
+      mortgage: "Fixed-rate deals end in large numbers every month, and advisers cannot call every customer. Some borrowers need payment support. Others have problems with the renewal portal or may refinance with another lender. The proposed solution scores each mortgage at the checkpoint, about 90 days before its fixed-rate deal ends. Eligible internal review cases go to the right team, with payment support first.",
       insurance: 'Many home insurers use outside suppliers for claims work. A failing repair can stay hidden until the customer complains or leaves at renewal. The proposed solution joins policy, claim, supplier, and complaint data and flags customers likely to leave about 90 days before the policy ends. Claims coordinators fix recovery problems before any renewal review.'
     };
     document.querySelectorAll('[data-description]').forEach(el => { el.textContent = scenarioDescriptions[el.dataset.description]; });
@@ -1730,33 +1816,100 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     });
 
     // SVG helpers. Shapes follow the legend: cylinder = stored data, pipe = event stream, diamond = gate,
-    // pill = person, rectangle = service, dashed = proposed or not built.
+    // pill = person, rectangle = component, dashed = proposed or not built.
     const markers = p => `<defs>${[['a', 'head'], ['l', 'head-live'], ['s', 'head-support']].map(([s, c]) => `<marker id="${p}-${s}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="${c}" d="M0 0 10 5 0 10z"/></marker>`).join('')}</defs>`;
     const t = (x, y, s, cls = '', size) => `<text class="${cls}" x="${x}" y="${y}"${size ? ` style="font-size:${size}px"` : ''}>${esc(s)}</text>`;
     const lines = (cx, cy, a, b, size) => b ? t(cx, cy - 3, a, 'mid t-strong', size) + t(cx, cy + 16, b, 'mid t-small') : t(cx, cy + 5, a, 'mid t-strong', size);
     const tip = s => `<title>${esc(s)}</title>`;
-    const cylinder = (x, y, w, h, a, b, cls = '') => `<g>${tip(a + (b ? ': ' + b : ''))}<path class="n ${cls}" d="M${x} ${y + 9}a${w / 2} 9 0 0 1 ${w} 0v${h - 18}a${w / 2} 9 0 0 1 ${-w} 0z"/><path class="n-rim" d="M${x} ${y + 9}a${w / 2} 9 0 0 0 ${w} 0"/>${lines(x + w / 2, y + h / 2 + 5, a, b)}</g>`;
-    const pipe = (x, y, w, h, a, b, cls = '') => `<g>${tip(a + (b ? ': ' + b : ''))}<path class="n ${cls}" d="M${x + 12} ${y}h${w - 24}a12 ${h / 2} 0 0 1 0 ${h}h${-(w - 24)}a12 ${h / 2} 0 0 1 0 ${-h}z"/><path class="n-rim" d="M${x + w - 12} ${y}a12 ${h / 2} 0 0 0 0 ${h}"/>${lines(x + w / 2, y + h / 2, a, b)}</g>`;
-    const box = (x, y, w, h, a, b, cls = '') => `<g>${tip(a + (b ? ': ' + b : ''))}<rect class="n ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>${lines(x + w / 2, y + h / 2, a, b)}</g>`;
+    // Official Microsoft product icons, unaltered. Fabric: https://learn.microsoft.com/en-us/fabric/fundamentals/icons
+    // (Fabric icon pack v6.1.0). Power Automate: https://learn.microsoft.com/en-us/power-platform/guidance/icons
+    // Use each icon only beside its product or item name. Do not crop, recolour, rotate or distort an icon.
+    const productIcons = {
+      fabric: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaTdmYTFjMS1hKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJtNS42NCAzMS42LS41ODYgMi4xNDRjLS4yMTguNjg1LS41MjQgMS42OTMtLjY4OSAyLjU5YTUuNjMgNS42MyAwIDAgMCA0LjYzOCA3LjU4OGMuNzkyLjExNCAxLjY4OC4xMDggMi42OTItLjA0bDQuNjEzLS42MzZhMi45MiAyLjkyIDAgMCAwIDIuNDIxLTIuMTI3bDMuMTc1LTExLjY2Mkw1LjY0IDMxLjU5OVoiIGNsaXAtcnVsZT0iZXZlbm9kZCIvPjxwYXRoIGZpbGw9InVybCgjaTdmYTFjMS1iKSIgZD0iTTEwLjE0IDMyLjE1MmMtNC44NjMuNzUzLTUuODYxIDQuNDIzLTUuODYxIDQuNDIzbDQuNjU2LTE3LjExIDI0LjMzMy0zLjI5Mi0zLjMxOCAxMi4wNTJhMS43MSAxLjcxIDAgMCAxLTEuMzg4IDEuMjQ0bC0uMTM2LjAyMi0xOC40MjMgMi42ODR6Ii8+PHBhdGggZmlsbD0idXJsKCNpN2ZhMWMxLWMpIiBmaWxsLW9wYWNpdHk9Ii44IiBkPSJNMTAuMTQgMzIuMTUyYy00Ljg2My43NTMtNS44NjEgNC40MjMtNS44NjEgNC40MjNsNC42NTYtMTcuMTEgMjQuMzMzLTMuMjkyLTMuMzE4IDEyLjA1MmExLjcxIDEuNzEgMCAwIDEtMS4zODggMS4yNDRsLS4xMzYuMDIyLTE4LjQyMyAyLjY4NHoiLz48cGF0aCBmaWxsPSJ1cmwoI2k3ZmExYzEtZCkiIGQ9Im0xMi44OTkgMjEuMjM1IDI2LjkzOC0zLjk4YTEuNiAxLjYgMCAwIDAgMS4zMjMtMS4xN2wyLjc4LTEwLjA2YTEuNTk1IDEuNTk1IDAgMCAwLTEuNzQtMi4wMTJMMTYuNDk4IDcuODFhNy4xOSA3LjE5IDAgMCAwLTUuNzc3IDUuMTkzTDcuMDEzIDI2LjQzOGMuNzQ0LTIuNzE3IDEuMjAyLTQuMzU1IDUuODg2LTUuMjAzIi8+PHBhdGggZmlsbD0idXJsKCNpN2ZhMWMxLWUpIiBkPSJtMTIuODk5IDIxLjIzNSAyNi45MzgtMy45OGExLjYgMS42IDAgMCAwIDEuMzIzLTEuMTdsMi43OC0xMC4wNmExLjU5NSAxLjU5NSAwIDAgMC0xLjc0LTIuMDEyTDE2LjQ5OCA3LjgxYTcuMTkgNy4xOSAwIDAgMC01Ljc3NyA1LjE5M0w3LjAxMyAyNi40MzhjLjc0NC0yLjcxNyAxLjIwMi00LjM1NSA1Ljg4Ni01LjIwMyIvPjxwYXRoIGZpbGw9InVybCgjaTdmYTFjMS1mKSIgZmlsbC1vcGFjaXR5PSIuNCIgZD0ibTEyLjg5OSAyMS4yMzUgMjYuOTM4LTMuOThhMS42IDEuNiAwIDAgMCAxLjMyMy0xLjE3bDIuNzgtMTAuMDZhMS41OTUgMS41OTUgMCAwIDAtMS43NC0yLjAxMkwxNi40OTggNy44MWE3LjE5IDcuMTkgMCAwIDAtNS43NzcgNS4xOTNMNy4wMTMgMjYuNDM4Yy43NDQtMi43MTcgMS4yMDItNC4zNTUgNS44ODYtNS4yMDMiLz48cGF0aCBmaWxsPSJ1cmwoI2k3ZmExYzEtZykiIGQ9Ik0xMi44OTkgMjEuMjM2Yy0zLjkwMS43MDYtNC44NyAxLjk2Mi01LjUxNCAzLjkzMkw0LjI3OSAzNi41NzdzLjk5Mi0zLjYzMyA1Ljc5Ni00LjQxbDE4LjM1Mi0yLjY3My4xMzYtLjAyMmExLjcxIDEuNzEgMCAwIDAgMS4zODgtMS4yNDRsMi43My05LjkxNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2k3ZmExYzEtaCkiIGZpbGwtb3BhY2l0eT0iLjIiIGQ9Ik0xMi44OTkgMjEuMjM2Yy0zLjkwMS43MDYtNC44NyAxLjk2Mi01LjUxNCAzLjkzMkw0LjI3OSAzNi41NzdzLjk5Mi0zLjYzMyA1Ljc5Ni00LjQxbDE4LjM1Mi0yLjY3My4xMzYtLjAyMmExLjcxIDEuNzEgMCAwIDAgMS4zODgtMS4yNDRsMi43My05LjkxNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2k3ZmExYzEtaSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTEwLjA3NSAzMi4xNjdjLTQuMDYuNjU3LTUuMzkyIDMuMzQ1LTUuNzEgNC4xNjRhNS42MyA1LjYzIDAgMCAwIDQuNjM4IDcuNTljLjc5Mi4xMTQgMS42ODguMTA4IDIuNjkyLS4wMzlsNC42MTMtLjYzN2EyLjkyIDIuOTIgMCAwIDAgMi40MjEtMi4xMjdsMi44OTQtMTAuNjMzLTExLjU0NyAxLjY4M3oiIGNsaXAtcnVsZT0iZXZlbm9kZCIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iaTdmYTFjMS1hIiB4MT0iMTIuOTUzIiB4Mj0iMTIuOTUzIiB5MT0iNDQuMDAxIiB5Mj0iMjkuNDU3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIuMDU2IiBzdG9wLWNvbG9yPSIjMkFBQzk0Ii8+PHN0b3Agb2Zmc2V0PSIuMTU1IiBzdG9wLWNvbG9yPSIjMjM5Qzg3Ii8+PHN0b3Agb2Zmc2V0PSIuMzcyIiBzdG9wLWNvbG9yPSIjMTc3RTcxIi8+PHN0b3Agb2Zmc2V0PSIuNTg4IiBzdG9wLWNvbG9yPSIjMEU2OTYxIi8+PHN0b3Agb2Zmc2V0PSIuNzk5IiBzdG9wLWNvbG9yPSIjMDk1RDU3Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDg1OTU0Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9Imk3ZmExYzEtYiIgeDE9IjMxLjMzMSIgeDI9IjE3LjI4NiIgeTE9IjMzLjQ0OCIgeTI9IjE4LjE3MyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjA0MiIgc3RvcC1jb2xvcj0iI0FCRTg4RSIvPjxzdG9wIG9mZnNldD0iLjU0OSIgc3RvcC1jb2xvcj0iIzJBQUE5MiIvPjxzdG9wIG9mZnNldD0iLjkwNiIgc3RvcC1jb2xvcj0iIzExNzg2NSIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpN2ZhMWMxLWMiIHgxPSItMy4xODIiIHgyPSIxMC4xODMiIHkxPSIzMi43MDYiIHkyPSIyOC4xNDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNkFENkY5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNkFENkY5IiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTdmYTFjMS1kIiB4MT0iNy4wMTMiIHgyPSI0Mi41ODkiIHkxPSIxNS4yMTkiIHkyPSIxNS4yMTkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4wNDMiIHN0b3AtY29sb3I9IiMyNUZGRDQiLz48c3RvcCBvZmZzZXQ9Ii44NzQiIHN0b3AtY29sb3I9IiM1NUREQjkiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTdmYTFjMS1lIiB4MT0iNy4wMTMiIHgyPSIzOS4wNiIgeTE9IjEwLjI0NyIgeTI9IjI1LjEyOCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM2QUQ2RjkiLz48c3RvcCBvZmZzZXQ9Ii4yMyIgc3RvcC1jb2xvcj0iIzYwRTlEMCIvPjxzdG9wIG9mZnNldD0iLjY1MSIgc3RvcC1jb2xvcj0iIzZERTlCQiIvPjxzdG9wIG9mZnNldD0iLjk5NCIgc3RvcC1jb2xvcj0iI0FCRTg4RSIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpN2ZhMWMxLWYiIHgxPSI5Ljk3OCIgeDI9IjI3LjQwNCIgeTE9IjEzLjAzMSIgeTI9IjE2Ljg4NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iLjQ1OSIgc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9Imk3ZmExYzEtZyIgeDE9IjE1Ljc1NiIgeDI9IjE2LjE2OCIgeTE9IjI3Ljk2IiB5Mj0iMTUuNzQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4yMDUiIHN0b3AtY29sb3I9IiMwNjNEM0IiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iLjU4NiIgc3RvcC1jb2xvcj0iIzA2M0QzQiIgc3RvcC1vcGFjaXR5PSIuMjM3Ii8+PHN0b3Agb2Zmc2V0PSIuODcyIiBzdG9wLWNvbG9yPSIjMDYzRDNCIiBzdG9wLW9wYWNpdHk9Ii43NSIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpN2ZhMWMxLWgiIHgxPSIyLjgxIiB4Mj0iMTcuNzAxIiB5MT0iMjYuNzQ0IiB5Mj0iMjkuNTQ1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PHN0b3Agb2Zmc2V0PSIuNDU5IiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTdmYTFjMS1pIiB4MT0iMTMuNTY3IiB4Mj0iMTAuNjYyIiB5MT0iMzkuOTciIHkyPSIyNS43NjQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4wNjQiIHN0b3AtY29sb3I9IiMwNjNEM0IiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iLjE3IiBzdG9wLWNvbG9yPSIjMDYzRDNCIiBzdG9wLW9wYWNpdHk9Ii4xMzUiLz48c3RvcCBvZmZzZXQ9Ii41NjIiIHN0b3AtY29sb3I9IiMwNjNEM0IiIHN0b3Atb3BhY2l0eT0iLjU5OSIvPjxzdG9wIG9mZnNldD0iLjg1IiBzdG9wLWNvbG9yPSIjMDYzRDNCIiBzdG9wLW9wYWNpdHk9Ii45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDYzRDNCIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PC9zdmc+',
+      lakehouse: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaWU3MTAxMS1hKSIgZD0iTTggOGE1IDUgMCAwIDEgNS01aDIyYTUgNSAwIDAgMSA1IDV2MzJhNSA1IDAgMCAxLTUgNUgxM2E1IDUgMCAwIDEtNS01eiIvPjxwYXRoIGZpbGw9InVybCgjaWU3MTAxMS1iKSIgZmlsbC1vcGFjaXR5PSIuMiIgZD0iTTggOGE1IDUgMCAwIDEgNS01aDIyYTUgNSAwIDAgMSA1IDV2MzJhNSA1IDAgMCAxLTUgNUgxM2E1IDUgMCAwIDEtNS01eiIvPjxwYXRoIGZpbGw9InVybCgjaWU3MTAxMS1jKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzUgNEgxM2E0IDQgMCAwIDAtNCA0djMyYTQgNCAwIDAgMCA0IDRoMjJhNCA0IDAgMCAwIDQtNFY4YTQgNCAwIDAgMC00LTRNMTMgM2E1IDUgMCAwIDAtNSA1djMyYTUgNSAwIDAgMCA1IDVoMjJhNSA1IDAgMCAwIDUtNVY4YTUgNSAwIDAgMC01LTV6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBmaWxsPSJ1cmwoI2llNzEwMTEtZCkiIGQ9Ik0yNC44MzcgMzRIMTZhMiAyIDAgMCAxLTItMnYtOS4xMWEyIDIgMCAwIDEgLjY2Mi0xLjQ4Nmw4LTcuMmEyIDIgMCAwIDEgMi42NzcgMGw3Ljk5OSA3LjJBMiAyIDAgMCAxIDM0IDIyLjg5MXY1LjExM2ExLjUgMS41IDAgMCAwLS41LS4wODRjLS42MiAwLTEuMTYuMzYtMS4zOS45My0uMDEuMDQtLjA2LjA5LS4xMS4xM2EuNC40IDAgMCAxLS4xMS0uMTNjLS4yMi0uNTUtLjc3LS45MS0xLjM5LS45MXMtMS4xNy4zNS0xLjM5LjljLS4wMS4wNC0uMDYuMDktLjExLjEzYS40LjQgMCAwIDEtLjExLS4xM2MtLjIzLS41Ni0uNzYtLjkzLTEuNC0uOTMtLjYyLjAxLTEuMTYuMzgtMS4zOC45Ni0uMDQuMDktLjA2LjEzLS4wNi4xM2EuNy43IDAgMCAxLS4xMy4wNGMtLjguMTgtMS4zMS45OS0xLjEzIDEuNzlhMS40OCAxLjQ4IDAgMCAwIDEuMjY2IDEuMTU3TDI2LjA1IDMyYS43LjcgMCAwIDEtLjEzLjA0QTEuNTA1IDEuNTA1IDAgMCAwIDI0LjgzNyAzNCIvPjxwYXRoIGZpbGw9InVybCgjaWU3MTAxMS1lKSIgZD0iTTM0Ljc1IDMxaC0uMDFhLjUwMi41MDIgMCAwIDAgLjEtLjk5Yy0uNDctLjExLS43MS0uMzEtLjg5LS43OGEuNDkuNDkgMCAwIDAtLjQ2LS4zMmMtLjIgMC0uMzguMTItLjQ2LjMxLS4xNS4zOC0uNi43OC0xLjA0Ljc4cy0uODgtLjQxLTEuMDMtLjc4Yy0uMTYtLjM4LS43OC0uMzgtLjkzIDBzLS42Ljc4LTEuMDQuNzgtLjg4LS40MS0xLjAzLS43OGMtLjA4LS4xOS0uMjYtLjMzLS40Ny0uMzEtLjIgMC0uMzkuMTMtLjQ2LjMyLS4xOC40Ny0uNDEuNjctLjg5Ljc4LS4yNy4wNi0uNDQuMzMtLjM4LjZzLjMzLjQzLjYuMzhjLjUtLjExLjg4LS4zMiAxLjE3LS42NS4zNy4zOC44Ni42NiAxLjQ2LjY2czEuMTMtLjI5IDEuNTEtLjY5Yy4zNy4zOS45MS42OSAxLjQ5LjY5czEuMS0uMjggMS40OC0uNjZjLjI5LjMzLjY3LjU0IDEuMTcuNjUuMDMxLjAwOC4wOC4wMS4xLjAxaC0uMDF6Ii8+PHBhdGggZmlsbD0idXJsKCNpZTcxMDExLWYpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zNC42NCAzMy45OWEuNTAyLjUwMiAwIDAgMCAuMi0uOThjLS40Ny0uMTEtLjcxLS4zMS0uODktLjc4YS40OS40OSAwIDAgMC0uNDYtLjMyYy0uMiAwLS4zOC4xMi0uNDYuMzEtLjE1LjM4LS42Ljc4LTEuMDQuNzhzLS44OC0uNDEtMS4wMy0uNzhjLS4xNi0uMzgtLjc4LS4zOC0uOTMgMHMtLjYuNzgtMS4wNC43OC0uODgtLjQxLTEuMDMtLjc4Yy0uMDgtLjE5LS4yNi0uMzMtLjQ3LS4zMS0uMiAwLS4zOS4xMy0uNDYuMzItLjE4LjQ3LS40MS42Ny0uODkuNzgtLjI3LjA2LS40NC4zMy0uMzguNnMuMzMuNDMuNi4zOGMuNS0uMTEuODgtLjMyIDEuMTctLjY1LjM3LjM4Ljg2LjY2IDEuNDYuNjZzMS4xMy0uMjkgMS41MS0uNjljLjM3LjM5LjkxLjY5IDEuNDkuNjlzMS4xLS4yOCAxLjQ4LS42NmMuMjkuMzMuNjcuNTQgMS4xNy42NW0uMS4wMWguMDEtLjAyeiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJpZTcxMDExLWEiIHgxPSIxNi44ODkiIHgyPSIyMy43ODUiIHkxPSIzIiB5Mj0iNDUuMDM1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0VCRUJFQiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZTcxMDExLWMiIHgxPSIxOC4zMzMiIHgyPSIyNS42NjMiIHkxPSIzIiB5Mj0iNDQuODg0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0JCQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg4OCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZTcxMDExLWQiIHgxPSIxNCIgeDI9IjM0LjI4OSIgeTE9IjEzLjY5MSIgeTI9IjM0LjkwMiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiMzNDc3RUEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxRDUzQTQiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaWU3MTAxMS1lIiB4MT0iMTQiIHgyPSIzNC4yODkiIHkxPSIxMy42OTEiIHkyPSIzNC45MDIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjMzQ3N0VBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMUQ1M0E0Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImllNzEwMTEtZiIgeDE9IjE0IiB4Mj0iMzQuMjg5IiB5MT0iMTMuNjkxIiB5Mj0iMzQuOTAyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzM0NzdFQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzFENTNBNCIvPjwvbGluZWFyR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJpZTcxMDExLWIiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxNi44ODkwOCAzMy4yNDk5MSAtMjUuMTcyMTQgMTIuNzg2MDMgMTguMjIyIDEzLjkzOCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4xNzciIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCOEI4QjgiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48L3N2Zz4=',
+      notebook: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaTMzMDNkOS1hKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTIgMy41NTJoMjRjMS42NTcgMCAzLjM5NCAxLjE1NSAzLjM5NCAyLjg2MlYzMS41N2MwIDEuMDQ2LS42NTMgMi4wNzYtMS41NCAyLjcxN0wzOSAzMy44MTJ2OS4xMjVsLTEuMzEzIDEuNUgxMWwtMi4xODgtMS41VjM3LjI1bDEuOTctMS43NDRjLS45MDQuNDg2LTEuNzUzIDEuMTk4LTIuMzE1IDEuNzg5VjkuMjI5YzAtMi41NiAxLjA0OC01LjY3NyAzLjUzMy01LjY3NyIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNpMzMwM2Q5LWIpIiBmaWxsLW9wYWNpdHk9Ii4yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMiAzLjU1MmgyNGMxLjY1NyAwIDMuMzk0IDEuMTU1IDMuMzk0IDIuODYyVjMxLjU3YzAgMS4wNDYtLjY1MyAyLjA3Ni0xLjU0IDIuNzE3TDM5IDMzLjgxMnY5LjEyNWwtMS4zMTMgMS41SDExbC0yLjE4OC0xLjVWMzcuMjVsMS45Ny0xLjc0NGMtLjkwNC40ODYtMS43NTMgMS4xOTgtMi4zMTUgMS43ODlWOS4yMjljMC0yLjU2IDEuMDQ4LTUuNjc3IDMuNTMzLTUuNjc3IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBmaWxsPSJ1cmwoI2kzMzAzZDktYykiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTggNDBhNSA1IDAgMCAwIDUgNWgyM2E0IDQgMCAwIDAgNC00VjdhNCA0IDAgMCAwLTQtNEgxMmE0IDQgMCAwIDAtNCA0em00LTM2aDI0YTMgMyAwIDAgMSAzIDN2MjRhMy41IDMuNSAwIDAgMS0zLjUgMy41aC0yMmMtMS44NiAwLTMuNTA1LjkyMy00LjUgMi4zMzdWN2EzIDMgMCAwIDEgMy0zTTkgNDBhNCA0IDAgMCAwIDQgNGgyM2EzIDMgMCAwIDAgMy0zdi0yLjE3MWE0LjUgNC41IDAgMCAxLTMuNSAxLjY3MWgtMjNhLjUuNSAwIDAgMSAwLTFoMjNBMy41IDMuNSAwIDAgMCAzOSAzNnYtMi4xNzFhNC41IDQuNSAwIDAgMS0zLjUgMS42NzFoLTIyQTQuNSA0LjUgMCAwIDAgOSA0MCIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNpMzMwM2Q5LWQpIiBkPSJNMjcuMDY2IDExLjAyMWEuNS41IDAgMCAxIC4zMzUuNjIzbC00Ljg0NiAxNi4xNTNhLjUuNSAwIDEgMS0uOTU4LS4yODhsNC44NDYtMTYuMTUyYS41LjUgMCAwIDEgLjYyMy0uMzM2Ii8+PHBhdGggZmlsbD0idXJsKCNpMzMwM2Q5LWUpIiBkPSJNMjkuOCAxNC4zNzdhLjUuNSAwIDAgMSAuNzA4IDBsNC43NzUgNC43NzVhLjYuNiAwIDAgMSAwIC44NDhsLTQuNzc1IDQuNzc2YS41LjUgMCAwIDEtLjcwNy0uNzA3bDQuNDkyLTQuNDkzLTQuNDkyLTQuNDkyYS41LjUgMCAwIDEgMC0uNzA3WiIvPjxwYXRoIGZpbGw9InVybCgjaTMzMDNkOS1mKSIgZD0iTTE4LjQ5MiAxNC4zNzdhLjUuNSAwIDAgMSAuNzA3LjcwN2wtNC40OTIgNC40OTIgNC40OTIgNC40OTJhLjUuNSAwIDAgMS0uNzA3LjcwOEwxMy43MTcgMjBhLjYuNiAwIDAgMSAwLS44NDh6Ii8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJpMzMwM2Q5LWEiIHgxPSIxNy4wNTgiIHgyPSIyMy44MTciIHkxPSIzLjU1MiIgeTI9IjQ0LjQ1NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFQkVCRUIiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTMzMDNkOS1jIiB4MT0iMTguMzMzIiB4Mj0iMjUuNjYzIiB5MT0iMyIgeTI9IjQ0Ljg4NCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNCQkIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4ODgiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTMzMDNkOS1kIiB4MT0iMTMuNTQxIiB4Mj0iMzAuMTkyIiB5MT0iMTEiIHkyPSIzMi4yNzUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNEJBNDQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjM0Y3RDM1Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImkzMzAzZDktZSIgeDE9IjEzLjU0MSIgeDI9IjMwLjE5MiIgeTE9IjExIiB5Mj0iMzIuMjc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzRCQTQ0NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzNGN0QzNSIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpMzMwM2Q5LWYiIHgxPSIxMy41NDEiIHgyPSIzMC4xOTIiIHkxPSIxMSIgeTI9IjMyLjI3NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM0QkE0NDYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMzRjdEMzUiLz48L2xpbmVhckdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iaTMzMDNkOS1iIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMTYuMzIyNzggMzIuMzY3NzggLTI0LjQwMDA4IDEyLjMwNDc0IDE4LjM0NiAxNC4yKSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjE3NyIgc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0I4QjhCOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjwvc3ZnPg==',
+      pipeline: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaTZkMWQzYi1hKSIgZD0iTTUgMTBhNSA1IDAgMCAxIDUtNWgyOGE1IDUgMCAwIDEgNSA1djI4YTUgNSAwIDAgMS01IDVIMTBhNSA1IDAgMCAxLTUtNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2k2ZDFkM2ItYikiIGZpbGwtb3BhY2l0eT0iLjIiIGQ9Ik01IDEwYTUgNSAwIDAgMSA1LTVoMjhhNSA1IDAgMCAxIDUgNXYyOGE1IDUgMCAwIDEtNSA1SDEwYTUgNSAwIDAgMS01LTV6Ii8+PHBhdGggZmlsbD0idXJsKCNpNmQxZDNiLWMpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zOCA2SDEwYTQgNCAwIDAgMC00IDR2MjhhNCA0IDAgMCAwIDQgNGgyOGE0IDQgMCAwIDAgNC00VjEwYTQgNCAwIDAgMC00LTRNMTAgNWE1IDUgMCAwIDAtNSA1djI4YTUgNSAwIDAgMCA1IDVoMjhhNSA1IDAgMCAwIDUtNVYxMGE1IDUgMCAwIDAtNS01eiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNpNmQxZDNiLWQpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNS41IDE2YTEuNSAxLjUgMCAwIDAtMS41IDEuNXYxM2ExLjUgMS41IDAgMCAwIDMgMHYtMmgxNHYyYTEuNSAxLjUgMCAwIDAgMyAwdi0xM2ExLjUgMS41IDAgMCAwLTMgMHYySDE3di0yYTEuNSAxLjUgMCAwIDAtMS41LTEuNW0uNSAxNC41di0xM2EuNS41IDAgMCAwLTEgMHYxM2EuNS41IDAgMCAwIDEgMG0xNy0xM3YxM2EuNS41IDAgMCAxLTEgMHYtMTNhLjUuNSAwIDAgMSAxIDAiIGNsaXAtcnVsZT0iZXZlbm9kZCIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iaTZkMWQzYi1hIiB4MT0iMTUuNTU2IiB4Mj0iMjAuMzYyIiB5MT0iNSIgeTI9IjQzLjQ1NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFQkVCRUIiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTZkMWQzYi1jIiB4MT0iMTcuMjcxIiB4Mj0iMjIuMzg3IiB5MT0iNSIgeTI9IjQzLjM3MyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNCQkIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4ODgiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaTZkMWQzYi1kIiB4MT0iMTQiIHgyPSIyOS42MSIgeTE9IjE2IiB5Mj0iMzUuNTEyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzRCQTQ0NiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzNGN0QzNSIvPjwvbGluZWFyR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJpNmQxZDNiLWIiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSg1Ni4zMSAtNS4zNDcgMjMuNDYpc2NhbGUoMzYuMTU1NyAzMS4yODg2KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjE3NyIgc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0I4QjhCOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjwvc3ZnPg==',
+      eventstream: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaWRjZGVlNi1hKSIgZD0iTTggOGE1IDUgMCAwIDEgNS01aDIyYTUgNSAwIDAgMSA1IDV2MzJhNSA1IDAgMCAxLTUgNUgxM2E1IDUgMCAwIDEtNS01eiIvPjxwYXRoIGZpbGw9InVybCgjaWRjZGVlNi1iKSIgZmlsbC1vcGFjaXR5PSIuMiIgZD0iTTggOGE1IDUgMCAwIDEgNS01aDIyYTUgNSAwIDAgMSA1IDV2MzJhNSA1IDAgMCAxLTUgNUgxM2E1IDUgMCAwIDEtNS01eiIvPjxwYXRoIGZpbGw9InVybCgjaWRjZGVlNi1jKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzUgNEgxM2E0IDQgMCAwIDAtNCA0djMyYTQgNCAwIDAgMCA0IDRoMjJhNCA0IDAgMCAwIDQtNFY4YTQgNCAwIDAgMC00LTRNMTMgM2E1IDUgMCAwIDAtNSA1djMyYTUgNSAwIDAgMCA1IDVoMjJhNSA1IDAgMCAwIDUtNVY4YTUgNSAwIDAgMC01LTV6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBmaWxsPSJ1cmwoI2lkY2RlZTYtZCkiIGQ9Ik0yMCAyMS4xNTZxMC0uMDIuMDAyLS4wNEE4LjI4IDguMjggMCAwIDEgMjguMjgyIDEzSDMwLjVhLjUuNSAwIDAgMSAwIDFoLTIuMjE5QTcuMjggNy4yOCAwIDAgMCAyMSAyMS4yODFWMjJhNCA0IDAgMCAxLTQgNGgtMi41YS41LjUgMCAwIDEgMC0xSDE3YTMgMyAwIDAgMCAzLTN6Ii8+PHBhdGggZmlsbD0idXJsKCNpZGNkZWU2LWUpIiBkPSJNMjMuNSAyM2E2IDYgMCAwIDEgNi02aDVhLjUuNSAwIDAgMSAwIDFoLTVhNSA1IDAgMCAwLTUgNXYuNjU2YS41LjUgMCAwIDEtLjAxLjA5OSA2LjYgNi42IDAgMCAxLS4xOTggMS4yOSA2LjUgNi41IDAgMCAwLTIuMDk2IDMuMzYxQTYuNTggNi41OCAwIDAgMSAxNy44OTMgMzBIMTQuNWEuNS41IDAgMCAxIDAtMWgzLjM5M2E1LjYwNyA1LjYwNyAwIDAgMCA1LjYwNy01LjYwN3oiLz48cGF0aCBmaWxsPSJ1cmwoI2lkY2RlZTYtZikiIGQ9Ik0yMi4zNiAzMi4xMzhhOC4zIDguMyAwIDAgMS0zLjY5Ny44NjJIMTcuNWEuNS41IDAgMCAwIDAgMWgxLjE2M2E5LjMgOS4zIDAgMCAwIDQuMDk5LS45NDUgNi41IDYuNSAwIDAgMS0uNDAyLS45MTciLz48cGF0aCBmaWxsPSJ1cmwoI2lkY2RlZTYtZykiIGQ9Ik0yOC4yMDYgMjMuNTA2QTIuNSAyLjUgMCAwIDEgMzAuNSAyMmg0YS41LjUgMCAwIDAgMC0xaC00YTMuNSAzLjUgMCAwIDAtMy4zOTYgMi42NSA2LjUgNi41IDAgMCAxIDEuMTAyLS4xNDQiLz48cGF0aCBmaWxsPSJ1cmwoI2lkY2RlZTYtaCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTIzLjgzNyAyOC45N2EyIDIgMCAwIDAgMS40NDEtMi40OTVsLS4xOTgtLjY4N2E1LjMgNS4zIDAgMCAxIDEuNDgzLS45MTJsLjQ5OS41MjVhMiAyIDAgMCAwIDIuODk5IDBsLjQ5My0uNTE4YTUuMyA1LjMgMCAwIDEgMS40ODQuOTIxbC0uMTg2LjYzMWEyIDIgMCAwIDAgMS40NSAyLjUxbC41MzkuMTNhNS43IDUuNyAwIDAgMSAuMDA2IDEuODA4bC0uNTg0LjE0NGEyIDIgMCAwIDAtMS40NCAyLjQ5NmwuMTk3LjY4NmE1LjMgNS4zIDAgMCAxLTEuNDgzLjkxM2wtLjQ5OC0uNTI1YTIgMiAwIDAgMC0yLjkgMGwtLjQ5Mi41MTlhNS4zIDUuMyAwIDAgMS0xLjQ4NS0uOTIybC4xODctLjYzMWEyIDIgMCAwIDAtMS40NS0yLjUxbC0uNTQtLjEzYTUuNyA1LjcgMCAwIDEtLjAwNi0xLjgwOHpNMjkuOTUgMzBjMCAuODI4LS42NSAxLjUtMS40NSAxLjVzLTEuNDUtLjY3Mi0xLjQ1LTEuNWMwLS44My42NS0xLjUgMS40NS0xLjVzMS40NS42NyAxLjQ1IDEuNSIgY2xpcC1ydWxlPSJldmVub2RkIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJpZGNkZWU2LWEiIHgxPSIxNi44ODkiIHgyPSIyMy43ODUiIHkxPSIzIiB5Mj0iNDUuMDM1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0VCRUJFQiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZGNkZWU2LWMiIHgxPSIxOC4zMzMiIHgyPSIyNS42NjMiIHkxPSIzIiB5Mj0iNDQuODg0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0JCQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg4OCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZGNkZWU2LWQiIHgxPSIxNCIgeDI9IjM1IiB5MT0iMTMiIHkyPSIzNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNFMDNGOEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCRDFFN0IiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaWRjZGVlNi1lIiB4MT0iMTQiIHgyPSIzNSIgeTE9IjEzIiB5Mj0iMzQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjRTAzRjhGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQkQxRTdCIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImlkY2RlZTYtZiIgeDE9IjE0IiB4Mj0iMzUiIHkxPSIxMyIgeTI9IjM0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0UwM0Y4RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0JEMUU3QiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZGNkZWU2LWciIHgxPSIxNCIgeDI9IjM1IiB5MT0iMTMiIHkyPSIzNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNFMDNGOEYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCRDFFN0IiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaWRjZGVlNi1oIiB4MT0iMjMuMTg1IiB4Mj0iMzMuNDI0IiB5MT0iMjQuODc2IiB5Mj0iMzUuNDk5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0UwM0Y4RiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0JEMUU3QiIvPjwvbGluZWFyR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJpZGNkZWU2LWIiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxNi44ODkwOCAzMy4yNDk5MSAtMjUuMTcyMTQgMTIuNzg2MDMgMTguMjIyIDEzLjkzOCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4xNzciIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCOEI4QjgiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48L3N2Zz4=',
+      eventhouse: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaWZmOTk5OS1hKSIgZD0iTTUgMTBhNSA1IDAgMCAxIDUtNWgyOGE1IDUgMCAwIDEgNSA1djI4YTUgNSAwIDAgMS01IDVIMTBhNSA1IDAgMCAxLTUtNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2lmZjk5OTktYikiIGZpbGwtb3BhY2l0eT0iLjIiIGQ9Ik01IDEwYTUgNSAwIDAgMSA1LTVoMjhhNSA1IDAgMCAxIDUgNXYyOGE1IDUgMCAwIDEtNSA1SDEwYTUgNSAwIDAgMS01LTV6Ii8+PHBhdGggZmlsbD0idXJsKCNpZmY5OTk5LWMpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zOCA2SDEwYTQgNCAwIDAgMC00IDR2MjhhNCA0IDAgMCAwIDQgNGgyOGE0IDQgMCAwIDAgNC00VjEwYTQgNCAwIDAgMC00LTRNMTAgNWE1IDUgMCAwIDAtNSA1djI4YTUgNSAwIDAgMCA1IDVoMjhhNSA1IDAgMCAwIDUtNVYxMGE1IDUgMCAwIDAtNS01eiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0iI0Y1RjVGNSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzMuMTU2IDQzLjY2NGExLjUgMS41IDAgMSAwIDIuMTIxIDIuMTIybC42MjQtLjYyNGExLjUgMS41IDAgMCAwIDIuNTU4Ljk3N2wyLjEyMS0yLjEyYy4yMjctLjIyNy4zNjYtLjUwOC40MTctLjhsMS40NTYgMS40MmMuOTUuOTI2IDIuNTQ3LjI1MyAyLjU0Ny0xLjA3NVYzNS41YTEuNSAxLjUgMCAwIDAtMS41LTEuNWgtOC4yN2MtMS4zNDYgMC0yLjAxMSAxLjYzNS0xLjA0OCAyLjU3NGwxLjQzIDEuMzk1YTEuNSAxLjUgMCAwIDAtLjY4OC4zOTJsLTIuMTIxIDIuMTIyYTEuNSAxLjUgMCAwIDAgLjk3NiAyLjU1OHoiIGNsaXAtcnVsZT0iZXZlbm9kZCIvPjxwYXRoIGZpbGw9InVybCgjaWZmOTk5OS1kKSIgZD0iTTQ0IDM1LjVhLjUuNSAwIDAgMC0uNS0uNWgtOC4yN2EuNS41IDAgMCAwLS4zNS44NThsOC4yNzEgOC4wNjRhLjUuNSAwIDAgMCAuODUtLjM1OFYzNS41WiIvPjxwYXRoIGZpbGw9InVybCgjaWZmOTk5OS1lKSIgZD0iTTM4LjEwNiA0MS41NDNhLjUuNSAwIDEgMC0uNzA3LS43MDdsLTMuNTM2IDMuNTM1YS41LjUgMCAxIDAgLjcwNy43MDh6Ii8+PHBhdGggZmlsbD0idXJsKCNpZmY5OTk5LWYpIiBkPSJtMzMuNTEgNDEuMTkgMi4xMjEtMi4xMjJhLjUuNSAwIDAgMSAuNzA3LjcwOGwtMi4xMjEgMi4xMmEuNS41IDAgMCAxLS43MDctLjcwNiIvPjxwYXRoIGZpbGw9InVybCgjaWZmOTk5OS1nKSIgZD0ibTM5LjE2NiA0Mi42MDQtMi4xMjEgMi4xMjFhLjUuNSAwIDEgMCAuNzA3LjcwN2wyLjEyMS0yLjEyYS41LjUgMCAxIDAtLjcwNy0uNzA4Ii8+PHBhdGggZmlsbD0idXJsKCNpZmY5OTk5LWgpIiBkPSJNMjMuMTU0IDM0SDMyYTIgMiAwIDAgMCAyLTJ2LTkuMTFhMiAyIDAgMCAwLS42NjItMS40ODZsLTgtNy4yYTIgMiAwIDAgMC0yLjY3NSAwbC04IDcuMkEyIDIgMCAwIDAgMTQgMjIuODkxVjMyYTIgMiAwIDAgMCAyIDJoOC44NDYiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImlmZjk5OTktYSIgeDE9IjE1LjU1NiIgeDI9IjIwLjM2MiIgeTE9IjUiIHkyPSI0My40NTUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRUJFQkVCIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImlmZjk5OTktYyIgeDE9IjE3LjI3MSIgeDI9IjIyLjM4NyIgeTE9IjUiIHkyPSI0My4zNzMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjQkJCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODg4Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImlmZjk5OTktZCIgeDE9IjMzLjM2MyIgeDI9IjQzLjk0MiIgeTE9IjM1IiB5Mj0iNDUuNjM3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzAwOEVFNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNjA5NCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZmY5OTk5LWUiIHgxPSIzMy4zNjMiIHgyPSI0My45NDIiIHkxPSIzNSIgeTI9IjQ1LjYzNyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiMwMDhFRTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDYwOTQiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iaWZmOTk5OS1mIiB4MT0iMzMuMzYzIiB4Mj0iNDMuOTQyIiB5MT0iMzUiIHkyPSI0NS42MzciIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjMDA4RUU2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA2MDk0Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImlmZjk5OTktZyIgeDE9IjMzLjM2MyIgeDI9IjQzLjk0MiIgeTE9IjM1IiB5Mj0iNDUuNjM3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzAwOEVFNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNjA5NCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpZmY5OTk5LWgiIHgxPSIxNCIgeDI9IjM0Ljk3NSIgeTE9IjEzIiB5Mj0iMzIuOTc2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzAwOEVFNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNjA5NCIvPjwvbGluZWFyR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJpZmY5OTk5LWIiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSg1Ni4zMSAtNS4zNDcgMjMuNDYpc2NhbGUoMzYuMTU1NyAzMS4yODg2KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjE3NyIgc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0I4QjhCOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjwvc3ZnPg==',
+      model: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaWJiYTIxMS1hKSIgZD0iTTUgMTBhNSA1IDAgMCAxIDUtNWgyOGE1IDUgMCAwIDEgNSA1djI4YTUgNSAwIDAgMS01IDVIMTBhNSA1IDAgMCAxLTUtNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2liYmEyMTEtYikiIGZpbGwtb3BhY2l0eT0iLjIiIGQ9Ik01IDEwYTUgNSAwIDAgMSA1LTVoMjhhNSA1IDAgMCAxIDUgNXYyOGE1IDUgMCAwIDEtNSA1SDEwYTUgNSAwIDAgMS01LTV6Ii8+PHBhdGggZmlsbD0idXJsKCNpYmJhMjExLWMpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zOCA2SDEwYTQgNCAwIDAgMC00IDR2MjhhNCA0IDAgMCAwIDQgNGgyOGE0IDQgMCAwIDAgNC00VjEwYTQgNCAwIDAgMC00LTRNMTAgNWE1IDUgMCAwIDAtNSA1djI4YTUgNSAwIDAgMCA1IDVoMjhhNSA1IDAgMCAwIDUtNVYxMGE1IDUgMCAwIDAtNS01eiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNpYmJhMjExLWQpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMS41IDE0LjM1NGE1IDUgMCAwIDEgNC43ODgtLjAyNWw2LjE2IDMuMzE5YTIgMiAwIDAgMSAxLjA1MiAxLjc2djcuMzhhNCA0IDAgMCAxLTIuMDIxIDMuNDc2TDI0LjYyIDM0LjE3YS43NC43NCAwIDAgMS0uNjIuMDU2Ljc0Ljc0IDAgMCAxLS42MjItLjA1NmwtNi44NTgtMy45MDRhNCA0IDAgMCAxLTIuMDIxLTMuNDc3di03LjM5YTIgMiAwIDAgMSAxLjAzMy0xLjc1bDUuOTY4LTMuMjk0Wm0tNiAxMi40MzRWMjAuMzNsNi40NTcgMy41ODdBMyAzIDAgMCAxIDIzLjUgMjYuNTR2Ni41NDhsLTYuNDg1LTMuNjkxYTMgMyAwIDAgMS0xLjUxNS0yLjYwOFptOS0uMjQ5djYuNTQ4bDYuNDg0LTMuNjkyYTMgMyAwIDAgMCAxLjUxNi0yLjYwN1YyMC4zM2wtNi40NTcgMy41ODdBMyAzIDAgMCAwIDI0LjUgMjYuNTRaIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImliYmEyMTEtYSIgeDE9IjE1LjU1NiIgeDI9IjIwLjM2MiIgeTE9IjUiIHkyPSI0My40NTUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRUJFQkVCIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImliYmEyMTEtYyIgeDE9IjE3LjI3MSIgeDI9IjIyLjM4NyIgeTE9IjUiIHkyPSI0My4zNzMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjQkJCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODg4Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImliYmEyMTEtZCIgeDE9IjE0LjUiIHgyPSIzNC45NzUiIHkxPSIxMy43MzEiIHkyPSIzMi42NzQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjNEJBNDQ2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjM0Y3RDM1Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImliYmEyMTEtYiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDU2LjMxIC01LjM0NyAyMy40NilzY2FsZSgzNi4xNTU3IDMxLjI4ODYpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIuMTc3IiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQjhCOEI4Ii8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+PC9zdmc+',
+      report: 'PHN2ZyB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSJjdXJyZW50Q29sb3IiPjxwYXRoIGZpbGw9InVybCgjaTE2NWZlNS1hKSIgZD0iTTUgMTBhNSA1IDAgMCAxIDUtNWgyOGE1IDUgMCAwIDEgNSA1djI4YTUgNSAwIDAgMS01IDVIMTBhNSA1IDAgMCAxLTUtNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2kxNjVmZTUtYikiIGZpbGwtb3BhY2l0eT0iLjIiIGQ9Ik01IDEwYTUgNSAwIDAgMSA1LTVoMjhhNSA1IDAgMCAxIDUgNXYyOGE1IDUgMCAwIDEtNSA1SDEwYTUgNSAwIDAgMS01LTV6Ii8+PHBhdGggZmlsbD0idXJsKCNpMTY1ZmU1LWMpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zOCA2SDEwYTQgNCAwIDAgMC00IDR2MjhhNCA0IDAgMCAwIDQgNGgyOGE0IDQgMCAwIDAgNC00VjEwYTQgNCAwIDAgMC00LTRNMTAgNWE1IDUgMCAwIDAtNSA1djI4YTUgNSAwIDAgMCA1IDVoMjhhNSA1IDAgMCAwIDUtNVYxMGE1IDUgMCAwIDAtNS01eiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNpMTY1ZmU1LWQpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNy4yMTkgMTRhLjc1Ljc1IDAgMCAxIC43NS43NXYxOC41YS43NS43NSAwIDAgMS0xLjUgMHYtMTguNWEuNzUuNzUgMCAwIDEgLjc1LS43NW02LjAzMSAxOS4yNXYtMTMuNWEuNzUuNzUgMCAwIDEgMS41IDB2MTMuNWEuNzUuNzUgMCAwIDEtMS41IDBtOC4yODEtNy41YS43NS43NSAwIDEgMC0xLjUgMHY3LjVhLjc1Ljc1IDAgMCAwIDEuNSAweiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJpMTY1ZmU1LWEiIHgxPSIxNS41NTYiIHgyPSIyMC4zNjIiIHkxPSI1IiB5Mj0iNDMuNDU1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0VCRUJFQiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpMTY1ZmU1LWMiIHgxPSIxNy4yNzEiIHgyPSIyMi4zODciIHkxPSI1IiB5Mj0iNDMuMzczIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0JCQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzg4OCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJpMTY1ZmU1LWQiIHgxPSIxNi40NjkiIHgyPSIzNS42OTEiIHkxPSIxNCIgeTI9IjI4LjQ3NyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNDMjg0MDAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBODY1MDAiLz48L2xpbmVhckdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iaTE2NWZlNS1iIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VHJhbnNmb3JtPSJyb3RhdGUoNTYuMzEgLTUuMzQ3IDIzLjQ2KXNjYWxlKDM2LjE1NTcgMzEuMjg4NikiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4xNzciIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCOEI4QjgiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48L3N2Zz4=',
+      powerAutomate: 'PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQzMDNfMTIzMCkiPgo8ZyBjbGlwLXBhdGg9InVybCgjY2xpcDFfNDMwM18xMjMwKSI+CjxwYXRoIGQ9Ik01Mi41MDkzIDNDNTUuMzY1NyAzIDU4LjA4NTggNC4yMjE0OCA1OS45ODM0IDYuMzU2MzZMODIuNjU3NyAzMS44NjQ5Qzg4LjkxMDYgMzguODk5NSA4NS4wMDA1IDUwLjA2NjEgNzUuNzI1MSA1MS42NjMyTDIxLjUgNjFMMjguMjk5NyA1My4zMTM0QzMwLjk4MTkgNTAuMjgxMyAzMC45NzY1IDQ1LjcyMzUgMjguMjg3IDQyLjY5NzlMNy43OTQzNSAxOS42NDM2QzIuMDYxODkgMTMuMTk0NiA2LjYzOTk1IDMgMTUuMjY4NCAzSDUyLjUwOTNaIiBmaWxsPSJ1cmwoI3BhaW50MF9saW5lYXJfNDMwM18xMjMwKSIvPgo8cGF0aCBkPSJNMTUuMjY4NCA5M0M2LjYzOTk1IDkzIDIuMDYxOSA4Mi44MDU0IDcuNzk0MzYgNzYuMzU2M0w1OS4wOTQ1IDE4LjY0MzZDNjIuNDYyNCAxNC44NTQ4IDYyLjQ2MjQgOS4xNDUyMiA1OS4wOTQ1IDUuMzU2MzZMNTcgM0w5MS4wOTQ1IDQxLjM1NjRDOTQuNDYyNCA0NS4xNDUzIDk0LjQ2MjQgNTAuODU0OCA5MS4wOTQ1IDU0LjY0MzdMNTkuOTgzNCA4OS42NDM2QzU4LjA4NTggOTEuNzc4NSA1NS4zNjU3IDkzIDUyLjUwOTMgOTNIMTUuMjY4NFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80MzAzXzEyMzApIi8+CjxwYXRoIGQ9Ik0xNS4yNjg0IDkzQzYuNjM5OTUgOTMgMi4wNjE5IDgyLjgwNTQgNy43OTQzNiA3Ni4zNTYzTDU5LjA5NDUgMTguNjQzNkM2Mi40NjI0IDE0Ljg1NDggNjIuNDYyNCA5LjE0NTIyIDU5LjA5NDUgNS4zNTYzNkw1NyAzTDkxLjA5NDUgNDEuMzU2NEM5NC40NjI0IDQ1LjE0NTMgOTQuNDYyNCA1MC44NTQ4IDkxLjA5NDUgNTQuNjQzN0w1OS45ODM0IDg5LjY0MzZDNTguMDg1OCA5MS43Nzg1IDU1LjM2NTcgOTMgNTIuNTA5MyA5M0gxNS4yNjg0WiIgZmlsbD0idXJsKCNwYWludDJfbGluZWFyXzQzMDNfMTIzMCkiLz4KPHBhdGggZD0iTTM4LjM2MTEgOTNDMzMuMTg0IDkzIDMwLjQzNzEgODYuODgzMyAzMy44NzY2IDgzLjAxMzlMNzUuMDk0NSAzNi42NDM2Qzc4LjQ2MjQgMzIuODU0OCA3OC40NjI0IDI3LjE0NTIgNzUuMDk0NSAyMy4zNTYzTDcxIDE4Ljc1TDkxLjA5NDUgNDEuMzU2M0M5NC40NjI0IDQ1LjE0NTIgOTQuNDYyNCA1MC44NTQ3IDkxLjA5NDYgNTQuNjQzNkw1OS45ODM0IDg5LjY0MzdDNTguMDg1OCA5MS43Nzg1IDU1LjM2NTcgOTMgNTIuNTA5MyA5M0gzOC4zNjExWiIgZmlsbD0idXJsKCNwYWludDNfbGluZWFyXzQzMDNfMTIzMCkiLz4KPC9nPgo8L2c+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfNDMwM18xMjMwIiB4MT0iNDgiIHkxPSIzMS41IiB4Mj0iMTQiIHkyPSItMi41MDAwMSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMTAyNzg0Ii8+CjxzdG9wIG9mZnNldD0iMC4yNzQwNTMiIHN0b3AtY29sb3I9IiMxQjQ0QjEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjc2NEU3Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhcl80MzAzXzEyMzAiIHgxPSI3Ni41IiB5MT0iMjUiIHgyPSIxMS41IiB5Mj0iOTEuNSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMEZBRkZGIi8+CjxzdG9wIG9mZnNldD0iMC4xNzc4MjciIHN0b3AtY29sb3I9IiM0ODk0RkUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjc2NEU3Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQyX2xpbmVhcl80MzAzXzEyMzAiIHgxPSIyOC41IiB5MT0iNzIiIHgyPSIzOC41IiB5Mj0iODMuNSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMjc2NEU3IiBzdG9wLW9wYWNpdHk9IjAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjA1MkNCIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQzX2xpbmVhcl80MzAzXzEyMzAiIHgxPSI4OSIgeTE9IjM4LjUiIHgyPSI0MyIgeTI9IjkwLjUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzZDRTBGRiIvPgo8c3RvcCBvZmZzZXQ9IjAuMjExNzIzIiBzdG9wLWNvbG9yPSIjNjZDMEZGIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzU4QUFGRSIvPgo8L2xpbmVhckdyYWRpZW50Pgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzQzMDNfMTIzMCI+CjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPGNsaXBQYXRoIGlkPSJjbGlwMV80MzAzXzEyMzAiPgo8cmVjdCB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+'
+    };
+    const icon = (name, x, y, size = 24) => name ? `<image class="ms-icon" href="data:image/svg+xml;base64,${productIcons[name]}" x="${x}" y="${y}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>` : '';
+    // Shape paths. A filled cap or header in the zone colour marks the shape type.
+    const cylPath = (x, y, w, h) => `M${x} ${y + 9}a${w / 2} 9 0 0 1 ${w} 0v${h - 18}a${w / 2} 9 0 0 1 ${-w} 0z`;
+    const capPath = (cx, cy, rx, ry) => `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0z`;
+    const tubePath = (x, y, w, h, r) => `M${x + r} ${y}h${w - 2 * r}a${r} ${h / 2} 0 0 1 0 ${h}h${-(w - 2 * r)}a${r} ${h / 2} 0 0 1 0 ${-h}z`;
+    const headPath = (x, y, w, hh) => `M${x} ${y + hh}V${y + 6}a6 6 0 0 1 6 -6H${x + w - 6}a6 6 0 0 1 6 6V${y + hh}z`;
+    // kind: store = cylinder, stream = tube, anything else = card with a header strip of height head.
+    const shapeFor = (kind, x, y, w, h, cls = '', head = 10, r = 10) => kind === 'store'
+      ? `<path class="n ${cls}" d="${cylPath(x, y, w, h)}"/><path class="n-cap" d="${capPath(x + w / 2, y + 9, w / 2, 9)}"/>`
+      : kind === 'stream'
+        ? `<path class="n ${cls}" d="${tubePath(x, y, w, h, r)}"/><path class="n-cap" d="${capPath(x + w - r, y + h / 2, r, h / 2)}"/>`
+        : `<rect class="n ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/><path class="n-head ${cls}" d="${headPath(x, y, w, head)}"/>`;
+    // Stacked node: a large product icon above a centred title and subtitle. A tube centres on its front face.
+    const stackNode = (kind, x, y, w, h, a, b, ic, o = {}) => {
+      const { size = 40, iy = 26, ty = 86, sy = 104, cls = '', sub = 't-small', r = 12, ts } = o;
+      const cx = x + (kind === 'stream' ? (w - 2 * r) / 2 : w / 2);
+      return `${shapeFor(kind, x, y, w, h, cls, 10, r)}${icon(ic, cx - size / 2, y + iy, size)}${t(cx, y + ty, a, 'mid t-strong', ts)}${b ? t(cx, y + sy, b, `mid ${sub}`) : ''}`;
+    };
+    const zoneBand = (zone, x, y, w, h, label = '', lx = x + 16, ly = y + 20) => `<g class="${zone}"><rect class="zone-band" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>${label ? t(lx, ly, label, 't-lane') : ''}</g>`;
     const pill = (x, y, w, h, a, cls = 'n-actor') => `<g>${tip(a)}<rect class="n ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}"/>${t(x + w / 2, y + h / 2 + 5, a, 'mid', 14)}</g>`;
     const diamond = (cx, cy, rx, ry, a, b) => `<g>${tip(a + ' ' + b)}<path class="n n-gate" d="M${cx} ${cy - ry}L${cx + rx} ${cy}L${cx} ${cy + ry}L${cx - rx} ${cy}z"/>${t(cx, cy - 7, a, 'mid', 14)}${t(cx, cy + 13, b, 'mid', 14)}</g>`;
     const edge = (p, d, kind = '') => `<path class="e${kind ? ' e-' + kind : ''}" d="${d}" marker-end="url(#${p}-${kind === 'live' ? 'l' : kind === 'support' ? 's' : 'a'})"/>`;
     const figHead = (title, stamp, stampText) => `<div class="fig-head"><span class="fig-title">${esc(title)}</span><span class="stamp stamp-${stamp}">${esc(stampText)}</span></div>`;
-    const legendItem = (svg, label) => `<li><svg viewBox="0 0 30 20" aria-hidden="true">${svg}</svg>${esc(label)}</li>`;
+    const legendItem = (svg, label) => `<li><svg class="arch" viewBox="0 0 30 20" aria-hidden="true">${svg}</svg>${esc(label)}</li>`;
     const shapeLegend = `<ul class="legend" aria-label="Shape legend">${[
-      ['<path class="n" d="M3 5a12 3 0 0 1 24 0v10a12 3 0 0 1-24 0z"/><path class="n-rim" d="M3 5a12 3 0 0 0 24 0"/>', 'Cylinder: stored data'],
-      ['<path class="n" d="M7 3h16a4 7 0 0 1 0 14H7a4 7 0 0 1 0-14z"/>', 'Pipe: event stream'],
+      ['<path class="n" d="M3 5a12 3 0 0 1 24 0v10a12 3 0 0 1-24 0z"/><path class="n-cap" d="M3 5a12 3 0 1 0 24 0a12 3 0 1 0-24 0z"/>', 'Cylinder: stored data'],
+      ['<path class="n" d="M7 3h16a4 7 0 0 1 0 14H7a4 7 0 0 1 0-14z"/><path class="n-cap" d="M19 10a4 7 0 1 0 8 0a4 7 0 1 0-8 0z"/>', 'Pipe: event stream'],
+      ['<path class="n-half z-hist" d="M2 10 7 2H23L28 10Z"/><path class="n-half z-live" d="M2 10 7 18H23L28 10Z"/><path class="n-hex" d="M2 10 7 2H23L28 10 23 18H7Z"/>', 'Hexagon: real-time join'],
       ['<path class="n n-gate" d="M15 1 28 10 15 19 2 10z"/>', 'Diamond: gate'],
       ['<rect class="n n-actor" x="2" y="3" width="26" height="14" rx="7"/>', 'Pill: person'],
-      ['<rect class="n" x="2" y="3" width="26" height="14" rx="3"/>', 'Rectangle: service'],
-      ['<rect class="n n-proposed" x="2" y="3" width="26" height="14" rx="3"/>', 'Dashed: proposed or not built']
+      ['<rect class="n" x="2" y="3" width="26" height="14" rx="3"/><path class="n-head" d="M2 8V6a3 3 0 0 1 3-3H25a3 3 0 0 1 3 3V8z"/>', 'Rectangle: component'],
+      ['<rect class="n n-proposed" x="2" y="3" width="26" height="14" rx="3"/>', 'Dashed: proposed or not built'],
+      ['<path d="M2 10H26m-6-5 7 5-7 5" fill="none" stroke="var(--color-error)" stroke-width="2"/>', 'Error-coloured line: failure path'],
+      [icon('lakehouse', 5, 0, 20), 'Icon: official Microsoft product or item']
     ].map(([s, l]) => legendItem(s, l)).join('')}</ul>`;
+    // Per-diagram colour key. Each entry names what the colour means in that diagram, not the colour itself, because colours differ between themes.
+    const keyLines = {
+      'line-plain': '<path class="e" d="M2 10H25"/><path class="head" d="M22 5 29 10 22 15z"/>',
+      'line-live': '<path class="e e-live" d="M2 10H25"/><path class="head-live" d="M22 5 29 10 22 15z"/>',
+      'line-support': '<path class="e e-support" d="M2 10H25"/><path class="head-support" d="M22 5 29 10 22 15z"/>',
+      'line-error': '<path d="M2 10H25" fill="none" stroke="var(--color-error)" stroke-width="1.75"/><path d="M22 5 29 10 22 15z" fill="var(--color-error)"/>'
+    };
+    const processSteps = {
+      1: 'Load dated exports into raw tables',
+      2: 'Validate keys and build clean history',
+      3: 'Train models and log them in MLflow',
+      4: 'Write scores and evidence to Gold',
+      5: 'Replay portal faults into Eventhouse',
+      6: 'Find journey patterns with KQL',
+      7: 'Copy context and scores to Eventhouse',
+      8: 'Copy KQL journey results to Lakehouse',
+      9: 'Run scoring on a schedule or by hand',
+      10: 'Create the assigned review case'
+    };
+    const viewSteps = { components: [1, 2, 4, 5, 6, 7], data: [3], scoring: [8, 9], routing: [10] };
+    const stepIcon = n => `<g class="step-badge"><rect x="1" y="3" width="28" height="14" rx="7"/><text x="15" y="13.5" text-anchor="middle" style="font-size:9px">${n}</text></g>`;
+    const stepKey = key => `<ul class="legend step-key" aria-label="Step key">${(viewSteps[key] || []).map(n => legendItem(stepIcon(n), `Step ${n}: ${processSteps[n]}`)).join('')}</ul>`;
+    const stepBadge = (n, x, y) => `<g class="step-badge">${tip(`Step ${n}: ${processSteps[n]}`)}<rect x="${x}" y="${y}" width="60" height="20" rx="10"/><text x="${x + 30}" y="${y + 14}" text-anchor="middle">STEP ${n}</text></g>`;
+    const colourKey = entries => `<ul class="legend" aria-label="Colour key">${entries.map(([k, l]) => legendItem(keyLines[k] || `<rect class="n-cap ${k}" x="2" y="3" width="26" height="14" rx="4"/>`, l)).join('')}</ul>`;
+    const hldKey = colourKey([
+      ['z-hist', 'Historical path: dated batch history'],
+      ['z-live', 'Live path: accepted portal and payment events'],
+      ['z-score', 'Scheduled scoring: models and scores'],
+      ['z-act', 'Review action: eligible risk to an adviser'],
+      ['z-support', 'Support path: payment help, no score'],
+      ['line-live', 'Live event flow'],
+      ['line-support', 'Support flow'],
+      ['line-plain', 'Batch, copy or scoring flow']
+    ]);
 
     const archConfig = {
       mortgage: {
-        live: 'Failed transfer', owner: 'Servicing adviser', gate: ['Support', 'request?'], support: 'Trained support staff',
-        desc: 'Dated account, payment, application and servicing history lands in a Lakehouse. Notebooks freeze snapshots at each cutoff. Live application and payment events flow through Eventstream into Eventhouse. A real-time Customer 360 joins both paths by mortgage and deal cycle. Every 15 minutes a scheduled ML refresh scores affected customers and logs models in MLflow. A gate passes only scored, eligible customers to Activator, which opens one case per key for a servicing adviser. A separate support path routes payment-support requests to trained support staff and never reads the churn score.',
-        caption: 'Proposed design, not built. The live path keeps the Customer 360 view current within about 60 seconds. Scoring runs on a schedule. The support path is independent: a payment-support request never waits for a churn score.'
+        live: 'Portal error', owner: 'Servicing adviser', gate: ['Payment help', 'requested?'], support: 'Trained support staff',
+        desc: 'Dated mortgage account, payment, product-transfer request and servicing history enters a Lakehouse. Live portal faults and payment-support events enter Eventhouse through Eventstream. Context copies let KQL join history and live activity by mortgage and fixed-rate deal cycle. A scheduled notebook uses registered MLflow models to score external refinancing risk. Activator and Power Automate route eligible candidates to internal SharePoint review cases. Payment support has an independent route that never reads the refinancing risk score.',
+        caption: 'Proposed design, not built. The unmeasured targets are a 60-second live view and a separate 15-minute scoring schedule. Scoring does not retrain models. Power Automate writes internal review cases with unique SharePoint keys. Payment support never waits for a refinancing risk score.'
       },
       insurance: {
         live: 'Missed repair', owner: 'Service adviser', gate: ['Urgent', 'assistance?'], support: 'Claims coordinator',
@@ -1768,40 +1921,297 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       const c = archConfig[key];
       const p = key + '-arch';
       const unit = coreRequirements[key].unit;
-      const svg = `<svg class="wide" viewBox="0 0 1000 460" role="img" aria-labelledby="${p}-t ${p}-d"><title id="${p}-t">Proposed architecture for ${key === 'mortgage' ? 'HomeBridge' : 'HavenCover'}</title><desc id="${p}-d">${esc(c.desc)}</desc>${markers(p)}
-        ${t(20, 30, 'HISTORICAL PATH', 't-lane')}${t(20, 242, 'LIVE PATH', 't-lane')}${t(640, 24, 'SCHEDULED SCORING', 't-lane')}${t(630, 358, 'SUPPORT PATH · INDEPENDENT', 't-lane')}
-        ${edge(p, 'M180 90H218')}${edge(p, 'M180 292H218', 'live')}
-        ${edge(p, 'M400 105H418V185H433')}${t(412, 160, 'context tables', 'end t-small')}
-        ${edge(p, 'M400 292H418V215H433', 'live')}${t(412, 240, 'live activity', 'end t-small')}
-        ${edge(p, 'M400 70H638')}${t(520, 62, 'frozen snapshots', 'mid t-small')}
-        ${edge(p, 'M520 150V95H638')}${t(528, 130, 'affected customers', 't-small')}
-        ${edge(p, 'M820 80H848')}
-        ${edge(p, 'M730 120V168')}${t(740, 150, 'risk_updated', 't-mono')}
-        ${edge(p, 'M800 215H828')}${t(814, 207, 'yes', 'mid t-small')}
-        ${edge(p, 'M905 245V288')}
-        ${edge(p, 'M520 250V348', 'support')}${t(528, 305, 'service state', 't-small')}
-        ${edge(p, 'M590 390H628', 'support')}
-        ${cylinder(20, 48, 160, 84, 'Lakehouse', 'Dated history')}
-        ${box(220, 50, 180, 80, 'Notebooks', 'Snapshots at cutoff')}
-        ${pipe(20, 262, 160, 60, 'Eventstream', c.live)}
-        ${cylinder(220, 250, 180, 84, 'Eventhouse', 'Accepted events')}
-        <g>${tip('Customer 360: real-time join on ' + unit)}<rect class="n n-join" x="435" y="150" width="170" height="100" rx="6"/>${t(520, 182, 'Customer 360', 'mid t-strong')}${t(520, 201, 'Real-time join', 'mid t-small')}${t(520, 232, unit, 'mid t-mono')}</g>
-        <g>${tip('Scheduled ML refresh: segments and churn score, every 15 minutes (proposed)')}<rect class="n n-proposed" x="640" y="40" width="180" height="80" rx="6"/>${t(730, 66, 'Scheduled ML refresh', 'mid t-strong')}${t(730, 86, 'Segments + churn score', 'mid t-small')}${t(730, 104, 'every 15 min · proposed', 'mid t-small')}</g>
-        ${cylinder(850, 40, 130, 84, 'MLflow', 'Model versions')}
-        ${diamond(730, 215, 70, 45, 'Scored and', 'eligible?')}
-        ${box(830, 185, 150, 60, 'Activator', 'One case per key')}
-        ${pill(830, 290, 150, 40, c.owner)}
-        ${diamond(520, 390, 70, 40, c.gate[0], c.gate[1])}
-        ${pill(630, 370, 180, 40, c.support)}
-        ${t(720, 432, 'Never reads the churn score', 'mid t-small')}
+      const node = (zone, kind, x, y, w, h, a, b, ic, o) => `<g class="${zone}">${tip(a + (b ? ': ' + b : ''))}${stackNode(kind, x, y, w, h, a, b, ic, o)}</g>`;
+      const svg = `<svg class="wide arch" viewBox="0 0 1120 560" role="img" aria-labelledby="${p}-t ${p}-d"><title id="${p}-t">Proposed architecture for ${key === 'mortgage' ? 'HomeBridge' : 'HavenCover'}</title><desc id="${p}-d">${esc(c.desc)}</desc>${markers(p)}
+        ${zoneBand('z-hist', 12, 36, 440, 170, 'HISTORICAL PATH')}
+        ${zoneBand('z-live', 12, 296, 440, 170, 'LIVE PATH')}
+        ${zoneBand('z-score', 680, 36, 428, 170, 'SCHEDULED SCORING')}
+        ${zoneBand('z-act', 680, 226, 428, 210, 'REVIEW ACTION', 916, 252)}
+        ${zoneBand('z-support', 470, 456, 638, 92, 'SUPPORT PATH · INDEPENDENT', 660, 478)}
+        ${edge(p, 'M206 128H256')}${edge(p, 'M216 384H256', 'live')}
+        ${edge(p, 'M428 150H448V226H478')}${t(440, 222, 'context tables', 'end t-small')}
+        ${edge(p, 'M428 384H448V286H478', 'live')}${t(440, 290, 'live activity', 'end t-small')}
+        ${edge(p, 'M428 100H702')}${t(566, 92, 'frozen snapshots', 'mid t-small')}
+        ${edge(p, 'M560 190V150H702')}${t(621, 142, 'affected customers', 'mid t-small')}
+        <g>${tip('Scheduled scoring reads registered MLflow model versions. It does not retrain them.')}${edge(p, 'M934 128H906')}</g>
+        ${edge(p, 'M804 186V266')}${t(812, 220, 'risk_updated', 't-mono')}
+        ${edge(p, 'M876 316H914')}${t(895, 308, 'yes', 'mid t-small')}
+        ${edge(p, 'M1001 348V378')}
+        ${edge(p, 'M560 322V460', 'support')}${t(568, 400, 'service state', 't-small')}
+        ${edge(p, 'M634 502H698', 'support')}
+        ${node('z-hist', 'store', 36, 66, 170, 124, 'Lakehouse', 'Dated history', 'lakehouse')}
+        ${node('z-hist', 'card', 258, 70, 170, 116, 'Notebooks', 'Snapshots at cutoff', 'notebook', { iy: 22, ty: 82, sy: 100 })}
+        ${node('z-live', 'stream', 36, 334, 180, 100, 'Eventstream', c.live, 'eventstream', { iy: 12, ty: 70, sy: 88 })}
+        ${node('z-live', 'store', 258, 322, 170, 124, 'Eventhouse', 'Accepted events', 'eventhouse')}
+        <g>${tip('Customer 360: real-time join on ' + unit)}<path class="n-half z-hist" d="M465 256L497 190H623L655 256Z"/><path class="n-half z-live" d="M465 256L497 322H623L655 256Z"/><path class="n-hex" d="M465 256L497 190H623L655 256L623 322H497Z"/>${t(560, 230, 'Customer 360', 'mid t-strong', 17)}${t(560, 248, 'Real-time join', 'mid t-small')}${t(560, 282, unit, 'mid t-mono')}</g>
+        <g class="z-score">${tip('Scheduled scoring: segment assignments and churn score, every 15 minutes (proposed). Models are not retrained here.')}${shapeFor('card', 704, 70, 200, 116, 'n-proposed')}${t(804, 112, 'Scheduled scoring', 'mid t-strong')}${t(804, 134, 'Scores + assignments', 'mid t-small')}${t(804, 154, 'every 15 min · proposed', 'mid t-small')}</g>
+        ${node('z-score', 'store', 934, 66, 156, 124, 'MLflow', 'Model versions', 'model')}
+        <g class="z-act">${diamond(804, 316, 72, 48, 'Scored and', 'eligible?')}</g>
+        <g class="z-act">${tip('Activator: route a candidate')}${shapeFor('card', 916, 284, 170, 64)}${t(1001, 313, 'Activator', 'mid t-strong')}${t(1001, 333, 'Route a candidate', 'mid t-small')}</g>
+        <g class="z-act">${pill(916, 380, 170, 40, c.owner)}</g>
+        <g class="z-support">${diamond(560, 502, 74, 40, c.gate[0], c.gate[1])}${pill(700, 486, 200, 40, c.support)}${t(916, 511, 'Never reads the churn score', 't-small')}</g>
       </svg>`;
-      return `<figure class="fig" id="${key}-architecture-figure">${figHead('Proposed architecture: three paths meet at one Customer 360', 'proposed', 'Proposed target')}<p class="scroll-hint">Scroll sideways to see the whole figure.</p><div class="fig-scroll">${svg}</div>${shapeLegend}<figcaption>${esc(c.caption)}</figcaption></figure><p class="why"><b>Why this form:</b> lanes separate the history, the live events, the scheduled scoring and the support path, so a reviewer can check that support never waits for a score. <b>Trade-off:</b> it hides field-level detail. The data contract below lists the fields.</p>`;
+      return `<figure class="fig" id="${key}-architecture-figure">${figHead('High-level architecture: live, scoring and support paths', 'proposed', 'Proposed design')}<p class="scroll-hint">Scroll sideways to see the whole figure.</p><div class="fig-scroll">${svg}</div>${shapeLegend}${hldKey}<figcaption>${esc(c.caption)}</figcaption></figure><p class="why"><b>Why this form:</b> lanes keep payment support independent of commercial scoring. <b>Trade-off:</b> this overview hides storage and interface detail. The detailed architecture expands those boundaries.</p>`;
     };
+
+    // Detail nodes: service = card with a header strip, store = cylinder, stream = tube. ic adds a 30px product icon beside the title.
+    const detailNode = (p, id, x, y, w, h, name, rows = [], kind = 'service', cls = '', ic = '', zone = '') => {
+      const g = kind === 'store' ? { ix: x + 12, iy: y + 19, ty: y + 40, ry: y + 60 }
+        : kind === 'stream' ? { ix: x + 10, iy: y + 6, ty: y + 28, ry: y + 56 }
+          : { ix: x + 8, iy: y + 6, ty: y + 27, ry: y + 60 };
+      const tx = x + (ic ? ({ service: 46, stream: 44 }[kind] || 48) : 14);
+      return `<g id="${p}-${id}"${zone ? ` class="${zone}"` : ''} data-diagram-node>${tip([name, ...rows].join('. '))}${shapeFor(kind, x, y, w, h, cls, 42)}${icon(ic, g.ix, g.iy, 30)}${t(tx, g.ty, name, 't-strong')}${rows.map((row, i) => t(x + 14, g.ry + i * 18, row, kind === 'store' ? 't-mono' : 't-small')).join('')}</g>`;
+    };
+    const detailBoundary = (p, id, x, y, w, h, label, ic = '') => `<g id="${p}-${id}">${tip(label)}<rect class="d-boundary" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>${icon(ic, x + 10, y + 5, 24)}${t(x + (ic ? 42 : 14), y + 22, label, 't-lane')}</g>`;
+    const detailEdge = (p, id, d, label = '', x = 0, y = 0, kind = '') => {
+      const width = label.length * 7.2 + 12;
+      const arrow = kind === 'error' ? `<path class="e d-error" d="${d}" marker-end="url(#${p}-error)"/>` : edge(p, d, kind);
+      return `<g id="${p}-${id}" data-diagram-edge>${tip(label || id.replaceAll('-', ' '))}${arrow}${label ? `<rect class="d-label" x="${x - width / 2}" y="${y - 14}" width="${width}" height="19" rx="3"/>${t(x, y, label, 'mid t-small')}` : ''}</g>`;
+    };
+    const detailGate = (p, id, cx, cy, rx, ry, a, b, zone = '') => `<g id="${p}-${id}"${zone ? ` class="${zone}"` : ''} data-diagram-node>${diamond(cx, cy, rx, ry, a, b)}</g>`;
+    const detailActor = (p, id, x, y, w, h, name, zone = 'z-act') => `<g id="${p}-${id}" class="${zone}" data-diagram-node>${pill(x, y, w, h, name)}</g>`;
+    const detailMarkers = p => `${markers(p)}<defs><marker id="${p}-error" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="d-error-head" d="M0 0 10 5 0 10z"/></marker></defs>`;
+
+    const componentDiagram = p => `
+      ${detailBoundary(p, 'sources', 10, 55, 185, 455, 'SOURCE SYSTEMS')}
+      ${detailBoundary(p, 'workspace', 215, 55, 890, 650, 'ONE FABRIC WORKSPACE · PROPOSED', 'fabric')}
+      ${zoneBand('z-hist', 225, 100, 870, 272, 'HISTORICAL PATH', 241, 362)}
+      ${zoneBand('z-live', 225, 380, 870, 128, 'LIVE PATH', 721, 500)}
+      ${zoneBand('z-score', 225, 534, 495, 162, 'SCORING OUTPUTS', 235, 554)}
+      ${detailEdge(p, 'history-load', 'M190 170H235')}
+      ${detailEdge(p, 'raw-write', 'M435 170H475')}
+      ${detailEdge(p, 'raw-validation', 'M710 170H805', 'validate', 757, 156)}
+      ${detailEdge(p, 'clean-write', 'M945 225V255')}
+      ${detailEdge(p, 'history-context-copy', 'M805 305H710', 'copy', 757, 291)}
+      ${detailEdge(p, 'context-ingestion', 'M600 350V390')}
+      ${detailEdge(p, 'event-ingestion', 'M190 442H235', '', 0, 0, 'live')}
+      ${detailEdge(p, 'eventhouse-ingestion', 'M453 442H490', '', 0, 0, 'live')}
+      ${detailEdge(p, 'journey-query', 'M710 442H805', 'query', 757, 429, 'live')}
+      ${detailEdge(p, 'live-join', 'M945 495V565', 'join', 991, 533, 'live')}
+      ${detailEdge(p, 'score-context-copy', 'M435 620H471V306H490', 'last valid score', 418, 521)}
+      ${detailEdge(p, 'semantic-model-read', 'M435 620H475')}
+      ${detailEdge(p, 'report-read', 'M592 687V740')}
+      ${detailEdge(p, 'live-view-read', 'M945 687V740', '', 0, 0, 'live')}
+      ${detailNode(p, 'history-sources', 20, 115, 170, 110, 'Dated exports', ['Mortgage + payment', 'Requests + service cases', 'Synthetic build data'], 'service', '', '', 'z-hist')}
+      ${detailNode(p, 'history-pipeline', 235, 115, 200, 110, 'History pipeline', ['Copy source extracts', 'Keep source versions', 'Record ingestion times'], 'service', '', 'pipeline', 'z-hist')}
+      ${detailNode(p, 'raw-lakehouse', 475, 115, 235, 110, 'Raw Delta tables', ['Append source records', 'entry_id / event_id', 'case_id + changed_at'], 'store', '', 'lakehouse', 'z-hist')}
+      ${detailNode(p, 'validation-notebook', 805, 115, 280, 110, 'Validation notebook', ['Keys + ledger reversals', 'Dated terms + case states', 'Quarantine conflicts'], 'service', '', 'notebook', 'z-hist')}
+      ${detailNode(p, 'clean-history', 805, 255, 280, 110, 'Clean history', ['mortgage_id + cycle_id', 'Dated facts + watermarks', 'No support notes in ML'], 'store', '', 'lakehouse', 'z-hist')}
+      ${detailNode(p, 'context-copy', 490, 260, 220, 90, 'Context-copy pipeline', ['History + last valid score', 'Versioned KQL table copy'], 'service', '', 'pipeline', 'z-hist')}
+      ${detailNode(p, 'live-sources', 20, 390, 170, 105, 'Live sources', ['Renewal-portal errors', 'Payment support flags', 'Original IDs + times'], 'service', '', '', 'z-live')}
+      ${detailNode(p, 'source-eventstream', 235, 390, 218, 105, 'Source Eventstream', ['Custom replay endpoint', 'Preserve event envelope', 'No model inference'], 'stream', '', 'eventstream', 'z-live')}
+      ${detailNode(p, 'eventhouse', 490, 390, 220, 110, 'Eventhouse KQL DB', ['RawEvents + AccountContext', 'ScoreContext + watermarks', 'Rejected IDs stay visible'], 'store', '', 'eventhouse', 'z-live')}
+      ${detailNode(p, 'journey-functions', 805, 390, 280, 105, 'KQL journey functions', ['Deduplicate event_id', 'Map dated mortgage cycles', 'Errors / stalls / retry history'], 'service', '', '', 'z-live')}
+      ${detailNode(p, 'gold-outputs', 235, 565, 200, 122, 'Gold outputs', ['Scores + segments', 'Completed runs only', 'Publication records'], 'store', '', 'lakehouse', 'z-score')}
+      ${detailNode(p, 'semantic-model', 475, 565, 235, 122, 'Power BI report', ['Account-level report', 'Direct Lake semantic model', 'Scores + evidence context', 'Separate refresh clock'], 'service', '', 'report', 'z-score')}
+      ${detailNode(p, 'customer-360-query', 805, 565, 280, 122, 'KQL Customer 360 view', ['Context + accepted events', 'Left join latest valid score', 'Show feed and score age'], 'service', '', '', 'z-live')}
+      ${detailActor(p, 'report-reader', 475, 740, 235, 36, 'Authorised report reader', 'z-score')}
+      ${detailActor(p, 'live-reader', 805, 740, 280, 36, 'Authorised live-view reader', 'z-live')}
+      ${stepBadge(1, 367, 105)}${stepBadge(2, 1017, 105)}${stepBadge(7, 642, 250)}${stepBadge(5, 360, 380)}${stepBadge(6, 1017, 380)}${stepBadge(4, 372, 555)}`;
+
+    const dataDiagram = p => `
+      ${detailEdge(p, 'cycle-snapshots', 'M295 150H420', '1 : many', 357, 137)}
+      ${detailEdge(p, 'cycle-outcome', 'M157 75V30H960V75', 'Cycle outcome', 775, 25)}
+      ${detailEdge(p, 'snapshot-score', 'M560 215V325', 'snapshot_id', 637, 276)}
+      ${detailEdge(p, 'model-score', 'M820 400H700', 'versions', 760, 387)}
+      ${detailEdge(p, 'score-evidence', 'M420 400H295', '1 : many', 357, 387)}
+      ${detailEdge(p, 'score-segment-history', 'M490 475V535H157V590', 'Each run appends', 260, 522)}
+      ${detailEdge(p, 'run-score', 'M560 590V475', 'run_id', 599, 557)}
+      ${detailEdge(p, 'score-case-reference', 'M640 475V530H960V590', 'Decision references', 900, 517)}
+      ${detailNode(p, 'mortgage-cycle', 20, 75, 275, 140, 'Mortgage deal cycle', ['PK mortgage_id + cycle_id', 'deal_end_at + owner_id', 'Dated terms + identity mapping', 'Joint borrowers are linked'], 'store', '', '', 'z-hist')}
+      ${detailNode(p, 'feature-snapshot', 420, 75, 280, 140, 'Feature snapshot', ['PK snapshot_id', 'FK mortgage_id + cycle_id', 'cutoff_at + feature_version', 'source_watermark + evidence_ids'], 'store', '', '', 'z-hist')}
+      ${detailNode(p, 'observed-outcome', 820, 75, 280, 140, 'Observed outcome', ['mortgage_id + cycle_id', 'outcome_type + outcome_at', 'outcome_observed_at', 'Unknown stays unlabelled'], 'store', '', '', 'z-hist')}
+      ${t(960, 245, 'Training and evaluation only.', 'mid t-small')}
+      ${t(960, 265, 'Never an input to an earlier score.', 'mid t-small')}
+      ${detailNode(p, 'attributions-evidence', 20, 325, 275, 150, 'Attributions + evidence', ['snapshot_id + run_id', 'Source record IDs + versions', 'Feature contributions', 'No borrower motive is inferred'], 'store', '', '', 'z-score')}
+      ${detailNode(p, 'account-score', 420, 325, 280, 150, 'Refinancing risk score', ['mortgage_id + cycle_id + run_id', 'FK snapshot_id + model_version', 'score + scored_at + target', 'Completed run + freshness state'], 'store', '', '', 'z-score')}
+      ${detailNode(p, 'model-release', 820, 325, 280, 150, 'MLflow model versions', ['model_version', 'cluster_model_version', 'Feature signature + fitted steps', 'Fit excludes test accounts'], 'store', '', '', 'z-score')}
+      ${detailNode(p, 'segment-history', 20, 590, 275, 135, 'Segment membership history', ['mortgage_id + cycle_id + run_id', 'segment_id + cluster version', 'assigned_at + valid_from/to', 'Append rows. Never overwrite.'], 'store', '', '', 'z-score')}
+      ${detailNode(p, 'run-publication', 420, 590, 280, 135, 'Runs + risk outbox', ['score_runs: run_id + status', 'risk_outbox: event_id', 'run_id + snapshot_id', 'Same event_id on retry'], 'store', '', '', 'z-live')}
+      ${detailNode(p, 'case-audit', 820, 590, 280, 135, 'Review case + audit', ['case_key: mortgage/cycle/family', 'Score-based: run_id + snapshot_id', 'evidence_ids + owner + policy', 'Ingestion / score / alert / case'], 'store', '', '', 'z-act')}
+      ${stepBadge(3, 1032, 315)}`;
+
+    const scoringDiagram = p => {
+      const participants = [
+        ['events', 95, 'Source stream', 'Eventstream', 'stream', 'eventstream'],
+        ['events-db', 285, 'Eventhouse', 'KQL database', 'store', 'eventhouse'],
+        ['schedule', 475, 'Pipeline', 'Scheduled / replay', 'service', 'pipeline'],
+        ['score-job', 665, 'Notebooks', 'Frozen inputs + ML', 'service', 'notebook'],
+        ['outputs', 855, 'Lakehouse', 'Staging + Gold', 'store', 'lakehouse'],
+        ['risk-channel', 1040, 'Risk channel', 'Eventstream', 'stream', 'eventstream']
+      ];
+      const messages = [
+        ['ingest', 95, 285, 155, '1 Append source event', 'live'],
+        ['query-cutoff', 475, 285, 280, '2 Query at cutoff', ''],
+        ['stage-journeys', 475, 855, 325, '3 Copy journeys + watermark', ''],
+        ['start-run', 475, 665, 370, '4 Start pinned run', ''],
+        ['read-inputs', 855, 665, 415, '5 Read input history', ''],
+        ['freeze-inputs', 665, 855, 460, '6 Freeze snapshot', ''],
+        ['write-results', 665, 855, 505, '7 Write ML outputs', ''],
+        ['complete-run', 665, 855, 550, '8 Mark run complete', ''],
+        ['publish-risk', 665, 1040, 595, '9 Emit risk_updated', 'live']
+      ];
+      return `${participants.map(([id, x]) => `<path id="${p}-${id}-lifeline" class="d-life" d="M${x} 118V613"/>`).join('')}
+        <g id="${p}-separate-clocks">${tip('Live ingestion and scoring have separate clocks.')}<rect class="d-phase" x="20" y="197" width="1080" height="58" rx="6"/>
+        ${t(38, 220, 'Live events update the KQL view without waiting for scoring.', 't-small')}
+        ${t(38, 242, 'The scheduled run uses pinned MLflow versions. The replay run starts explicitly.', 't-small')}</g>
+        ${messages.map(([id, from, to, y, label, kind]) => detailEdge(p, id, `M${from} ${y}H${to}`, label, (from + to) / 2, y - 12, kind)).join('')}
+        ${participants.map(([id, x, name, row, kind, ic]) => `<g id="${p}-${id}" class="${['events', 'events-db', 'risk-channel'].includes(id) ? 'z-live' : 'z-score'}" data-diagram-node>${tip(name + '. ' + row)}${stackNode(kind, x - 75, 6, 150, 112, name, row, ic, { size: 36, iy: 18, ty: 77, sy: 99, sub: kind === 'store' ? 't-mono' : 't-small', r: 10 })}</g>`).join('')}
+        <g id="${p}-failure-contract">${tip('Scoring and publication failures have different recovery paths.')}<rect class="n d-error" x="20" y="630" width="1080" height="90" rx="6"/>
+        ${t(38, 654, 'Scoring failure: mark the last score stale. Do not emit risk_updated.', 't-small')}
+        ${t(38, 679, 'Publication failure: retry the persisted event. Do not rescore or change event_id.', 't-small')}
+        ${t(38, 704, 'Targets: a 15-minute schedule and a 5-minute score-to-alert delay. Neither target is measured.', 't-small')}</g>
+        ${stepBadge(9, 486, 0)}${stepBadge(8, 768, 299)}`;
+    };
+
+    const routingDiagram = p => `
+      ${detailBoundary(p, 'fabric-actions', 10, 50, 510, 370, 'FABRIC · TWO INDEPENDENT RULES', 'fabric')}
+      ${detailBoundary(p, 'm365-actions', 545, 50, 565, 720, 'MICROSOFT 365 · SECURED CONNECTIONS')}
+      ${detailBoundary(p, 'm365-exceptions', 10, 485, 510, 225, 'MICROSOFT 365 · DECISIONS AND EXCEPTIONS')}
+      ${detailEdge(p, 'support-rule-input', 'M230 150H275', '', 0, 0, 'support')}
+      ${detailEdge(p, 'risk-rule-input', 'M230 340H275')}
+      ${detailEdge(p, 'support-flow', 'M500 150H535V220H570', '', 0, 0, 'support')}
+      ${detailEdge(p, 'risk-flow', 'M500 340H535V260H570')}
+      ${detailEdge(p, 'current-support-check', 'M815 240H865')}
+      ${detailEdge(p, 'support-priority', 'M1045 240H1090V415H1070', 'yes', 1070, 327, 'support')}
+      ${detailEdge(p, 'review-after-support', 'M955 305V335H680V358', 'no', 821, 322)}
+      ${detailEdge(p, 'eligible-review', 'M680 482V510', 'yes', 730, 500)}
+      ${detailEdge(p, 'no-review', 'M590 420H530V603H500', 'Record the reason', 395, 452)}
+      ${detailEdge(p, 'invalid-current-state', 'M570 285H530V572H500', '', 0, 0, 'error')}
+      ${detailEdge(p, 'support-case-write', 'M960 460V600H950V625', '', 0, 0, 'support')}
+      ${detailEdge(p, 'review-case-write', 'M680 598V625')}
+      ${detailEdge(p, 'case-write-failure', 'M570 685H500', 'T06', 535, 673, 'error')}
+      ${detailEdge(p, 'human-case-review', 'M820 755V785')}
+      ${detailNode(p, 'support-event', 25, 105, 205, 90, 'Portal / support event', ['Payment need or portal fault', 'No sensitive notes'], 'stream', '', '', 'z-support')}
+      ${detailNode(p, 'risk-event', 25, 290, 205, 100, 'risk_updated', ['Successful score only', 'run_id + evidence_ids', 'Stable event_id'], 'stream', '', '', 'z-score')}
+      ${detailNode(p, 'support-rule', 275, 105, 225, 90, 'Activator service rule', ['No commercial threshold', 'Send service candidate'], 'service', '', '', 'z-support')}
+      ${detailNode(p, 'risk-rule', 275, 290, 225, 104, 'Activator risk rule', ['Refinancing risk + freshness', 'Send review candidate', 'No customer messages'], 'service', '', '', 'z-score')}
+      ${detailNode(p, 'current-policy', 570, 180, 245, 122, 'Power Automate checks', ['Current payment-support status', 'Identity + case owner + policy', 'Check review-case eligibility', 'Record received + alert times'], 'service', '', 'powerAutomate', 'z-act')}
+      ${detailGate(p, 'support-gate', 955, 240, 90, 65, 'Payment support', 'active?', 'z-support')}
+      ${detailNode(p, 'support-family', 850, 370, 220, 90, 'Payment support', ['action_family = support', 'Trained staff own the case'], 'service', '', '', 'z-support')}
+      ${detailGate(p, 'review-gate', 680, 420, 90, 62, 'Portal fault or', 'eligible risk?', 'z-act')}
+      ${detailNode(p, 'review-family', 570, 510, 220, 88, 'Portal fix / renewal', ['Verified portal fault: technical', 'Refinancing risk: renewal'], 'service', '', '', 'z-act')}
+      ${detailNode(p, 'exception-register', 25, 535, 475, 150, 'Decisions + exception register', ['No review eligibility: reason / no case', 'Invalid keys: quarantine', 'Unknown payment support: hold renewal review', 'Write failure: visible retry with same key', 'Operator sees errors and failed retries'], 'store', 'd-error', '', 'z-error')}
+      ${detailNode(p, 'unique-case-store', 570, 625, 500, 130, 'SharePoint review cases + audit', ['Unique key: mortgage / cycle / action_family', 'Duplicate key: read the existing review case', 'Other write failures: visible retry', 'Append decisions. Preserve earlier evidence.'], 'store', '', '', 'z-act')}
+      ${detailActor(p, 'human-owner', 680, 785, 280, 36, 'Assigned case owner')}
+      ${stepBadge(10, 747, 170)}`;
+
+    const architectureDetails = [
+      {
+        key: 'components', title: '01 / Components and data movement', height: 790, draw: componentDiagram,
+        colours: [
+          ['z-hist', 'Historical path: batch exports to clean history'],
+          ['z-live', 'Live path: events to the live Customer 360 view'],
+          ['z-score', 'Scoring outputs: completed scores and the report'],
+          ['line-live', 'Live event or live-view flow'],
+          ['line-plain', 'Batch, copy or report flow']
+        ],
+        desc: 'Historical exports and live events enter separate Fabric paths. A validation notebook builds dated Lakehouse history. A KQL copy activity transfers versioned history and completed score summaries into Eventhouse. KQL joins these copies with accepted events for the live Customer 360 view. Power BI reads completed Gold outputs independently.',
+        caption: 'Proposed wiring. Historical ingestion bypasses the live stream. Copies cross the Lakehouse and Eventhouse boundary explicitly. Both views show freshness.',
+        why: 'This view makes each data movement and storage boundary visible. Trade-off: scoring and case actions appear in separate views.',
+        notes: [
+          'Copy account context with its version and source watermark. Do not imply a direct, automatic Lakehouse-to-KQL join.',
+          'KQL keeps one logical event per event_id. Unknown or conflicting cycle mappings stay outside accepted journey results.',
+          'The live view keeps accounts with no score. A left join shows the latest valid score and its age when one exists.',
+          'The service rule reads current payment-support and portal-fault flags. Sensitive servicing notes stay outside model features and general reports.',
+          'The live-view presentation and refresh settings remain open. The 60-second target needs a rendered measurement, not only ingestion evidence.'
+        ]
+      },
+      {
+        key: 'data', title: '02 / Data relationships and keys', height: 750, draw: dataDiagram,
+        colours: [
+          ['z-hist', 'Model inputs and labels: history, snapshots, outcomes'],
+          ['z-score', 'Model outputs: scores, evidence, segments, versions'],
+          ['z-live', 'Event publication: run status and risk_updated outbox'],
+          ['z-act', 'Review action: internal review cases and audit'],
+          ['line-plain', 'Key reference or 1 : many relationship']
+        ],
+        desc: 'A mortgage cycle has many immutable feature snapshots and a separately observed outcome. Each score references its snapshot, run and registered model. Scores link to feature attributions, evidence and append-only segment history. Run manifests gate publication. An outbox keeps a stable event ID. Score-based review cases retain snapshot and run references.',
+        caption: 'Proposed table names and relationships. PK means primary key. FK means foreign key. Observed refinancing outcomes remain separate from prediction inputs. Internal review cases store references, not borrower notes.',
+        why: 'Keys reveal how a reviewer can trace a case to its inputs and model. Trade-off: this is not a complete column schema.',
+        notes: [
+          'feature_snapshot is immutable per snapshot_id. Both occurred_at and ingested_at must be at or before cutoff_at.',
+          'Each score has the key mortgage_id + cycle_id + run_id. The run manifest can cover many mortgages.',
+          'One completed run can produce many scores, segment rows and outbox records. Reports exclude partial runs.',
+          'segment_membership appends one row per account, cycle and run. A model release fixes cluster meaning until the next release.',
+          'risk_outbox records event_id, payload, run_id and publication status. A retry reuses the original event_id.',
+          'case_key is mortgage_id + cycle_id + action_family. SharePoint enforces uniqueness. The writer reads an existing review case after a duplicate-key response.',
+          'Source servicing case_id identifies an earlier service record. SharePoint review cases are new internal tasks. Service-only tasks need no scoring reference.'
+        ]
+      },
+      {
+        key: 'scoring', title: '03 / Scoring and risk-event publication', height: 745, draw: scoringDiagram,
+        colours: [
+          ['z-live', 'Live event channels: source stream, Eventhouse, risk channel'],
+          ['z-score', 'Scheduled scoring: pipeline, notebooks, Lakehouse'],
+          ['z-error', 'Failure contract: what happens when a step fails'],
+          ['line-live', 'Live event message'],
+          ['line-plain', 'Scheduled scoring message']
+        ],
+        desc: 'Source events first enter Eventhouse. A separate scheduled pipeline queries KQL at the cutoff and stages the result with a watermark. A notebook reads staged results and dated history, freezes a feature snapshot, and writes scores, segments, attributions and publication records. Only a completed run can publish risk_updated. A publication retry does not repeat scoring.',
+        caption: 'Proposed execution sequence. The event arrival does not trigger automatic inference. A checkpoint run freezes the original cutoff. A live run creates a new snapshot.',
+        why: 'The sequence separates data arrival, scoring, run completion and risk-event publication. Trade-off: model training is outside this runtime sequence.',
+        notes: [
+          'Run inputs are run_id, run_kind, cutoff_at, source_watermark, feature_version and pinned classifier and cluster versions.',
+          'The KQL copy query and notebook apply the same cutoff. Product-transfer request and servicing states must also respect ingestion time.',
+          'Training joins snapshots to observed outcomes separately. Outcome labels must exist before the simulated model release. Test borrowers remain outside training.',
+          'Write all outputs and an outbox record before marking the run complete. Completion is a visibility gate, not a cross-table transaction claim.',
+          'risk_updated includes event_id, mortgage_id, cycle_id, run_id, snapshot_id, model_version, cluster_model_version, segment_id, cutoff_at, scored_at, target, score and evidence_ids.',
+          'A failed run creates no eligible risk event. Publication retries and case retries have separate status records.',
+          'A live run never overwrites the checkpoint snapshot. A later alert does not count as a 90-day checkpoint warning.'
+        ]
+      },
+      {
+        key: 'routing', title: '04 / Payment-support-first review-case routing', height: 840, draw: routingDiagram,
+        colours: [
+          ['z-support', 'Payment support: checked first, no risk threshold'],
+          ['z-score', 'Refinancing risk signal: score event and risk rule'],
+          ['z-act', 'Review action: checks, review cases and owner'],
+          ['z-error', 'Exceptions: decisions, quarantine and retries'],
+          ['line-support', 'Payment-support route'],
+          ['line-error', 'Failure or exception route'],
+          ['line-plain', 'Review route']
+        ],
+        desc: 'Independent Activator rules send service and refinancing risk candidates to Power Automate. It checks current identity, payment-support status, review owner and routing policy. Active payment support takes priority without a risk threshold. Verified renewal-portal software faults go to technical support. Commercial renewal review requires an eligible refinancing risk event. SharePoint enforces one internal review case per key. Decisions, quarantine and failed writes remain visible. A human owns each review case.',
+        caption: 'Proposed flow: payment support bypasses the refinancing risk threshold. Review eligibility does not approve lending or customer contact. Commercial review pauses when payment-support status is unknown. T06 tests a failed review-case write.',
+        why: 'The two entrances show that support never waits for scoring. Trade-off: contact scripts and numeric thresholds remain unspecified.',
+        notes: [
+          'Map the required candidate fields into an Activator custom action. The flow records ingestion, scoring, alert and case times separately.',
+          'Recheck current payment-support status, evidence freshness and review owner on every delivery or retry. A frozen model snapshot cannot authorise customer contact.',
+          'A support event cannot become a renewal review merely because the support request later closes. Commercial review needs an eligible risk candidate.',
+          'A verified renewal-portal software fault selects technical support without a commercial threshold. Only an eligible refinancing risk event selects a renewal adviser.',
+          'The unique SharePoint case_key prevents duplicate case records. It does not promise exactly-once event delivery or exactly-once notifications.',
+          'Payment support takes priority over an existing commercial renewal task. Preserve that task and record its hold. Do not erase its audit history.',
+          'Invalid identities go to quarantine. Other write errors enter visible retry handling. No retry sends a customer message.'
+        ]
+      }
+    ];
+    const detailFigure = (view, prefix, actions = false) => {
+      const p = `${prefix}-${view.key}`;
+      return `<figure class="fig" id="${p}-figure">${figHead(view.title, 'proposed', 'Proposed detail')}
+        <p class="scroll-hint">Scroll sideways to read the full diagram.</p>
+        <div class="fig-scroll" tabindex="0" role="region" aria-label="${esc(view.title)}">
+          <svg class="wide detail" viewBox="0 0 1120 ${view.height}" role="img" aria-labelledby="${p}-title ${p}-desc">
+            <title id="${p}-title">${esc(view.title)} for HomeBridge</title><desc id="${p}-desc">${esc(view.desc)}</desc>
+            ${detailMarkers(p)}${view.draw(p)}
+          </svg>
+        </div>
+        ${stepKey(view.key)}
+        ${colourKey(view.colours)}
+        <figcaption>${esc(view.caption)}</figcaption>
+        ${actions ? `<div class="figure-actions"><button class="btn-mini" type="button" data-export="${view.key}" data-format="png">Download PNG</button><button class="btn-mini" type="button" data-export="${view.key}" data-format="svg">Download SVG</button></div>` : ''}
+      </figure>`;
+    };
+    document.querySelector('[data-architecture-details]').innerHTML = architectureDetails.map(view => `<section class="detail-view">
+      ${detailFigure(view, 'mortgage-detail', true)}
+      <p class="why"><b>Why this form:</b> ${esc(view.why)}</p>
+      <ul class="detail-notes">${view.notes.map(note => `<li>${esc(note)}</li>`).join('')}</ul>
+    </section>`).join('');
 
     const evidenceConfig = {
       mortgage: {
-        signals: ['Deal ends in 90 days', 'Transfer keeps failing', 'Payment concern raised'], check: 'Payment-support check runs first', action: 'Route to the right team',
-        caption: 'Illustrative case. Alex raises a payment concern while a product-transfer application keeps failing. The payment-support check runs before any retention review. Counterexample: Sam completes a product transfer with no payment problems, so a quiet portal history alone raises no alert.',
+        signals: ['Deal ends in 90 days', 'Portal keeps failing', 'Payment concern raised'], check: 'Payment-support check runs first', action: 'Route to the right team',
+        caption: 'Illustrative case. Alex raises a payment concern while the renewal portal fails during a product-transfer request. The payment-support check runs before any commercial renewal review. Sam completes a product transfer without payment problems. A quiet renewal-portal history alone raises no alert.',
         bandEnd: 550, date: 'Fixed-rate deal ends', bandLabel: 'Outcome window',
         tlCaption: 'Proposed target. Inputs freeze at the checkpoint. The primary cohort is customers who refinance with another lender at deal end or within 30 days after it. Earlier departures are reported separately.'
       },
@@ -1846,16 +2256,16 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     };
     const mortgageChallengeFigure = () => {
       const lanes = [
-        ['bc-warn', 'Cannot afford the new rate', 'Payment shock or other difficulty. Trained support staff act first.'],
-        ['bc-main', 'Wants to stay, but our process fails', 'Transfer error or stalled offer. Servicing adviser fixes the application.'],
+        ['bc-warn', 'Reports payment difficulty', 'Borrower raises a payment concern. Trained servicing staff act first.'],
+        ['bc-main', 'Renewal portal faults or stalled requests', 'Technical support checks verified portal faults. Adviser coordinates renewal.'],
         ['bc-main', 'May move to another lender', 'High churn score with evidence. Servicing adviser reviews.'],
-        ['bc-ok', 'Transfer complete, no problems', 'No action. Adviser time goes to other customers.']
+        ['bc-ok', 'Product transfer complete, no problems', 'No retention action. Adviser time goes to other customers.']
       ];
       const laneSvg = lanes.map(([tone, title, note], index) => {
         const y = 14 + index * 94;
         return `<g id="mortgage-route-${index}"><title>${escapeVisual(title + ': ' + note)}</title><path class="bc-wire" d="M290 ${y + 36}H326"/><rect class="bc-card" x="330" y="${y}" width="550" height="72" rx="8"/><rect class="${tone}" x="330" y="${y}" width="9" height="72" rx="3"/><text class="bc-strong" x="358" y="${y + 30}">${escapeVisual(title)}</text><text class="bc-small" x="358" y="${y + 54}">${escapeVisual(note)}</text></g>`;
       }).join('');
-      return `<figure class="bc-figure"><svg viewBox="0 0 900 384" role="img" aria-labelledby="mortgage-routes-title mortgage-routes-desc"><title id="mortgage-routes-title">One maturity list holds four different customers</title><desc id="mortgage-routes-desc">Fixed deals ending in the next 90 days split into four routes: payment support first, fix the lender's own process, retention review, or no action.</desc><rect class="bc-card" x="40" y="150" width="200" height="110" rx="8"/><rect class="bc-card" x="32" y="142" width="200" height="110" rx="8"/><rect class="bc-card" x="24" y="134" width="200" height="110" rx="8"/><text class="bc-strong" x="124" y="182" text-anchor="middle">Fixed deals</text><text class="bc-strong" x="124" y="206" text-anchor="middle">ending in 90 days</text><text class="bc-small" x="124" y="230" text-anchor="middle">one monthly list</text><path class="bc-wire" d="M232 192H290M290 50V332"/>${laneSvg}</svg><figcaption>Illustrative routes, not measured shares. One customer can need more than one route. Payment support always comes first, whatever the churn score.</figcaption></figure>`;
+      return `<figure class="bc-figure"><svg viewBox="0 0 900 384" role="img" aria-labelledby="mortgage-routes-title mortgage-routes-desc"><title id="mortgage-routes-title">Four situations on one deal-end list</title><desc id="mortgage-routes-desc">Illustrative situations: payment difficulty, portal faults or stalled requests, external-refinancing risk, and completed product transfers. One mortgage account can need more than one route. Payment support takes priority.</desc><rect class="bc-card" x="40" y="150" width="200" height="110" rx="8"/><rect class="bc-card" x="32" y="142" width="200" height="110" rx="8"/><rect class="bc-card" x="24" y="134" width="200" height="110" rx="8"/><text class="bc-strong" x="124" y="182" text-anchor="middle">Fixed deals</text><text class="bc-strong" x="124" y="206" text-anchor="middle">ending in 90 days</text><text class="bc-small" x="124" y="230" text-anchor="middle">one monthly list</text><path class="bc-wire" d="M232 192H290M290 50V332"/>${laneSvg}</svg><figcaption>Illustrative routes, not measured shares. One mortgage account can need more than one route. Payment support always comes first, whatever the churn score.</figcaption></figure>`;
     };
     const insuranceChallengeFigure = () => {
       const crosses = [585, 665, 745].map((x, index) => `<g id="insurance-missed-${index}"><title>Missed supplier visit</title><path class="bc-cross" d="M${x - 9} 141l18 18m0-18-18 18"/></g>`).join('') + '<text class="bc-small" x="615" y="188" text-anchor="middle">missed visits</text>';
@@ -1889,10 +2299,10 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         figure: mortgageChallengeFigure,
         pains: [
           ['Too many deals ending, too few advisers', 'Advisers work down a list by balance or date.', 'High-need customers wait. Time goes to customers who need nothing.'],
-          ['Signals sit in separate systems', 'Deal dates, payments, transfer applications, calls, broker submissions, and redemption requests live apart.', 'Nobody sees one customer\'s full situation.'],
+          ['Signals sit in separate systems', 'Deal dates, payments, product-transfer requests, calls, broker submissions and redemption requests live apart.', 'Nobody sees one customer\'s full situation.'],
           ['Wrong first contact', 'A retention call reaches a customer who cannot afford the new rate.',           'Risk of breaking FCA rules on fair treatment (Consumer Duty) and payment difficulty (MCOB 13). Possible harm and complaint.'],
                     ['The lender finds the loss too late', 'The lender learns about a switch only when the new lender asks for the payoff amount (a redemption statement), or pays the mortgage off.', 'No time remains for a review.'],
-                    ['Customers fall onto a higher rate', 'A transfer stalls, or the customer does nothing. The payment rises to the standard variable rate.', 'Payment shock, arrears risk, and complaints.'],
+                    ['Customers fall onto a higher rate', 'A product-transfer request stalls, or the customer does nothing. The payment rises to the standard variable rate.', 'Payment shock, arrears risk, and complaints.'],
           ['Fair treatment is hard to prove', 'The board and the FCA ask how the lender treated maturing customers.', 'Manual evidence and a weak audit trail.']
         ],
         people: [
@@ -1912,10 +2322,10 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           ['Signals sit in separate systems', 'Customer 360: one live view of each mortgage and its current deal.'],
           ['Too many deals ending', 'A churn score ranks how likely each customer is to move to another lender. ML segments group similar customers.'],
           ['Wrong first contact', 'Routing rule sends payment support first, whatever the churn score.'],
-          ['The lender finds the loss too late', 'Score 90 days before deal end. Live events, such as a failed transfer, refresh the view.'],
+          ['The lender finds the loss too late', 'Score refinancing risk at the checkpoint, 90 days before deal end. Live renewal-portal errors refresh the view.'],
           ['Fair treatment is hard to prove', 'Audit record for each warning, route, owner, and outcome.']
         ],
-        output: 'One route for each maturing mortgage: payment support, fix our process, retention review, or no action.',
+        output: 'Route each need to payment support, portal-fault investigation or a commercial renewal review. Payment support takes priority. Record no action when no eligible need exists.',
         assumptions: [
           'Market and rules are UK. Other markets need a new rule check.',
           'Redemption requests and broker submissions are available as data. Not yet verified.',
@@ -2007,13 +2417,19 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       [0, 'fixed-deal', 'Fixed-rate deal', "The interest rate stays the same for a set time, often 2 or 5 years. Then the deal ends.", /fixed[- ]rate deals?|fixed deals?/i, 'm'],
       [0, 'maturity', 'Maturity (deal end)', "The date a fixed-rate deal ends. It is not the end of the mortgage. The customer then picks a new deal, moves to another lender, or pays the standard variable rate.", /\bmaturit(?:y|ies)\b|\bmaturing\b/i, 'm'],
       [0, 'product-transfer', 'Product transfer', "The customer moves to a new deal with the same lender. The lender keeps the mortgage.", /product[- ]transfers?/i, 'm'],
+      [0, 'product-transfer-request', 'Product-transfer request (mortgage application)', "The customer's mortgage application for a new deal with HomeBridge on an existing loan. No money moves to another lender. application_id identifies this request.", /product[- ]transfer requests?|mortgage applications?/i, 'm'],
+      [0, 'renewal-portal', 'Renewal portal (software)', "HomeBridge's software for submitting and tracking a product-transfer request. A portal fault is an error in this software.", /renewal[- ]portal|portal (?:faults?|errors?)/i, 'm'],
+      [0, 'mortgage-account', 'Mortgage account and deal cycle', "One mortgage account is one loan. Joint borrowers link to that loan, so one account can have several borrowers. cycle_id identifies its fixed-rate deal cycle, not a scoring run.", /mortgage accounts?|deal cycles?/i, 'm'],
+      [0, 'payment-support', 'Payment support', "Help with mortgage-payment difficulty. Trained servicing staff review the need before any commercial renewal task. Technical support for portal software is a separate route.", /payment[- ]support/i, 'm'],
+      [0, 'review-owner', 'Review owner', "The staff member responsible for a servicing record or internal review. owner_id identifies that staff member, not a borrower or property owner.", /review owners?|assigned (?:case )?owners?|\bowner_id\b/i, 'm'],
+      [0, 'outcome-window', 'Outcome-observation window', "For HomeBridge, this runs from the 90-day checkpoint to 30 days after fixed-rate deal end. A negative label requires observation through the window's end. Confirmed external refinancing within the window gives a positive label. Unknown outcomes stay unlabelled. Feature-history windows remain separate.", /(?:outcome[- ])?observation windows?/i, 'm'],
       [0, 'external-refinancing', 'External refinancing (remortgage)', "The customer moves the mortgage to a different lender. The old lender loses the balance and the interest income.", /external[- ]refinanc\w*|\bremortgag\w*/i, 'm'],
       [0, 'redemption-statement', 'Redemption statement', "A document that shows the exact amount to pay off a mortgage. A request for one often means that the customer is moving to another lender.", /redemption statements?/i, 'm'],
       [0, 'redemption', 'Redemption', "The mortgage is paid off in full. This happens when the customer moves to another lender, sells the home, or repays.", /\bredemptions?\b/i, 'm'],
       [0, 'svr', 'Standard variable rate (SVR)', "The rate a mortgage moves to when a deal ends and the customer picks no new deal. It is usually much higher than a fixed rate. Also called the reversion rate.", /standard variable rate|reversion rate|\bSVR\b/i, 'm'],
       [0, 'payment-shock', 'Payment shock', "A large, sudden rise in the monthly payment, for example when a cheap fixed deal ends.", /payment shock/i, 'm'],
       [0, 'arrears', 'Arrears', "Payments that are due but not paid.", /\barrears\b/i, 'm'],
-      [0, 'default', 'Default', "A serious failure to repay, as the loan terms define it. It is more serious than one missed payment.", /\bdefault\b/i, 'm'],
+      [0, 'default', 'Mortgage default', "A serious failure to repay, as the loan terms define it. It is more serious than one missed payment. This is not the model's prediction target.", /\bmortgage default\b/i, 'm'],
       [0, 'broker', 'Broker (intermediary)', "An independent adviser who finds and arranges a mortgage for a customer. Many UK mortgages go through brokers.", /\bbrokers?\b|\bintermediar(?:y|ies)\b/i, 'm'],
       [0, 'servicing', 'Servicing', "The day-to-day running of a loan: payments, changes, and customer questions.", /\bservicing\b/i, 'm'],
       [0, 'collections', 'Collection and collections team', "A collection takes a due payment, for example by Direct Debit. The collections team deals with missed payments.", /\bcollections?\b/i, 'm'],
@@ -2047,45 +2463,48 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       [2, 'responsible-ai', 'Responsible-AI review', "A check before real use that an AI system is fair, safe, explainable, and lawful.", /responsible[- ]AI/i, 'b'],
       [2, 'protected', 'Protected characteristics', "Traits that UK equality law protects, such as age, disability, race, religion, and sex. A model must not use them unfairly.", /protected characteristics/i, 'b'],
       [2, 'proxy', 'Proxy', "A data field that stands in for a protected characteristic, for example a postcode that reflects ethnicity.", /\bprox(?:y|ies)\b/i, 'b'],
-      [3, 'customer-360', 'Customer 360', "One view that shows everything about one customer from all systems, such as account, payments, contacts, and complaints.", /customer 360/i, 'b'],
+      [3, 'customer-360', 'Customer 360', "One account or policy view that combines approved records from connected source systems. It is not every record in every system. Access rules still restrict sensitive details.", /customer 360/i, 'b'],
       [3, 'real-time', 'Real-time', "Updates within seconds or minutes of an event, not overnight.", /real[- ]time/i, 'b'],
       [3, 'ml', 'Machine learning (ML)', "Software that learns patterns from past data and uses them to make estimates about new cases.", /machine learning|\bML\b/, 'b'],
-      [3, 'churn', 'Churn and churn score', "Churn means customers who leave. A churn score is a model estimate of how likely one customer is to leave.", /\bchurn\b/i, 'b'],
+      [3, 'churn', 'Churn and churn score', "Churn means customer departure as the prediction target defines it. For HomeBridge, this is confirmed external refinancing, not mortgage default. The score estimates the probability of that outcome within the observation window.", /\bchurn\b/i, 'b'],
       [3, 'segment', 'Segment (cluster)', "A group of similar customers that a model finds in the data. Clustering is the method. The team names each group only after it checks the result.", /\bsegments?\b|\bclusters?\b|\bclustering\b/i, 'b'],
       [3, 'retention', 'Retention', "Keeping a customer who may leave. A retention review is a human check of what to offer, if anything.", /\bretention\b/i, 'b'],
-      [3, 'checkpoint', 'Checkpoint and cutoff', "The fixed moment when the system freezes the data and makes a prediction. Here, it is 90 days before the deal or policy ends. The model must not use data from after the cutoff.", /\bcheckpoints?\b|\bcutoffs?\b/i, 'b'],
-      [3, 'snapshot', 'Snapshot', "A saved copy of the data as it was at the checkpoint. The team can then repeat and check each prediction.", /\bsnapshots?\b/i, 'b'],
+      [3, 'checkpoint', 'Checkpoint (90-day warning)', "The fixed prediction time, 90 days before the fixed-rate deal or insurance policy ends. Later live scores do not change this checkpoint. Later warnings cannot count as checkpoint warnings.", /\bcheckpoints?\b/i, 'b'],
+      [3, 'cutoff', 'Cutoff time', "The latest permitted event time and ingestion time for input records in one feature snapshot. Snapshot creation can occur later. Both timestamps must be at or before the cutoff. A live run uses a new cutoff without changing the checkpoint snapshot.", /\bcutoffs?\b/i, 'b'],
+      [3, 'snapshot', 'Feature snapshot', "An immutable saved copy of model inputs at one cutoff time. The checkpoint snapshot uses the fixed 90-day cutoff. Later live runs create separate snapshots. Observed outcomes remain separate.", /\bsnapshots?\b/i, 'b'],
       [3, 'feature', 'Feature', "One input to a model, for example the number of missed repair visits in the last 30 days.", /\bfeatures?\b/i, 'b'],
-      [3, 'label', 'Label (target)', "The real outcome that the model learns to predict, for example: moved to another lender. An unknown outcome gets no label.", /\blabels?\b|\bunlabelled\b/i, 'b'],
+      [3, 'label', 'Model outcome label', "The observed outcome used to train or evaluate a model. For HomeBridge, a positive label means confirmed external refinancing within the defined observation window. An unknown outcome gets no label. This is not a Purview sensitivity label.", /\b(?:model(?: outcome)?|outcome|training(?: outcome)?|churn) labels?|\bunlabelled\b/i, 'b'],
       [3, 'classifier', 'Classifier', "A model that predicts a yes or no answer, for example: will this customer leave?", /\bclassifiers?\b/i, 'b'],
       [3, 'logreg', 'Logistic regression and tree model', "Two simple prediction methods that people can explain. The team compares them before it picks one.", /logistic regression|tree model/i, 'b'],
       [3, 'baseline', 'Baseline', "A simple rule to compare the model with. The model must do better than the rule to be worth using.", /\bbaselines?\b/i, 'b'],
       [3, 'cohort', 'Cohort', "A group of customers whose deals or policies end in the same period.", /\bcohorts?\b/i, 'b'],
-      [3, 'training', 'Training, validation, and test data', "Training data teaches the model. Validation data tunes its settings. Separate test data checks the final result.", /\btraining\b|\bvalidation\b/i, 'b'],
+      [3, 'training', 'Training, model-validation and test data', "Training data teaches the model. Model-validation data tunes its settings. Separate test data checks the final result. This is different from data-quality checks in a validation notebook.", /\btraining\b|\b(?:model[- ])?validation (?:data|sets?)|\btest (?:data|sets?)/i, 'b'],
       [3, 'precision-recall', 'Precision and recall', "Precision: of the customers flagged, how many really left. Recall: of the customers who left, how many the system flagged.", /\bprecision\b|\brecall\b/i, 'b'],
       [3, 'calibration', 'Calibration', "Whether scores match reality. For example, of customers with a 30% score, about 30 in 100 really leave.", /\bcalibration\b/i, 'b'],
       [3, 'false-positive', 'False positive', "A warning for a customer who did not leave.", /false positives?/i, 'b'],
-      [3, 'threshold', 'Threshold', "The score above which the system raises a warning.", /\bthresholds?\b/i, 'b'],
+      [3, 'threshold', 'Commercial risk threshold', "The score limit for a commercial renewal candidate. Other eligibility checks still apply. Independent service and assistance routes do not depend on this limit.", /\bthresholds?\b/i, 'b'],
       [3, 'contributions', 'Model contributions', "How much each input pushed a score up or down. They show why the model gave a high score. They do not prove why a customer leaves.", /model contributions|model drivers|feature attributions?/i, 'b'],
       [3, 'shap', 'SHAP values', "A standard method that shows how much each input moved one customer's score up or down.", /\bSHAP\b/, 'b'],
       [3, 'accuracy', 'Accuracy', "The share of all predictions that are correct. It misleads when few customers leave, because predicting that nobody leaves scores high.", /\baccuracy\b/i, 'b'],
       [3, 'lift', 'Lift', "How many times more often flagged customers leave than customers overall. A lift of 3 means three times the base rate.", /\blift\b/i, 'b'],
       [3, 'segment-history', 'Segment membership history', "A table that records which segment each customer was in after each scoring run. Old rows never change, so an auditor can check any past date.", /segment[_ ]membership|segment history/i, 'b'],
-      [3, 'gold', 'Gold table', "A cleaned and checked table that reports and models use. Raw data lands first. Gold is the final, trusted layer.", /\bGold\b/, 'b'],
+      [3, 'gold', 'Gold output table', "A curated, checked output table. Here, Gold holds completed scoring results, segment history and evidence references. Reports exclude incomplete runs. Raw source data is a separate layer.", /\bGold\b/, 'b'],
       [3, 'synthetic', 'Synthetic data', "Made-up data that looks realistic. It contains no real customers.", /\bsynthetic\b/i, 'b'],
-      [3, 'pseudonymous', 'Pseudonymous (masked) data', "Real data with names and other identifiers replaced by codes.", /\bpseudonymous\b|\bmasked\b/i, 'b'],
+      [3, 'pseudonymous', 'Pseudonymous (coded) data', "Real records with identifying details replaced by codes. This is different from synthetic data, which contains no real customer records.", /\bpseudonymous\b/i, 'b'],
       [3, 'pilot', 'Pilot', "A small, time-limited trial with real users before a full roll-out.", /\bpilot\b/i, 'b'],
       [3, 'audit', 'Audit trail', "A permanent record of each warning: who did what, when, and why.", /audit (?:trail|record)s?|\baudit\b/i, 'b'],
       [3, 'replay', 'Event replay', "An event is one change, for example a missed repair visit. A replay sends a recorded event again to test the system.", /\breplay\w*/i, 'b'],
       [3, 'ingestion', 'Event time and ingestion time', "Event time is when something happened. Ingestion time is when the data reached the system. Ingestion time can be later.", /\bingest\w*/i, 'b'],
-      [3, 'duplicate', 'Duplicate event', "The same event received twice. The system must create one case, not two.", /\bduplicat\w*|\bdeduplicat\w*/i, 'b'],
+      [3, 'duplicate', 'Duplicate event or case write', "The same logical event or case key appears again. Event deduplication and unique review-case keys are separate controls. A unique case does not promise exactly-once delivery or notifications.", /\bduplicat\w*|\bdeduplicat\w*/i, 'b'],
+      [3, 'review-case', 'Internal review case', "An internal task in SharePoint for a person to inspect evidence and decide the next action. It is separate from source servicing cases in the servicing history. Creation does not authorise customer contact.", /(?:internal )?review cases?|retention cases?/i, 'b'],
+      [3, 'model-release', 'Model release', "The registered model versions selected for scoring. Each run fixes those versions before it starts. Scoring assigns segments and calculates scores. It does not retrain the models.", /model releases?/i, 'b'],
       [3, 'quarantine', 'Quarantine', "Hold doubtful records aside for a check, instead of using them.", /\bquarantine\b/i, 'b'],
       [3, 'stale', 'Stale', "Out of date. A stale feed or score did not refresh on time.", /\bstale\b/i, 'b'],
       [3, 'grain', 'Grain', "What one row in a table stands for, for example one payment.", /\bgrain\b/i, 'b'],
       [3, 'data-contract', 'Data contract', "An agreed description of a dataset: its fields, their meaning, and the checks on them.", /data contracts?|event contract/i, 'b'],
       [3, 'latency', 'Latency', "The delay between an event and the result that people see.", /\blatency\b/i, 'b'],
       [3, 'least-privilege', 'Least privilege', "Each person gets only the access that their job needs.", /least[- ]privilege/i, 'b'],
-      [3, 'counterexample', 'Counterexample', "A customer who looks risky but is fine. It tests that the system does not raise false alarms.", /\bcounterexamples?\b/i, 'b'],
+      [3, 'counterexample', 'Counterexample', "An example that challenges a proposed rule. It checks whether an apparently risky signal has another explanation. It does not prove future customer behaviour.", /\bcounterexamples?\b/i, 'b'],
       [3, 'governed', 'Governed data', "Data with an owner, agreed definitions, and access rules.", /\bgoverned\b/i, 'b'],
       [3, 'model-card', 'Model card', "A short document that states what a model does, its data, its test results, and its limits.", /model cards?/i, 'b'],
       [4, 'fabric', 'Microsoft Fabric', "Microsoft's data platform. It stores data, runs analysis and ML, and shows reports in one place.", /\bFabric\b/, 'b'],
@@ -2102,7 +2521,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       [4, 'power-bi', 'Power BI', "Microsoft's report and dashboard tool.", /power bi/i, 'b'],
       [4, 'semantic-model', 'Semantic model', "The Power BI layer that defines tables, measures and relationships for reports.", /semantic models?/i, 'b'],
       [4, 'direct-lake', 'Direct Lake', "A Power BI mode that reads Lakehouse tables directly. The report does not import a copy of the data.", /direct lake/i, 'b'],
-      [4, 'purview', 'Purview sensitivity label', "A Microsoft Purview tag, for example Confidential. It marks personal data and can restrict who opens or exports it.", /\bPurview\b|sensitivity labels?/i, 'b'],
+      [4, 'purview', 'Purview sensitivity label', "A Microsoft Purview information-classification tag, for example Confidential. It can restrict who opens or exports data. It is not a model's observed outcome label.", /\bPurview(?: sensitivity labels?)?\b|sensitivity labels?/i, 'b'],
       [4, 'power-automate', 'Power Automate', "A Microsoft tool that runs simple automatic workflows, for example to create a task.", /power automate/i, 'b'],
       [4, 'sharepoint', 'SharePoint list', "A simple shared table in Microsoft 365. Here, it holds the review cases.", /sharepoint(?: list)?/i, 'b'],
       [4, 'tenant', 'Tenant', "An organisation's own Microsoft 365 and Fabric environment.", /\btenant\b/i, 'b'],
@@ -2151,7 +2570,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       page.querySelector('.bc-lead').insertAdjacentHTML('afterend', `<p class="bc-glossary-hint">Words with a dotted underline have a plain-English meaning. Hover over a word to read it, or select it to open the <a class="link glossary-jump" href="#${key}-glossary">glossary</a>.</p>`);
       const found = linkGlossaryTerms(page, key, terms);
       const listed = terms.filter(term => found.has(term.id));
-      page.querySelector(`[data-spec-list="${key}"]`).insertAdjacentHTML('beforeend', `<details class="disclosure glossary" id="${key}-glossary"><summary>Glossary: plain-English meanings of ${listed.length} terms</summary><div><p class="bc-glossary-hint">Words with an underscore, such as deal_end_at, are data field names. Each name describes the data in that field.</p>${glossaryGroups.map((group, index) => {
+      page.querySelector(`[data-spec-list="${key}"]`).insertAdjacentHTML('beforeend', `<details class="disclosure glossary" id="${key}-glossary"><summary>Glossary: plain-English meanings of ${listed.length} terms</summary><div><p class="bc-glossary-hint">Words with an underscore, such as deal_end_at, are technical field names. The data-contract tables explain their meaning. In HomeBridge, application_id identifies the product-transfer request.</p>${glossaryGroups.map((group, index) => {
         const items = listed.filter(term => term.group === index).sort((a, b) => a.term.localeCompare(b.term));
         return items.length ? `<h5>${esc(group)}</h5><dl class="glossary-list">${items.map(term => `<div class="glossary-entry" id="${key}-term-${term.id}" tabindex="-1"><dt>${esc(term.term)}</dt><dd>${esc(term.meaning)}</dd></div>`).join('')}</dl>` : '';
       }).join('')}</div></details>`);
@@ -2159,7 +2578,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     const glossaryBack = document.createElement('button');
     glossaryBack.type = 'button';
     glossaryBack.className = 'btn btn-sm btn-outline glossary-back';
-    glossaryBack.textContent = 'Back to where you were';
+    glossaryBack.textContent = 'Return to the original text';
     let glossaryReturn = null;
     glossaryBack.addEventListener('click', () => {
       glossaryBack.closest('.glossary-entry')?.classList.remove('is-active');
@@ -2197,21 +2616,21 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     // The page renders the text as HTML. The copy button copies the plain text.
     const formFields = [
       { label: 'Idea name', hint: 'Name of the idea', required: true,
-        text: 'HomeBridge Renewal Early Warning: flags borrowers likely to leave 90 days before their fixed deal ends' },
+        text: 'HomeBridge Renewal Early Warning: scores external refinancing risk at the checkpoint, 90 days before the fixed-rate deal ends' },
       { label: 'Target Industry', hint: 'Industry this solution serves',
         text: 'Financial Services (retail mortgages)' },
       { label: 'Business Usecase', hint: 'Business use case this architecture addresses', required: true,
-        text: 'At the end of a fixed-rate deal, many borrowers move their mortgage to a new lender. The new lender then repays the old loan in full. Usually, the old lender learns that the borrower left only at that time. Then it is too late to keep the borrower. Warning signs occur earlier. For example, the renewal application shows errors or stops at one step. Or the borrower contacts the service team many times. These signs are in separate systems. Nobody sees them together, so nobody acts on them. HomeBridge is a fictional lender.' },
+        text: 'At the end of a fixed-rate deal, many borrowers move their mortgage to a new lender. The new lender then repays the old loan in full. Usually, the old lender learns that the borrower left only at that time. Then it is too late to keep the borrower. Warning signs occur earlier. For example, the HomeBridge renewal portal reports errors, a product-transfer request stops at one step, or the borrower repeatedly contacts the servicing team. A product-transfer request asks the existing lender for a new deal. These signs are in separate systems. Nobody sees them together, so nobody acts on them. HomeBridge is a fictional lender.' },
       { label: 'Business Impact', hint: 'How the architecture solves the problem', required: true,
         text: [
-          '- Microsoft Fabric joins payment, renewal-application and service-contact records into one cleaned table. This table has one row for each mortgage.',
-          '- Eventstream and Eventhouse receive live events from the renewal application, such as a submitted form or an error.',
+          '- Microsoft Fabric joins payment, product-transfer request and servicing-contact records into a cleaned mortgage account view. It shows one current row per mortgage.',
+          '- Eventstream and Eventhouse receive live events from the renewal portal, such as request submissions or software errors.',
           '- KQL queries change these events into behavioural signals. A behavioural signal measures what the borrower does over time.',
-          '- Fabric notebooks train a churn model. The model gives each mortgage a score. The score is the probability that the borrower moves to another lender. MLflow registers the model.',
-          '- A pipeline scores each mortgage on a fixed schedule. Each score lists the factors that increased or decreased it most.',
-          '- The checkpoint is 90 days before the fixed-rate deal ends. At the checkpoint, Activator compares each score with a set limit. If a score is above the limit, Power Automate creates a review case for a servicing adviser.',
+          '- Fabric notebooks train a refinancing risk model. At the checkpoint, the score estimates the probability of external refinancing through 30 days after deal end. This is not mortgage default risk. MLflow registers the model.',
+          '- A pipeline scores each mortgage on a fixed schedule. Each score lists the model inputs that increased or decreased it most.',
+          '- The checkpoint is 90 days before the fixed-rate deal ends. At the checkpoint, Activator compares each score with the commercial risk limit. An above-limit score becomes a review candidate. Power Automate creates an internal review case only after current routing and review-eligibility checks.',
           '- The review case shows the score, the main factors and the records behind them.',
-          '- The adviser can then fix the application problem or offer a renewal review before the borrower leaves.',
+          '- The adviser can arrange technical investigation of a verified portal fault or review renewal needs before the borrower leaves.',
           '- A Power BI dashboard shows high-risk mortgages and groups of borrowers with similar behaviour.',
           '- Some borrowers have difficulty with payments. These borrowers go to trained support staff first. The churn score does not change this.',
           '- The 90-day lead time is a proposed target. It is not a measured result.'
@@ -2219,25 +2638,33 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       { label: 'Architecture / Tech Specification', hint: 'Services, pipelines, integrations, and boundaries', required: true, wide: true,
         text: [
           '# Components (Microsoft Fabric)',
-          '- Data Factory pipelines load files from the payment, application and service systems into Lakehouse tables. For the build, these files contain synthetic data.',
-          '- The pipelines then clean the data and write Gold Delta tables. Gold is the final, cleaned data layer.',
-          '- Notebooks calculate each model input only from data that existed at the checkpoint. This stops later information from leaking into the model.',
-          '- Notebooks train two models: logistic regression and a small decision tree. A set of simple fixed rules gives a comparison. MLflow registers the better model.',
-          '- Notebooks put borrowers into two to five groups (segments) with similar behaviour.',
+          '- Data Factory pipelines load mortgage-payment, product-transfer request and servicing files into Lakehouse tables. For the build, these files contain synthetic data.',
+          '- Validation notebooks clean the data and write dated history tables. Gold is the final, checked output layer.',
+          '- Each scoring run fixes a cutoff time. Model inputs exclude records that occur or arrive after that cutoff. The checkpoint cutoff is 90 days before deal end.',
+          '- Notebooks train two candidate refinancing models: logistic regression and a small decision tree. Simple rules give a comparison. MLflow registers the selected model.',
+          '- A separate clustering model groups mortgage accounts into two to five behavioural segments. Scheduled runs assign accounts to existing clusters without retraining them.',
           '- A history table records the group of each mortgage at each scoring run. Auditors can use this table to see changes over time.',
-          '- Eventstream sends live renewal-application events to Eventhouse. KQL queries calculate three signals:',
-          '  - application attempts that end in an error in the last 30 days, compared with the last 90 days',
-          '  - days since the application last moved to its next step',
+          '- Eventstream sends live renewal-portal events to Eventhouse. KQL queries calculate three signals:',
+          '  - failed product-transfer request attempts in the last 30 days, compared with the last 90 days',
+          '  - days since a product-transfer request last moved to its next step',
           '  - whether contacts with the service team increase or decrease each month',
-          '- A pipeline runs every 15 minutes. It scores each mortgage and assigns its group.',
-          '- The pipeline writes the scores and SHAP values to Gold tables. SHAP values show how much each factor changed the score.',
-          '- Power BI reads the Gold tables in Direct Lake mode. Direct Lake reads the tables where they are, without a copy.',
-          '- Activator starts a Power Automate flow. The flow adds one review case for each high-risk mortgage to a SharePoint list.',
+          '- A KQL copy activity sends versioned account context and completed score summaries from Lakehouse to Eventhouse.',
+          '- KQL joins that context with accepted events for the live account view. It shows feed age and score age separately.',
+          '- A scoring pipeline copies cutoff-filtered KQL journey results into Lakehouse staging tables.',
+          '- Every 15 minutes, notebooks combine staged results with dated history, freeze inputs, score mortgages and assign their groups. This interval is proposed.',
+          '- Notebooks write scores, segment history, evidence and feature contributions to Gold tables. Tree models use SHAP values. Logistic regression uses coefficient contributions.',
+          '- A completed-run marker gates reports and risk-event publication. A stored risk-event outbox keeps the same risk_updated event ID on retry.',
+          '- Power BI reads completed Gold outputs in Direct Lake mode. Its refresh is separate from the KQL live view.',
+          '- Activator invokes Power Automate for eligible refinancing risk events. An independent service rule handles payment-support needs and verified portal faults without a risk threshold.',
+          '- The flow rechecks payment-support status, evidence, review owner and routing policy. SharePoint enforces a unique mortgage_id + cycle_id + action_family review-case key.',
+          '- Duplicate-key responses read the existing case. Other failures remain visible and retry without changing the key.',
+          '- Four detailed diagrams show components, data relationships, the scoring sequence and payment-support-first review-case routing.',
           '',
           '# Timing targets (proposed, not measured)',
           '- 60 seconds from a live event to its display in the mortgage view.',
           '- 15 minutes between scoring runs.',
           '- 5 minutes from a successful scoring run to the alert.',
+          '- Live-view presentation, context-copy frequency and report refresh settings still need confirmation.',
           '',
           '# Tenancy and boundaries',
           '- The build uses one Fabric workspace in the team\'s tenant.',
@@ -2245,7 +2672,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           '- Each user gets only the access that their role needs.',
           '- Purview sensitivity labels apply to each table, report and file that holds personal data.',
           '- The system does not make lending, rate or credit decisions. It does not recommend products.',
-          '- The system does not send messages to customers. An adviser approves every action.'
+          '- The prototype creates internal review cases, not customer messages. A human approves every customer-facing action.'
         ].join('\n') }
     ];
     const plainText = text => text.split('\n').map(line => line.startsWith('# ') ? line.slice(2) : line).join('\n');
@@ -2294,9 +2721,15 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     const archHtml = architectureFigure('mortgage');
     document.querySelector('[data-sub-arch]').innerHTML = (archHtml.slice(0, archHtml.indexOf('</figure>')) + '</figure>').replaceAll('mortgage-arch', 'sub-arch').replace('id="mortgage-architecture-figure"', 'id="sub-architecture-figure"');
     document.querySelector('[data-sub-evidence]').innerHTML = evidenceFigures('mortgage').replaceAll('mortgage-ev', 'sub-ev');
+    document.querySelector('[data-sub-details]').innerHTML = architectureDetails.map(view => detailFigure(view, 'sub-detail')).join('');
     const exportFigures = () => {
       const evidence = document.querySelectorAll('[data-sub-evidence] figure');
-      return { arch: [document.getElementById('sub-architecture-figure'), 'homebridge-architecture'], flow: [evidence[0], 'homebridge-signals-to-action'], timeline: [evidence[1], 'homebridge-checkpoint-timeline'] };
+      return {
+        arch: [document.getElementById('sub-architecture-figure'), 'homebridge-architecture'],
+        flow: [evidence[0], 'homebridge-signals-to-action'],
+        timeline: [evidence[1], 'homebridge-checkpoint-timeline'],
+        ...Object.fromEntries(architectureDetails.map(view => [view.key, [document.getElementById(`sub-detail-${view.key}-figure`), `homebridge-architecture-${view.key}`]]))
+      };
     };
 
     // Export: inline computed light-theme styles, so the file looks the same outside this page.
@@ -2323,6 +2756,8 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         if (value && value !== 'normal') style.push(`${prop}:${value}`);
       });
       dst.setAttribute('style', style.join(';'));
+      dst.removeAttribute('fill');
+      dst.removeAttribute('stroke');
       dst.removeAttribute('class');
     };
     const inlineTree = svg => {
@@ -2348,22 +2783,25 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         const add = (tag, attrs, text) => { const el = document.createElementNS(svgNS, tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); if (text != null) el.textContent = text; out.append(el); return el; };
         let y = pad;
         add('rect', { x: 0, y: 0, width: '100%', height: '100%', fill: paper });
-        add('text', { x: pad, y: y + 18, style: `font-family:${font};font-size:20px;font-weight:650;fill:${ink}` }, figure.querySelector('.fig-title').textContent);
         const stamp = figure.querySelector('.stamp');
+        const stampWidth = stamp ? stamp.textContent.length * 8 + 24 : 0;
+        const titleRows = wrapWords(figure.querySelector('.fig-title').textContent, Math.floor((W - stampWidth) / 11));
+        titleRows.forEach((line, i) => add('text', { x: pad, y: y + 18 + i * 26, style: `font-family:${font};font-size:20px;font-weight:650;fill:${ink}` }, line));
         if (stamp) add('text', { x: W + pad, y: y + 16, style: `font-family:ui-monospace,Consolas,monospace;font-size:12px;font-weight:600;letter-spacing:1px;text-anchor:end;fill:${toRgb(getComputedStyle(stamp).color).rgb}` }, stamp.textContent.toUpperCase());
-        y += 44;
+        y += Math.max(44, titleRows.length * 26 + 18);
         const body = inlineTree(main);
         ['role', 'aria-labelledby', 'class'].forEach(a => body.removeAttribute(a));
         Object.entries({ x: pad, y, width: vb.width, height: vb.height }).forEach(([k, v]) => body.setAttribute(k, v));
         out.append(body);
         y += vb.height + 16;
-        const legend = [...figure.querySelectorAll('.legend li')];
+        const ownShapes = figure.querySelector('.legend[aria-label="Shape legend"]');
+        const legend = [...(ownShapes ? [] : document.querySelectorAll('[data-arch="mortgage"] .legend[aria-label="Shape legend"] li')), ...figure.querySelectorAll('.legend li')];
         legend.forEach((li, i) => {
           const col = i % 3, row = Math.floor(i / 3), x = pad + col * Math.floor(W / 3);
           const icon = inlineTree(li.querySelector('svg'));
           Object.entries({ x, y: y + row * 28, width: 30, height: 20 }).forEach(([k, v]) => icon.setAttribute(k, v));
           out.append(icon);
-          add('text', { x: x + 38, y: y + row * 28 + 15, style: `font-family:${font};font-size:13px;fill:${ink}` }, li.textContent);
+          add('text', { x: x + 38, y: y + row * 28 + 15, style: `font-family:${font};font-size:13px;fill:${ink}` }, [...li.childNodes].filter(n => n.localName !== 'svg').map(n => n.textContent).join(''));
         });
         if (legend.length) y += Math.ceil(legend.length / 3) * 28 + 8;
         const caption = figure.querySelector('figcaption');
@@ -2382,17 +2820,39 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     };
-    document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', () => {
-      const [figure, name] = exportFigures()[button.dataset.export];
-      const { markup, width, height } = buildExportSvg(figure);
-      if (button.dataset.format === 'svg') { saveBlob(new Blob([markup], { type: 'image/svg+xml' }), name + '.svg'); return; }
-      const img = new Image();
-      img.onload = () => {
-        const scale = 2, canvas = Object.assign(document.createElement('canvas'), { width: width * scale, height: height * scale });
-        const ctx = canvas.getContext('2d'); ctx.scale(scale, scale); ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => saveBlob(blob, name + '.png'), 'image/png');
-      };
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+    document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', async () => {
+      const status = button.closest('main').querySelector('[data-export-status]');
+      status.hidden = true;
+      button.disabled = true;
+      try {
+        const [figure, name] = exportFigures()[button.dataset.export];
+        const { markup, width, height } = buildExportSvg(figure);
+        if (button.dataset.format === 'svg') {
+          saveBlob(new Blob([markup], { type: 'image/svg+xml' }), name + '.svg');
+          return;
+        }
+        await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('The diagram image could not load.'));
+          img.onload = () => {
+            try {
+              const scale = 2, canvas = Object.assign(document.createElement('canvas'), { width: width * scale, height: height * scale });
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error('The image canvas is unavailable.');
+              ctx.scale(scale, scale); ctx.drawImage(img, 0, 0, width, height);
+              canvas.toBlob(blob => {
+                if (!blob) { reject(new Error('The PNG file could not be created.')); return; }
+                saveBlob(blob, name + '.png'); resolve();
+              }, 'image/png');
+            } catch (error) { reject(error); }
+          };
+          img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+        });
+      } catch (error) {
+        console.error('Diagram export failed.', error);
+        status.textContent = 'Diagram export failed. Try the SVG download or print the blueprint.';
+        status.hidden = false;
+      } finally { button.disabled = false; }
     }));
     document.querySelector('[data-export-csv]').addEventListener('click', () => {
       const cell = v => `"${v.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`;
