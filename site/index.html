@@ -13,6 +13,7 @@ Signature figures: main page = "today vs with the engine" time line. Scenario pa
 The architecture appendix uses engineering sheets: components, data relationships, scoring sequence and case routing.
 The high-level figure remains the entry point. Detailed views name proposed interfaces, keys and failure paths.
 Submission pack = the form-field grid, followed by the numbered upload list.
+Each "Why this form" note is a native disclosure, collapsed by default.
 Shape legend (defined once, on each blueprint architecture): cylinder = stored data, pipe = event stream,
 diamond = gate, pill = person, rectangle = component, dashed = proposed or not joined.
 Honesty stamps: Illustrative, Proposed target, Hypothesis · not measured, Evidence gap.
@@ -56,6 +57,9 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1.5rem; margin-bottom: 1.25rem; }
     .section-head p { flex-basis: 100%; }
     .why { font-size: .85rem; color: var(--soft); margin-top: .9rem; max-width: 82ch; }
+    .why > summary { cursor: pointer; color: var(--color-base-content); font-weight: 600; }
+    .why > summary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .why > p { margin-top: .4rem; }
     .why b { color: var(--color-base-content); font-weight: 600; }
     .stamp { display: inline-flex; align-items: center; font: 600 .66rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: .38rem .55rem; border: 1px dashed currentColor; border-radius: .25rem; white-space: nowrap; }
     .stamp-illustrative { color: var(--soft); }
@@ -441,7 +445,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         </div>
         <figcaption>Here, deal end means the end of the fixed interest-rate period, not repayment of the whole mortgage. Churn means confirmed refinancing with another lender. The 90-day warning is a proposed target, not a measured result. The team must test it against actual refinancing dates.</figcaption>
       </figure>
-      <p class="why"><b>Why this form:</b> a time line shows the gap between finding the loss and having time to act. <b>Trade-off:</b> it hides the system design. Each blueprint page shows the architecture.</p>
+      <details class="why"><summary>Why this form</summary><p>A time line shows the gap between finding the loss and having time to act. <b>Trade-off:</b> it hides the system design. Each blueprint page shows the architecture.</p></details>
     </section>
 
     <section class="band" aria-labelledby="req-title">
@@ -885,7 +889,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
       </div>
       <div class="form-grid" data-form-fields></div>
       <p class="sr-only" aria-live="polite" data-copy-status></p>
-      <p class="why"><b>Why this form:</b> each box sits where its field sits on the organiser's form, so you can copy each answer to the matching field. <b>Trade-off:</b> the answers are short. The blueprint page gives the full detail.</p>
+      <details class="why"><summary>Why this form</summary><p>Each box sits where its field sits on the organiser's form, so you can copy each answer to the matching field. <b>Trade-off:</b> the answers are short. The blueprint page gives the full detail.</p></details>
     </section>
 
     <section class="band" aria-labelledby="sub-docs-title">
@@ -1952,7 +1956,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         <g class="z-act">${pill(916, 380, 170, 40, c.owner)}</g>
         <g class="z-support">${diamond(560, 502, 74, 40, c.gate[0], c.gate[1])}${pill(700, 486, 200, 40, c.support)}${t(916, 511, 'Never reads the churn score', 't-small')}</g>
       </svg>`;
-      return `<figure class="fig" id="${key}-architecture-figure">${figHead('High-level architecture: live, scoring and support paths', 'proposed', 'Proposed design')}<p class="scroll-hint">Scroll sideways to see the whole figure.</p><div class="fig-scroll">${svg}</div>${shapeLegend}${hldKey}<figcaption>${esc(c.caption)}</figcaption></figure><p class="why"><b>Why this form:</b> lanes keep payment support independent of commercial scoring. <b>Trade-off:</b> this overview hides storage and interface detail. The detailed architecture expands those boundaries.</p>`;
+      return `<figure class="fig" id="${key}-architecture-figure">${figHead('High-level architecture: live, scoring and support paths', 'proposed', 'Proposed design')}<p class="scroll-hint">Scroll sideways to see the whole figure.</p><div class="fig-scroll">${svg}</div>${shapeLegend}${hldKey}<figcaption>${esc(c.caption)}</figcaption></figure><details class="why"><summary>Why this form</summary><p>Lanes keep payment support independent of commercial scoring. <b>Trade-off:</b> this overview hides storage and interface detail. The detailed architecture expands those boundaries.</p></details>`;
     };
 
     // Detail nodes: service = card with a header strip, store = cylinder, stream = tube. ic adds a 30px product icon beside the title.
@@ -2205,7 +2209,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
     };
     document.querySelector('[data-architecture-details]').innerHTML = architectureDetails.map(view => `<section class="detail-view">
       ${detailFigure(view, 'mortgage-detail', true)}
-      <p class="why"><b>Why this form:</b> ${esc(view.why)}</p>
+      <details class="why"><summary>Why this form</summary><p>${esc(view.why)}</p></details>
       <ul class="detail-notes">${view.notes.map(note => `<li>${esc(note)}</li>`).join('')}</ul>
     </section>`).join('');
 
