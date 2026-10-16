@@ -705,7 +705,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <tr><td>Mortgage: one loan account and fixed-rate deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Keep dated product terms. Deal end is not the end of the loan. Link joint borrowers through an approved account mapping.</td></tr>
             <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Keep reversals. A failed collection is not proof of default.</td></tr>
             <tr><td>Product-transfer request: one request state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>application_id identifies the product-transfer request. Separate request rejection or abandonment from a verified portal fault.</td></tr>
-            <tr><td>Source servicing case: one recorded state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>This is source history, not a new SharePoint review case. Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
+            <tr><td>Source servicing case: one recorded state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>This is source history, not a new SharePoint review case. Reconstruct each complaint's status at the cutoff. Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
             <tr><td>Feature snapshot: one mortgage, deal cycle and cutoff time. Observed outcome: one mortgage and deal cycle, recorded separately.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep observed outcomes separate from prediction inputs. Account closure alone does not prove external refinancing.</td></tr>
             <tr><td>Segment membership: one account, cycle and scoring run.</td><td>mortgage_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite a row. An auditor can see each account's segment on any past date.</td></tr>
           </tbody></table>
@@ -739,7 +739,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <li><span class="step-tag">Step 6</span><span>KQL journey queries in Eventhouse find three patterns: <a class="step-where" href="#mortgage-detail-components-figure">See components</a>
               <ul class="list-disc">
                 <li>each product-transfer request's stages and portal errors in time order</li>
-                <li>days that a request remains at one stage</li>
+                <li>days that a request remains at one stage, for example while documents are outstanding or an offer is in review</li>
                 <li>retries after a renewal-portal software error.</li>
               </ul></span>
             </li>
@@ -772,11 +772,12 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           </ul>
           <h4>Features</h4>
           <ul class="list-disc">
-            <li>Use product-transfer request completion, renewal-portal errors, complaint age and servicing-contact history.</li>
+            <li>Use product-transfer request completion, renewal-portal errors, complaint age, complaint resolution status and servicing-contact history.</li>
+            <li>Complaint resolution status is resolved or unresolved at the checkpoint. A resolution recorded after the cutoff is not an input.</li>
             <li>Derive three behavioural signals from dated history:
               <ul class="list-disc">
                 <li>failed product-transfer request attempts in the last 30 days compared with the last 90 days</li>
-                <li>days that a request remains at one stage</li>
+                <li>days that a request remains at one stage, for example while documents are outstanding or an offer is in review</li>
                 <li>the trend in servicing contacts.</li>
               </ul>
             </li>
@@ -2646,8 +2647,9 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           '- A history table records the group of each mortgage at each scoring run. Auditors can use this table to see changes over time.',
           '- Eventstream sends live renewal-portal events to Eventhouse. KQL queries calculate three signals:',
           '  - failed product-transfer request attempts in the last 30 days, compared with the last 90 days',
-          '  - days since a product-transfer request last moved to its next step',
+          '  - days since a product-transfer request last moved to its next step, for example while documents are outstanding or an offer is in review',
           '  - whether contacts with the service team increase or decrease each month',
+          '- Notebooks also use complaint age and whether each complaint is resolved at the checkpoint. A later resolution is not a model input.',
           '- A KQL copy activity sends versioned account context and completed score summaries from Lakehouse to Eventhouse.',
           '- KQL joins that context with accepted events for the live account view. It shows feed age and score age separately.',
           '- A scoring pipeline copies cutoff-filtered KQL journey results into Lakehouse staging tables.',
