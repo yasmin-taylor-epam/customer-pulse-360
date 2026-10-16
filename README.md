@@ -2,23 +2,23 @@
 
 **Customer Pulse 360 | Hackathon Challenge 4**
 
-This repository holds a proposal for a real-time customer intelligence system on Microsoft Fabric. It joins customer history with live activity, groups accounts, scores churn risk, and sends retention alerts for human review.
+Mortgage Renewal Early Warning is a proposed customer intelligence system on Microsoft Fabric. It joins customer history with live activity, groups accounts, scores churn risk, and sends retention alerts for human review.
 
-**Status:** Proposal. The team has not selected a scenario.
+**Status:** Proposal. The team chose Mortgage Renewal Early Warning as the scenario.
 
 ## Review the proposal
 
-- [Open the scenario page](site/index.html) for the challenge, candidate scenarios, and design.
+- [Open the scenario page](site/index.html) for the challenge, chosen scenario, and design.
 - [Open the hosted review copy](https://yasmin-taylor-epam.github.io/customer-pulse-360/) on GitHub Pages. The page is public.
 
 The scenario page is the current source for the project. This repository does not contain a deployed Customer 360 service or production churn model.
 
-## Candidate scenarios
+## Chosen scenario and archived alternative
 
-Both companies are fictional. The team is reviewing two options:
+The chosen scenario uses a fictional mortgage provider, **HomeBridge**, to illustrate the idea.
 
 - **HomeBridge** is a mortgage lender. The proposal identifies external refinancing risk before a fixed-rate deal ends. It routes payment difficulties to support before any commercial retention action.
-- **HavenCover** is a home insurer. The proposal identifies non-renewal risk before a policy expires. It investigates claim and repair problems before any commercial action.
+- **Archived alternative:** HavenCover is a fictional home insurer. The proposal identifies non-renewal risk before a policy expires. It investigates claim and repair problems before any commercial action.
 
 ## Shared challenge
 
