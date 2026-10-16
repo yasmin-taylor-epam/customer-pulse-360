@@ -655,7 +655,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <div><dt>Mortgage account</dt><dd>One loan account and fixed-rate deal cycle.</dd></div>
             <div><dt>Payment</dt><dd>One posted ledger change.</dd></div>
             <div><dt>Transfer request</dt><dd>One product-transfer request state change.</dd></div>
-            <div><dt>Servicing history</dt><dd>One source servicing case state change. This is separate from a new review case.</dd></div>
+            <div><dt>Servicing history</dt><dd>Source case state changes and dated contacts linked to each case. These are separate from a new review case.</dd></div>
             <div><dt>Feature snapshot</dt><dd>One mortgage, deal cycle and cutoff time. The observed refinancing outcome stays separate.</dd></div>
             <div><dt>Segment assignment</dt><dd>One mortgage account, deal cycle and scoring run.</dd></div>
           </dl>
@@ -673,6 +673,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <tr><td class="id">T04</td><td>A payment is reversed.</td><td>Review and rescoring start. The audit record stays.</td></tr>
             <tr><td class="id">T05</td><td>A scoring run fails.</td><td>The last score is marked stale. The live view still updates. No new <code>risk_updated</code> event fires. Service alerts remain independent.</td></tr>
             <tr><td class="id">T06</td><td>A review-case write fails.</td><td>The write retries with the same key. No duplicate review case appears.</td></tr>
+            <tr><td class="id">T07</td><td>Three contacts concern one unresolved problem. Three other contacts concern separate enquiries.</td><td>The history distinguishes repeat contacts about one case from contacts about separate cases. A case state change alone does not count as a contact.</td></tr>
           </tbody>
         </table>
       </div>
@@ -709,15 +710,18 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
             <tr><td>Mortgage: one loan account and fixed-rate deal cycle.</td><td>mortgage_id, cycle_id, deal_end_at, balance, current_payment, product_type, owner_id.</td><td>Keep dated product terms. Deal end is not the end of the loan. Link joint borrowers through an approved account mapping.</td></tr>
             <tr><td>Payment: one posted ledger change.</td><td>entry_id, mortgage_id, due_at, posted_at, ingested_at, amount_due, amount_received, reversal_of.</td><td>Keep reversals. A failed collection is not proof of default.</td></tr>
             <tr><td>Product-transfer request: one request state change.</td><td>event_id, application_id, mortgage_id, occurred_at, ingested_at, stage, error_code, status.</td><td>application_id identifies the product-transfer request. Separate request rejection or abandonment from a verified portal fault.</td></tr>
-            <tr><td>Source servicing case: one recorded state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>This is source history, not a new SharePoint review case. Reconstruct each complaint's status at the cutoff. Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
+            <tr><td>Source servicing case: one recorded state change.</td><td>case_id, mortgage_id, changed_at, recorded_at, category, status, owner_id, support_route.</td><td>Categories include general enquiries, complaints and billing enquiries. This is source history, not a new SharePoint review case. Reconstruct each case's resolved or unresolved status at the cutoff. Keep sensitive notes out of features. Show only routing information to authorised advisers.</td></tr>
+            <tr><td>Servicing contact: one customer contact linked to a source case.</td><td>contact_id, case_id, mortgage_id, occurred_at, ingested_at.</td><td>Link each contact to its case and mortgage. Keep the contact date. Count each contact_id once, not each case state change. Both timestamps must be at or before the cutoff for model inputs. Quarantine unknown or conflicting case links.</td></tr>
             <tr><td>Feature snapshot: one mortgage, deal cycle and cutoff time. Observed outcome: one mortgage and deal cycle, recorded separately.</td><td>snapshot_id, cutoff_at, feature_version, source_watermark, outcome_type, outcome_at, outcome_observed_at.</td><td>Keep observed outcomes separate from prediction inputs. Account closure alone does not prove external refinancing.</td></tr>
             <tr><td>Segment membership: one account, cycle and scoring run.</td><td>mortgage_id, cycle_id, run_id, segment_id, cluster_model_version, assigned_at, valid_from, valid_to.</td><td>Append one row per scheduled run. Never overwrite a row. An auditor can see each account's segment on any past date.</td></tr>
           </tbody></table>
           <h4>Account view</h4>
           <p>The mortgage view shows fixed-rate deal end, current terms, request status, portal faults, segment, refinancing risk score age and source evidence. It also shows the assigned review owner and payment-support priority.</p>
+          <p>Support history shows the enquiry type, contacts per case and whether each problem is resolved or unresolved.</p>
           <h4>Synthetic data</h4>
           <ul class="list-disc">
             <li>Include complete outcomes, reversals, delayed feeds and successful transfers.</li>
+            <li>Include three contacts about one unresolved problem and three contacts about separate enquiries.</li>
             <li>Generate model outcome labels from separate hidden factors, not from the alert rule.</li>
             <li>Label any future payment figure as an illustration. It is not an offer or an affordability decision.</li>
           </ul>
@@ -776,13 +780,13 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           </ul>
           <h4>Features</h4>
           <ul class="list-disc">
-            <li>Use product-transfer request completion, renewal-portal errors, complaint age, complaint resolution status and servicing-contact history.</li>
-            <li>Complaint resolution status is resolved or unresolved at the checkpoint. A resolution recorded after the cutoff is not an input.</li>
+            <li>Use product-transfer request completion, renewal-portal errors, complaint age, case category, contacts per case and case resolution status.</li>
+            <li>Support case status is resolved or unresolved at the checkpoint. A resolution recorded after the cutoff is not an input.</li>
             <li>Derive three behavioural signals from dated history:
               <ul class="list-disc">
                 <li>failed product-transfer request attempts in the last 30 days compared with the last 90 days</li>
                 <li>days that a request remains at one stage, for example while documents are outstanding or an offer is in review</li>
-                <li>the trend in servicing contacts.</li>
+                <li>support history: enquiry type, contacts per case, repeat contacts about unresolved problems and monthly contact trends.</li>
               </ul>
             </li>
             <li>Exclude sensitive support details, protected characteristics, names and fine-grained location. Check the remaining features for unjustified proxies.</li>
@@ -2141,7 +2145,8 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           'segment_membership appends one row per account, cycle and run. A model release fixes cluster meaning until the next release.',
           'risk_outbox records event_id, payload, run_id and publication status. A retry reuses the original event_id.',
           'case_key is mortgage_id + cycle_id + action_family. SharePoint enforces uniqueness. The writer reads an existing review case after a duplicate-key response.',
-          'Source servicing case_id identifies an earlier service record. SharePoint review cases are new internal tasks. Service-only tasks need no scoring reference.'
+          'Source servicing case_id identifies an earlier service record. SharePoint review cases are new internal tasks. Service-only tasks need no scoring reference.',
+          'Each servicing contact has a contact_id and links to a source case_id. Count contacts separately from case state changes.'
         ]
       },
       {
@@ -2638,6 +2643,7 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
         text: [
           '# 1. Historical path',
           '- Data Factory pipelines load synthetic mortgage, payment, product-transfer request and servicing files into Lakehouse tables.',
+          '- Servicing files include case categories, status and dated contacts linked to each case. Categories include general enquiries, complaints and billing enquiries.',
           '- Validation notebooks clean the data and write dated history to Gold tables. Gold is the final, checked layer.',
           '- Each scoring run fixes a cutoff time. Model inputs exclude records that occur or arrive after it. The checkpoint cutoff is 90 days before deal end.',
           '',
@@ -2646,12 +2652,12 @@ Archived scenarios (insurance, software, broadband, retail) stay in an inert <te
           '- KQL calculates three behavioural signals:',
           '  - failed product-transfer request attempts in the last 30 days, compared with the last 90 days',
           '  - days since a request last moved to its next step, for example while documents are outstanding or an offer is in review',
-          '  - whether contacts with the service team increase or decrease each month',
+          '  - support history: enquiry type, contacts per case, resolved or unresolved status, repeat contacts about unresolved problems and monthly contact trends',
           '- KQL joins live events with account history for the live mortgage view. The view shows feed age and score age separately.',
           '',
           '# 3. Scheduled scoring',
           '- Notebooks train two candidate models: logistic regression and a small decision tree. Simple rules give a comparison. MLflow registers the selected model.',
-          '- Every 15 minutes, notebooks combine the live signals with dated history, freeze the inputs and score each mortgage. Inputs include complaint age and whether each complaint is resolved at the checkpoint.',
+          '- Every 15 minutes, notebooks combine the live signals with dated history, freeze the inputs and score each mortgage. Inputs include complaint age, enquiry type, contacts per case and case resolution status at the checkpoint.',
           '- A separate clustering model assigns each mortgage to one of two to five behavioural segments. A history table keeps every assignment for audit.',
           '- Each score stores its main factors: SHAP values for the tree model, coefficient contributions for logistic regression.',
           '',
